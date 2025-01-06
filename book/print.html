@@ -194,13 +194,13 @@
  }
 </code></pre>
 <p>Just how to run this program depends on the system you are using. As a specific example, on the UNIX operating system you must create the program in a file whose name ends in ".c", such as "hello.c", then compile it with the command:</p>
-<pre><code>cc hello.c
+<pre><code class="language-c">cc hello.c
 </code></pre>
 <p>If you haven't botched anything, such as omitting a character or misspelling something, the compilation will proceed silently, and make an executable file called "a.out". If you run it by typing the command:</p>
-<pre><code>a.out 
+<pre><code class="language-c">a.out 
 </code></pre>
 <p>it will print:</p>
-<pre><code>hello, world
+<pre><code class="language-c">hello, world
 </code></pre>
 <blockquote>
 <p><strong>Note for modern workflow (MacOS)</strong><br />
@@ -230,13 +230,13 @@ While this statement is technically optional, (many compilers will interpret the
 it is smart and good discipline to add the return 0 explicitly.</p>
 </blockquote>
 <p>The statements of a function are enclosed in braces { }. The function main contains only one statement:</p>
-<pre><code> printf("hello, world\n");
+<pre><code class="language-c">printf("hello, world\n");
 </code></pre>
 <p>A function is called by naming it, followed by a parenthesized list of arguments, so this calls the function printf with the argument "hello, world\n". printf is a library function that prints output, in this case the string of characters between the quotes.</p>
 <p>A sequence of characters in double quotes, like "hello, world\n", is called a <em>character string</em> or <em>string constant</em>. For the moment our only use of character strings will be as arguments for printf and other functions.</p>
 <p>The sequence \n in the string is C notation for the <em>newline character</em>, which when printed advances the output to the left margin on the next line. If you leave out the \n (a worthwhile experiment), you will find that there is no line advance after the output is printed. You must use \n to include a newline character in the printf argument; if you try something like</p>
-<pre><code class="language-c"> printf("hello, world 
- "); 
+<pre><code class="language-c">printf("hello, world 
+"); 
 </code></pre>
 <p>the C compiler will produce an error message.<br />
 printf never supplies a newline character automatically, so several calls may be used to build up an output line in stages. Our first program could just as well have been written:</p>
@@ -253,7 +253,7 @@ int main(){
 <p><a href="Chapter1/"><strong>Exercise 1-2.</strong></a> Experiment to find out what happens when prints's argument string contains <em>\c</em>, where <em>c</em> is some character not listed above.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="variables-and-arithmetic-expressions"><a class="header" href="#variables-and-arithmetic-expressions">Variables and Arithmetic Expressions</a></h1>
 <p>The next program uses the formula <code>°C = (5 / 9) * (°F - 32)</code> to print the following table of Fahrenheit temperatures and their centigrade or Celsius equivalents:</p>
-<pre><code>1 -17
+<pre><code class="language-c">1 -17
 20 -6
 40 4
 60 15
@@ -348,7 +348,7 @@ Doing so means the rest of the line will be ignored by the compiler:</p>
 <pre><code class="language-c">printf("%3d %6d\n", fahr, celsius); 
 </code></pre>
 <p>to print the first number of each line in a field three digits wide, and the second in a field six digits wide, like this:</p>
-<pre><code>  0    -17 
+<pre><code class="language-c">  0    -17 
  20     -6 
  40      4 
  60     15 
@@ -406,6 +406,114 @@ int main()
 <p>Among others, printf also recognizes %o for octal, %x for hexadecimal, %c for character, %s for character string and %% for itself.</p>
 <p><a href="Chapter1/"><strong>Exercise 1-3.</strong></a> Modify the temperature conversion program to print a heading above the table.</p>
 <p><a href="Chapter1/"><strong>Exercise 1-4.</strong></a> Write a program to print the corresponding Celsius to Fahrenheit table.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="the-for-statement"><a class="header" href="#the-for-statement">The "For" Statement</a></h1>
+<p>There are plenty of different ways to write a program for a particular task. Let's try a variation on the temperature converter.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt; 
+/* print Fahrenheit-Celsius table */ 
+int main(){ 
+
+    int fahr; 
+    for (fahr = 0; fahr &lt;= 300; fahr = fahr + 20) 
+        printf("%3d %6.1f\n", fahr, (5.0/9.0)*(fahr-32)); 
+
+    return 0;
+}
+</code></pre>
+<p>This produces the same answers, but it certainly looks different. One major change is the elimination of most of the variables; only fahr remains, and we have made it an int. The lower and upper limits and the step size appear only as constants in the for statement, itself a new construction, and the expression that computes the Celsius temperature now appears as the third argument of printf instead of a separate assignment statement.</p>
+<p>This last change is an instance of a general rule - in any context where it is permissible to use the value of some type, you can use a more complicated expression of that type. Since the third argument of printf must be a floating-point value to match the %6.1f, any floating point expression can occur here.</p>
+<p>The for statement is a loop, a generalization of the while. If you compare it to the earlier while, its operation should be clear. Within the parentheses, there are three parts, separated by semicolons. The first part, the initialization:</p>
+<pre><code class="language-c">fahr = 0
+</code></pre>
+<p>is done once, before the loop proper is entered. The second part is the test or condition that controls the loop:</p>
+<pre><code class="language-c">fahr &lt;= 300
+</code></pre>
+<p>this condition is evaluated; if it is true, the body of the loop (here a single ptintf) is executed. Then the increment step:</p>
+<pre><code class="language-c">fahr = fahr + 20
+</code></pre>
+<p>is executed, and the condition re-evaluated. The loop terminates if the condition has become false. As with the while, the body of the loop can be a single statement or a group of statements enclosed in braces. The initialization, condition and increment can be any expressions.</p>
+<p>The choice between while and for is arbitrary, based on which seems clearer. The for is usually appropriate for loops in which the initialization and increment are single statements and logically related, since it is more compact than while and it keeps the loop control statements together in one place.</p>
+<p><a href="Chapter1/"><strong>Exercise 1-5.</strong></a> Modify the temperature conversion program to print the table in reverse order, that is, from 300 degrees to 0.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="symbolic-constants"><a class="header" href="#symbolic-constants">Symbolic Constants</a></h1>
+<p>A final observation before we leave temperature conversion forever. It's bad practice to bury "magic numbers" like 300 and 20 in a program; they convey little information to someone who might have to read the program later, and they are hard to change in a systematic way. One way to deal with magic numbers is to give them meaningful names. A "#define" line defines a <em>symbolic name or symbolic constant</em> to be a particular string of characters:</p>
+<pre><code class="language-c">#define *name replacement list*
+</code></pre>
+<p>Thereafter, any occurrence of <em>name</em> (not in quotes and not part of another name) will be replaced by the corresponding <em>replacement text</em>. The <em>name</em> has the same form as a variable name: a sequence of letters and digits that begins with a letter. The <em>replacement text</em> can be any sequence of characters; it is not limited to numbers.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+#define LOWER 0    /* lower limit of table */
+#define UPPER 300  /* upper limit */
+#define STEP 20    /* step size */
+
+/* print Fahrenheit-Celsius table */
+int main() {
+    int fahr;
+    for (fahr = LOWER; fahr &lt;= UPPER; fahr = fahr + STEP)
+        printf("%3d %6.1f\n", fahr, (5.0/9.0)*(fahr-32));
+    return 0;
+}
+</code></pre>
+<p>The quantities LOWER, UPPER and STEP are symbolic constants, not variables, so they do not appear in declarations. Symbolic constant names are conventionally written in upper case so they can be readily distinguished from lower case variable names. Notice that there is no semicolon at the end of a #define line.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="character-input-and-output"><a class="header" href="#character-input-and-output">Character Input and Output</a></h1>
+<p>We are going to consider a family of related programs for processing character data. You will find that many programs are just expanded versions of the prototypes that we discuss here.</p>
+<p>The model of input and output supported by the standard library is very simple. Text input or output, regardless of where it originates or where it goes to, is dealt with as streams of characters. A <em>text stream</em> is a sequence of characters divided into lines; each line consists of zero or more characters followed by a newline character. It is the responsibility of the library to make each input or output stream confirm this model; the C programmer using the library need not worry about how lines are represented outside the program.</p>
+<p>The standard library provides several functions for reading or writing one character at a time, of which getchar and putchar are the simplest. Each time it is called, getchar reads the <em>next input character</em> from a text stream and returns that as its value. That is, after</p>
+<pre><code class="language-c">c = getchar();
+</code></pre>
+<p>the variable c contains the next character of input. The characters normally come from the keyboard; input from files is discussed in <a href="Chapter1/">Chapter 7</a>.</p>
+<p>The function putchar prints a character each time it is called:</p>
+<pre><code class="language-c">putchar(c);
+</code></pre>
+<p>prints the contents of the integer variable c as a character, usually on the screen. Calls to putchar and printf may be interleaved; the output will appear in the order in which the calls are made.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="file-copying"><a class="header" href="#file-copying">File Copying</a></h1>
+<p>Given getchar and putchar, you can write a surprising amount of useful code without knowing anything more about input and output. The simplest example is a program that copies its input to its output one character at a time:</p>
+<pre><code>read a character
+while (charater is not end-of-file indicator) 
+output the character just read 
+read a character
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br />
+The short bit written above is whats called "pseudocode".<br />
+It doesn't adhere to the specific syntax of a programming language, yet allows you to sketch out the general flow and needs of your program. It's a powerful tool to writing better code.</p>
+</blockquote>
+<p>Converting this into C gives:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt; 
+/* copy input to output; 1st version */ 
+int main() { 
+    int c; 
+    c = getchar(); 
+    while (c != EOF) { 
+        putchar(c); 
+        c = getchar(); 
+    } 
+    return 0; 
+}
+</code></pre>
+<p>The relational operator != means ``not equal to''.</p>
+<p>What appears to be a character on the keyboard or screen is of course, like everything else, stored internally just as a bit pattern. The type char is specifically meant for storing such character data, but any integer type can be used. We used int for a subtle but important reason.</p>
+<p>The problem is distinguishing the end of input from valid data. The solution is that getchar returns a distinctive value when there is no more input, a value that cannot be confused with any real character. This value is called EOF, for ``end of file''. We must declare c to be a type big enough to hold any value that getchar returns. We can't use char since c must be big enough to hold EOF in addition to any possible char. Therefore we use int.</p>
+<p>EOF is an integer defined in &lt;stdio.h&gt;, but the specific numeric value doesn't matter as long as it is not the same as any char value. By using the symbolic constant, we are assured that nothing in the program depends on the specific numeric value.</p>
+<p>The program for copying would be written more concisely by experienced C programmers. In C, any assignment, such as</p>
+<pre><code class="language-c"> c = getchar();
+</code></pre>
+<p>is an expression and has a value, which is the value of the left hand side after the assignment. This means that a assignment can appear as part of a larger expression. If the assignment of a character to c is put inside the test part of a while loop, the copy program can be written this way:</p>
+<pre><code class="language-c"> #include &lt;stdio.h&gt; 
+ /* copy input to output; 2nd version */ 
+ main() 
+ { 
+ int c; 
+ while ((c = getchar()) != EOF) 
+ putchar(c); 
+ }
+</code></pre>
+<p>The while gets a character, assigns it to c, and then tests whether the character was the endof-file signal. If it was not, the body of the while is executed, printing the character. The while then repeats. When the end of the input is finally reached, the while terminates and so does main.</p>
+<p>This version centralizes the input - there is now only one reference to getchar - and shrinks the program. The resulting program is more compact, and, once the idiom is mastered, easier to read. You'll see this style often. (It's possible to get carried away and create impenetrable code, however, a tendency that we will try to curb.)</p>
+<p>The parentheses around the assignment, within the condition are necessary. The <em>precedence</em> of != is higher than that of =, which means that in the absence of parentheses the relational test != would be done before the assignment =. So the statement</p>
+<p>c = getchar() != EOF is equivalent to</p>
+<p>c = (getchar() != EOF)</p>
+<p>This has the undesired effect of setting c to 0 or 1, depending on whether or not the call of getchar returned end of file. (More on this in Chapter 2.)</p>
+<p><strong>Exercsise 1-6.</strong> Verify that the expression getchar() != EOF is 0 or 1.</p>
+<p><strong>Exercise 1-7.</strong> Write a program to print the value of EOF.</p>
 
                     </main>
 
