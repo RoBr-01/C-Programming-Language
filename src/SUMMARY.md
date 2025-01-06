@@ -6,8 +6,8 @@
 [Preface to the first edition](Preface1.md)
 
 - [Chapter 1 - A Tutorial Introduction](Chapter1/1-0.md)
-    - [Getting Started]()
-    - [Variables and Arithmetic Expressions]()
+    - [Getting Started](Chapter1/1-1.md)
+    - [Variables and Arithmetic Expressions](Chapter1/1-2.md)
     - [The "For" Statement]()
     - [Symbolic Constants]()
     - [Character Input and Output]()
@@ -215,4 +215,6 @@
     - [Implementation-defined Limits: <limits.h> and <float.h>]()
 
 - [Appendix C - Summary of Changes]()
- 
+
+- [Solutions]()
+    - [Chapter 1]()

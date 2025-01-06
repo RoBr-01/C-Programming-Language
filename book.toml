@@ -4,8 +4,3 @@ language = "en"
 multilingual = false
 src = "src"
 title = "The C Programming Language"
-
-
-[output.html]
-# Set the base URL to match your GitHub Pages subdirectory
-site-url = "/C-Programming-Language/book/"
