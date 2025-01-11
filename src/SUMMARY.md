@@ -16,9 +16,9 @@
         - [Line Counting](Chapter1/1-5-3.md)
         - [Word Counting](Chapter1/1-5-4.md)
     - [Arrays](Chapter1/1-6.md)
-    - [Functions]()
-    - [Arguments - Call by Value]()
-    - [Character Arrays]()
+    - [Functions](Chapter1/1-7.md)
+    - [Arguments - Call by Value](Chapter1/1-8.md)
+    - [Character Arrays](Chapter1/1-9.md)
     - [External Variables and Scope]()
 
 - [Chapter 2 - Types, Operators and Expressions]()
