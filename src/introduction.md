@@ -1,10 +1,16 @@
 # Introduction
-Hi! This is a little side project where i will re-document the famous "The C Programming Language" book while studying its contents.
 
-It will be a work in progress, and at the end i will add the solutions for the challenges given in the book.
+Hi!
 
-To undertake this task, i am using [mdBook](https://rust-lang.github.io/mdBook/) (whose result you are reading at this very moment) and part of the conversion from the PDF of the book to Markdown is done using [Marker](https://github.com/VikParuchuri/marker).
+Welcome to my process of learning C through the famous book "The C Programming Language".
+As i am reading, i will be adapting the book into a more web-friendly format.
 
-I know this seems like a lot of content, and it definitely is. So i suggest taking your time to understand what you read, pausing and exploring deeper where needed.
+To undertake this task, i am using 
 
-An important part of programming is balancing learning with doing. Spending all your time learning means you don't do or make anything. Spending all your time making means you might not progress in a meaningful way.
+<a href="https://rust-lang.github.io/mdBook/" target="_blank"> mdBook</a>
+(whose result you are reading at this very moment) and part of the conversion from the PDF of the book to Markdown was done using 
+<a href="https://github.com/VikParuchuri/marker" target="_blank"> Marker</a>.
+
+At some point i might add a small intro to explain how to get started with C (basic text editor, compiler etc.). Since i feel like starting from the basics is never a bad idea. Using an IDE right at the start might be overkill for people who enjoy "intuitive learning".
+
+Anyway, enjoy!
