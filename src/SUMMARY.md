@@ -1,13 +1,13 @@
 # Summary
 
-[Introduction](introduction.md)
+[Introduction](introduction.md)                                             Done
 
-[Preface](Preface.md)
-[Preface to the first edition](Preface1.md)
+[Preface](Preface.md)                                                       Done
+[Preface to the first edition](Preface1.md)                                 Done
 
-- [Chapter 1 - A Tutorial Introduction](Chapter1/1-0.md)
-    - [Getting Started](Chapter1/1-1.md)
-    - [Variables and Arithmetic Expressions](Chapter1/1-2.md)
+- [Chapter 1 - A Tutorial Introduction](Chapter1/1-0.md)                    Done
+    - [Getting Started](Chapter1/1-1.md)                                    Done
+    - [Variables and Arithmetic Expressions](Chapter1/1-2.md)               
     - [The "For" Statement](Chapter1/1-3.md)
     - [Symbolic Constants](Chapter1/1-4.md)
     - [Character Input and Output](Chapter1/1-5.md)
@@ -21,10 +21,10 @@
     - [Character Arrays](Chapter1/1-9.md)
     - [External Variables and Scope](Chapter1/1-10.md)
 
-- [Chapter 2 - Types, Operators and Expressions]()
+- [Chapter 2 - Types, Operators and Expressions](Chapter2/2-0.md)
     - [Variable Names]()
     - [Data Types and Sizes]()
-    - [Constants]()
+    - [Constants](Chapter2/2-3.md)
     - [Declarations]()
     - [Arithmetic Operators]()
     - [Relational and Logical Operators]()
@@ -86,7 +86,7 @@
     - [Unions]()
     - [Bit-fields]()
 
-- [Chapter 7 - Input and Output]()
+- [Chapter 7 - Input and Output](Chapter7/7-0.md)
     - [Standard Input and Output]()
     - [Formatted Output - printf]()
     - [Variable-length Argument Lists]()
@@ -113,7 +113,7 @@
     - [Example - A Storage Allocator]()
 
 - [Appendix A - Reference Manual]()
-    - [Introduction]()
+    - [Introduction](AppendixA/A1.md)
     - [Lexical Conventions]()
         - [Tokens]()
         - [Comments]()
@@ -194,7 +194,7 @@
         - [Predefined Names]()
     - [Grammar]()
 
-- [Appendix B - Standard Library]()
+- [Appendix B - Standard Library](AppendixB/B0.md)
     - [Input and Output: <stdio.h>]()
         - [File Operations]()
         - [Formatted Output]()
@@ -214,7 +214,7 @@
     - [Date and Time Functions: <time.h>]()
     - [Implementation-defined Limits: <limits.h> and <float.h>]()
 
-- [Appendix C - Summary of Changes]()
+- [Appendix C - Summary of Changes](AppendixC.md)
 
 - [Solutions]()
     - [Chapter 1]()
