@@ -7,11 +7,11 @@
 
 - [Chapter 1 - A Tutorial Introduction](Chapter1/1-0.md)                    Done
     - [Getting Started](Chapter1/1-1.md)                                    Done
-    - [Variables and Arithmetic Expressions](Chapter1/1-2.md)               
-    - [The "For" Statement](Chapter1/1-3.md)
-    - [Symbolic Constants](Chapter1/1-4.md)
-    - [Character Input and Output](Chapter1/1-5.md)
-        - [File Copying](Chapter1/1-5-1.md)
+    - [Variables and Arithmetic Expressions](Chapter1/1-2.md)               Done
+    - [The "For" Statement](Chapter1/1-3.md)                                Done
+    - [Symbolic Constants](Chapter1/1-4.md)                                 Done
+    - [Character Input and Output](Chapter1/1-5.md)                         Done
+        - [File Copying](Chapter1/1-5-1.md)                                 
         - [Character Counting](Chapter1/1-5-2.md)
         - [Line Counting](Chapter1/1-5-3.md)
         - [Word Counting](Chapter1/1-5-4.md)
@@ -90,7 +90,7 @@
     - [Standard Input and Output]()
     - [Formatted Output - printf]()
     - [Variable-length Argument Lists]()
-    - [Formatted Input - Scanf]()
+    - [Formatted Input - Scanf](Chapter7/7-4.md)
     - [File Access]()
     - [Error Handling - Stderr and Exit]()
     - [Line Input and Output]()
