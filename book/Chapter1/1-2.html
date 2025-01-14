@@ -1,0 +1,374 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Variables and Arithmetic Expressions - The C Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The C Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="variables-and-arithmetic-expressions"><a class="header" href="#variables-and-arithmetic-expressions">Variables and Arithmetic Expressions</a></h1>
+<p>The next program uses the formula <code>°C = (5 / 9) * (°F - 32)</code> to print the following table of Fahrenheit temperatures and their centigrade or Celsius equivalents:</p>
+<pre><code class="language-c">1 -17
+20 -6
+40 4
+60 15
+80 26
+100 37
+120 48
+140 60
+160 71
+180 82
+200 93
+220 104
+240 115
+260 126
+280 137
+300 148
+</code></pre>
+<p>The program itself still consists of the definition of a single function named main. It is longer than the one that printed "hello, world", but not complicated. It introduces several new ideas, including comments, declarations, variables, arithmetic expressions, loops, and formatted output.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt; 
+/* print Fahrenheit-Celsius table 
+    for fahr = 0, 20, ..., 300 */ 
+int main() { 
+
+     int fahr, celsius; 
+     int lower, upper, step; 
+     lower = 0; /* lower limit of temperature scale */ 
+     upper = 300; /* upper limit */ 
+     step = 20; /* step size */ 
+     fahr = lower; 
+     while (fahr &lt;= upper) { 
+          celsius = 5 * (fahr-32) / 9; 
+          printf("%d\t%d\n", fahr, celsius); 
+          fahr = fahr + step; 
+     } 
+     return 0;
+}
+</code></pre>
+<p>The two lines:</p>
+<pre><code class="language-c">/* print Fahrenheit-Celsius table 
+    for fahr = 0, 20, ..., 300 */
+</code></pre>
+<p>are a <em>comment</em>, which in this case explains briefly what the program does. Any characters between <code>/*</code> and <code>*/</code> are ignored by the compiler; they may be used freely to make a program easier to understand. Comments may appear anywhere where a blank, tab or newline can.</p>
+<blockquote>
+<p><strong>Note for modern C (since C99)</strong><br />
+Comments on a single line can also be done by putting <code>//</code> in front of whatever text you want.
+Doing so means the rest of the line will be ignored by the compiler:</p>
+<pre><code class="language-c">// This is a single-line comment
+</code></pre>
+</blockquote>
+<p>In C, all variables must be declared before they are used, usually at the beginning of the function before any executable statements. A <em>declaration</em> announces the properties of variables; it consists of a name and a list of variables, such as:</p>
+<pre><code class="language-c">int fahr, celsius; 
+int lower, upper, step;
+</code></pre>
+<p>The type <em>int</em> means that the variables listed are integers; by contrast with <em>float</em>, which means floating point, i.e., numbers that may have a fractional part. The range of both int and float depends on the machine you are using; 16-bit ints, which lie between -32768 and +32767, are common, as are 32-bit ints. A float number is typically a 32-bit quantity, with at least six significant digits and magnitude generally between about 10E-38 and 10E38.</p>
+<p>C provides several other data types besides int and float, including:</p>
+<div class="table-wrapper"><table><thead><tr><th>Identifier</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>char</td><td>character - a single byte</td></tr>
+<tr><td>short</td><td>short integer</td></tr>
+<tr><td>long</td><td>long integer</td></tr>
+<tr><td>double</td><td>double-precision floating point</td></tr>
+</tbody></table>
+</div>
+<p>The size of these objects is also machine-dependent. There are also <em>arrays</em>, <em>structures</em> and <em>unions</em> of these basic types, <em>pointers</em> to them, and <em>functions</em> that return them, all of which we will meet in due course.</p>
+<p>Computation in the temperature conversion program begins with the assignment statements:</p>
+<pre><code class="language-c">lower = 0; 
+upper = 300; 
+step = 20;
+</code></pre>
+<p>which set the variables to their initial values. Individual statements are terminated by semicolons.</p>
+<p>Each line of the table is computed the same way, so we use a loop that repeats once per output line; this is the purpose of the while loop:</p>
+<pre><code class="language-c">while (fahr &lt;= upper) { 
+    ... 
+}
+</code></pre>
+<p>The while loop operates as follows: The condition in parentheses is tested. If it is true (fahr is less than or equal to upper), the body of the loop (the three statements enclosed in braces) is executed. Then the condition is re-tested, and if true, the body is executed again. When the test becomes false (fahr exceeds upper) the loop ends, and execution continues at the statement that follows the loop. There are no further statements in this program, so it terminates.</p>
+<p>The body of a while can be one or more statements enclosed in braces, as in the temperature converter, or a single statement without braces, as in:</p>
+<pre><code class="language-c">while (i &lt; j) 
+    i = 2 * i;
+</code></pre>
+<p>In either case, we will always indent the statements controlled by the while by one tab stop (which we have shown as four spaces) so you can see at a glance which statements are inside the loop. The indentation emphasizes the logical structure of the program. Although C compilers do not care about how a program looks, proper indentation and spacing are critical in making programs easy for people to read. We recommend writing only one statement per line, and using blanks around operators to clarify grouping. The position of braces is less important, although people hold passionate beliefs. We have chosen one of several popular styles. Pick a style that suits you, then use it consistently.</p>
+<p>Most of the work gets done in the body of the loop. The Celsius temperature is computed and assigned to the variable celsius by the statement</p>
+<pre><code class="language-c">celsius = 5 * (fahr - 32) / 9;
+</code></pre>
+<p>The reason for multiplying by 5 and dividing by 9 instead of just multiplying by 5/9 is that in C, as in many other languages, integer division <em>truncates</em>: any fractional part is discarded. Since 5 and 9 are integers. 5/9 would be truncated to zero and so all the Celsius temperatures would be reported as zero.</p>
+<p>This example also shows a bit more of how printf works. printf is a general-purpose output formatting function, which we will describe in detail in <a href="../Chapter7/7-0.html">Chapter 7</a>. Its first argument is a string of characters to be printed, with each <code>%</code> indicating where one of the other (second, third, ...) arguments is to be substituted, and in what form it is to be printed. For instance, <code>%d</code> specifies an integer argument, so the statement:</p>
+<pre><code class="language-c">printf("%d\t%d\n", fahr, celsius);
+</code></pre>
+<p>causes the values of the two integers fahr and celsius to be printed, with a tab (<code>\t</code>) between them.</p>
+<p>Each % construction in the first argument of printf is paired with the corresponding second argument, third argument, etc.; they must match up properly by number and type, or you will get wrong answers.</p>
+<p>By the way, printf is not part of the C language; there is no input or output defined in C itself. printf is just a useful function from the standard library of functions that are normally accessible to C programs. The behavior of printf is defined in the ANSI standard, however, so its properties should be the same with any compiler and library that conforms to the standard.</p>
+<p>In order to concentrate on C itself, we don't talk much about input and output until <a href="../Chapter7/7-0.html">Chapter 7</a>. In particular, we will defer formatted input until then. If you have to input numbers, read the discussion of the function scanf in <a href="../Chapter7/7-4.html">Section 7.4</a>. scanf is like printf, except that it reads input instead of writing output.</p>
+<p>There are a couple of problems with the temperature conversion program. The simpler one is that the output isn't very pretty because the numbers are not right-justified. That's easy to fix; if we augment each <code>%d</code> in the printf statement with a width, the numbers printed will be right-justified in their fields. For instance, we might say</p>
+<pre><code class="language-c">printf("%3d %6d\n", fahr, celsius); 
+</code></pre>
+<p>to print the first number of each line in a field three digits wide, and the second in a field six digits wide, like this:</p>
+<pre><code class="language-c">  0    -17 
+ 20     -6 
+ 40      4 
+ 60     15 
+ 80     26 
+100     37 
+...
+</code></pre>
+<p>The more serious problem is that because we have used integer arithmetic, the Celsius temperatures are not very accurate; for instance, 0°F is actually about -17.8°C, not -17. To get more accurate answers, we should use floating-point arithmetic instead of integer. This requires some changes in the program. Here is the second version:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt; 
+/* print Fahrenheit-Celsius table 
+    for fahr = 0, 20, ..., 300; floating-point version */ 
+int main() { 
+    float fahr, celsius; 
+    float lower, upper, step; 
+    lower = 0; /* lower limit of temperature scale */ 
+    upper = 300; /* upper limit */ 
+    step = 20; /* step size */ 
+    fahr = lower; 
+    while (fahr &lt;= upper) { 
+          celsius = (5.0/9.0) * (fahr-32.0); 
+          printf("%3.0f %6.1f\n", fahr, celsius); 
+          fahr = fahr + step; 
+    } 
+    return 0;
+}
+</code></pre>
+<p>This is much the same as before, except that fahr and celsius are declared to be float and the formula for conversion is written in a more natural way. We were unable to use 5/9 in the previous version because integer division would truncate it to zero. A decimal point in a constant indicates that it is floating point, however, so 5.0/9.0 is not truncated because it is the ratio of two floating-point values.</p>
+<p>If an arithmetic operator has integer operands, an integer operation is performed. If an arithmetic operator has one floating-point operand and one integer operand, however, the integer will be converted to floating point before the operation is done. If we had written (fahr-32), the 32 would be automatically converted to floating point. Nevertheless, writing floating-point constants with explicit decimal points even when they have integral values emphasizes their floating-point nature for human readers.</p>
+<p>The detailed rules for when integers are converted to floating point are in <a href="../Chapter2/2-0.html">Chapter 2</a>. For now, notice that the assignment:</p>
+<pre><code class="language-c">fahr = lower; 
+</code></pre>
+<p>And the test:</p>
+<pre><code class="language-c">while (fahr &lt;= upper) 
+</code></pre>
+<p>Also work in the natural way - the int is converted to float before the operation is done.</p>
+<p>The printf conversion specification <code>%3.0f</code> says that a floating-point number (here fahr) is to be printed at least three characters wide, with no decimal point and no fraction digits. <code>%6.1f</code> describes another number (celsius) that is to be printed at least six characters wide, with 1 digit after the decimal point. The output looks like this:</p>
+<pre><code class="language-c">  0    -17.8
+ 20     -6.7 
+ 40      4.4 
+...
+</code></pre>
+<p>Width and precision may be omitted from a specification: <code>%6f</code> says that the number is to be at least six characters wide; <code>%.2f</code> specifies two characters after the decimal point, but the width is not constrained; and <code>%f</code> merely says to print the number as floating point.</p>
+<div class="table-wrapper"><table><thead><tr><th>Sequence</th><th>Effect</th></tr></thead><tbody>
+<tr><td>%d</td><td>print as decimal integer</td></tr>
+<tr><td>%6d</td><td>print as decimal integer, at least 6 characters wide</td></tr>
+<tr><td>%f</td><td>print as floating point</td></tr>
+<tr><td>%6f</td><td>print as floating point, at least 6 characters wide</td></tr>
+<tr><td>%.2f</td><td>print as floating point, 2 characters after decimal point</td></tr>
+<tr><td>%6.2f</td><td>print as floating point, at least 6 wide and 2 after decimal point</td></tr>
+</tbody></table>
+</div>
+<p>Among others, printf also recognizes <code>%o</code> for octal, <code>%x</code> for hexadecimal, <code>%c</code> for character, <code>%s</code> for character string and <code>%%</code> for itself.</p>
+<p><a href="../Solutions/Chapter1/E1-3.html"><strong>Exercise 1-3.</strong></a> Modify the temperature conversion program to print a heading above the table.</p>
+<p><a href="../Solutions/Chapter1/E1-4.html"><strong>Exercise 1-4.</strong></a> Write a program to print the corresponding Celsius to Fahrenheit table.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Chapter1/1-1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Chapter1/1-3.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Chapter1/1-1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Chapter1/1-3.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
