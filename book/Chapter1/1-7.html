@@ -187,7 +187,7 @@ int power(int base, int n) {
 <p>The function <em>power</em> is called twice by main, in the line:</p>
 <pre><code class="language-c">printf("%d %d %d\n", i, power(2,i), power(-3,i));
 </code></pre>
-<p>Each call passes two arguments to <em>power</em>, which each time returns an integer to be formatted and printed. In an expression, <em>power(2,i)</em> is an integer just as 2 and i are. (Not all functions produce an integer value; we will take this up in <a href="">Chapter 4</a>.)</p>
+<p>Each call passes two arguments to <em>power</em>, which each time returns an integer to be formatted and printed. In an expression, <em>power(2,i)</em> is an integer just as 2 and i are. (Not all functions produce an integer value; we will take this up in Chapter 4.)</p>
 <p>The first line of <em>power</em> itself:</p>
 <pre><code class="language-c">int power(int base, int n)
 </code></pre>
@@ -225,7 +225,7 @@ int base, n;
 </code></pre>
 <p>No parameter list was permitted, so the compiler could not readily check that power was being called correctly. Indeed, since by default power would have been assumed to return an int, the entire declaration might well have been omitted.</p>
 <p>The new syntax of function prototypes makes it much easier for a compiler to detect errors in the number of arguments or their types. The old style of declaration and definition still works in ANSI C, at least for a transition period, but we strongly recommend that you use the new form when you have a compiler that supports it.</p>
-<p><a href="../Solutions/Chapter1/E1-15.html"><strong>Exercise 1.15.</strong></a> Rewrite the temperature conversion program of <a href="">Section 1.2</a> to use a function for conversion.</p>
+<p><a href="../Solutions/Chapter1/E1-15.html"><strong>Exercise 1.15.</strong></a> Rewrite the temperature conversion program of <a href="../Chapter1/1-2.html">Section 1.2</a> to use a function for conversion.</p>
 
                     </main>
 
