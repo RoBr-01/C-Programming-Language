@@ -11,15 +11,15 @@
     - [The "For" Statement](Chapter1/1-3.md)                                Done
     - [Symbolic Constants](Chapter1/1-4.md)                                 Done
     - [Character Input and Output](Chapter1/1-5.md)                         Done
-        - [File Copying](Chapter1/1-5-1.md)                                 
-        - [Character Counting](Chapter1/1-5-2.md)
-        - [Line Counting](Chapter1/1-5-3.md)
-        - [Word Counting](Chapter1/1-5-4.md)
-    - [Arrays](Chapter1/1-6.md)
-    - [Functions](Chapter1/1-7.md)
-    - [Arguments - Call by Value](Chapter1/1-8.md)
-    - [Character Arrays](Chapter1/1-9.md)
-    - [External Variables and Scope](Chapter1/1-10.md)
+        - [File Copying](Chapter1/1-5-1.md)                                 Done
+        - [Character Counting](Chapter1/1-5-2.md)                           Done
+        - [Line Counting](Chapter1/1-5-3.md)                                Done
+        - [Word Counting](Chapter1/1-5-4.md)                                Done                               
+    - [Arrays](Chapter1/1-6.md)                                             Done
+    - [Functions](Chapter1/1-7.md)                                          Done                  
+    - [Arguments - Call by Value](Chapter1/1-8.md)                          Done
+    - [Character Arrays](Chapter1/1-9.md)                                   Done
+    - [External Variables and Scope](Chapter1/1-10.md)                      Done
 
 - [Chapter 2 - Types, Operators and Expressions](Chapter2/2-0.md)
     - [Variable Names]()
@@ -45,7 +45,7 @@
     - [Break and Continue]()
     - [Goto and Labels]()
 
-- [Chapter 4 - Functions and Program Structure]()
+- [Chapter 4 - Functions and Program Structure](Chapter4/4-0.md)
     - [Basics of Functions]()
     - [Functions Returning Non-Integers]()
     - [External Variables]()
@@ -61,7 +61,7 @@
     - [Macro Substitution]()
     - [Conditional Inclusion]()
 
-- [Chapter 5 - Pointers and Arrays]()
+- [Chapter 5 - Pointers and Arrays](Chapter5/5-0.md)
     - [Pointers and Addresses]()
     - [Pointers and Function Arguments]()
     - [Pointers and Arrays]()

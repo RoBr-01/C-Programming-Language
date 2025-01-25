@@ -179,9 +179,9 @@ int main() {
 }
 </code></pre>
 <p>The relational operator <code>!=</code> means "not equal to".</p>
-<p>What appears to be a character on the keyboard or screen is of course, like everything else, stored internally just as a bit pattern. The type char is specifically meant for storing such character data, but any integer type can be used. We used int for a subtle but important reason.</p>
+<p>What appears to be a character on the keyboard or screen is of course, like everything else, stored internally just as a bit pattern. The type <em>char</em> is specifically meant for storing such character data, but any integer type can be used. We used int for a subtle but important reason.</p>
 <p>The problem is distinguishing the end of input from valid data. The solution is that getchar returns a distinctive value when there is no more input, a value that cannot be confused with any real character. This value is called EOF, for "end of file". We must declare c to be a type big enough to hold any value that getchar returns. We can't use char since c must be big enough to hold EOF in addition to any possible char. Therefore we use int.</p>
-<p>EOF is an integer defined in "&lt;stdio.h&gt;", but the specific numeric value doesn't matter as long as it is not the same as any char value. By using the symbolic constant, we are assured that nothing in the program depends on the specific numeric value.</p>
+<p>EOF is an integer defined in <code>&lt;stdio.h&gt;</code>, but the specific numeric value doesn't matter as long as it is not the same as any char value. By using the symbolic constant, we are assured that nothing in the program depends on the specific numeric value.</p>
 <p>The program for copying would be written more concisely by experienced C programmers. In C, any assignment, such as</p>
 <pre><code class="language-c">c = getchar();
 </code></pre>
@@ -189,6 +189,7 @@ int main() {
 <pre><code class="language-c">#include &lt;stdio.h&gt; 
 /* copy input to output; 2nd version */ 
 int main() { 
+
     int c; 
     while ((c = getchar()) != EOF) 
         putchar(c); 
@@ -205,7 +206,7 @@ int main() {
 <pre><code class="language-c">c = (getchar() != EOF)
 </code></pre>
 <p>This has the undesired effect of setting c to 0 or 1, depending on whether or not the call of getchar returned end of file. (More on this in Chapter 2.)</p>
-<p><a href="../Solutions/Chapter1/E1-6.html"><strong>Exercise 1-6.</strong></a> Verify that the expression getchar() != EOF is 0 or 1.</p>
+<p><a href="../Solutions/Chapter1/E1-6.html"><strong>Exercise 1-6.</strong></a> Verify that the expression <code>getchar() != EOF</code> is 0 or 1.</p>
 <p><a href="../Solutions/Chapter1/E1-7.html"><strong>Exercise 1-7.</strong></a> Write a program to print the value of EOF.</p>
 
                     </main>
