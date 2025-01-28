@@ -153,16 +153,92 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="constants"><a class="header" href="#constants">Constants</a></h1>
+<p>An integer constant like 1234 is an int. A long constant is written with a terminal l (ell) or L, as in 123456789L; an integer constant too big to fit into an int will also be taken as a long. Unsigned constants are written with a terminal u or U, and the suffix ul or UL indicates unsigned long.</p>
+<p>Floating-point constants contain a decimal point (123.4) or an exponent (1e-2) or both; their type is double, unless suffixed. The suffixes f or F indicate a float constant; l or L indicate a long double.</p>
+<p>The value of an integer can be specified in octal or hexadecimal instead of decimal. A leading 0 (zero) on an integer constant means octal; a leading 0x or 0X means hexadecimal. For example, decimal 31 can be written as 037 in octal and 0x1f or 0x1F in hex. Octal and hexadecimal constants may also be followed by L to make them long and U to make them unsigned: 0XFUL is an <em>unsigned long</em> constant with value 15 decimal.</p>
+<p>A character constant is an integer, written as one character within single quotes, such as 'x'. The value of a character constant is the numeric value of the character in the machine's character set. For example, in the ASCII character set the character constant '0' has the value 48, which is unrelated to the numeric value 0. If we write '0' instead of a numeric value like 48 that depends on the character set, the program is independent of the particular value and easier to read. Character constants participate in numeric operations just as any other integers, although they are most often used in comparisons with other characters.</p>
+<p>Certain characters can be represented in character and string constants by escape sequences like <code>\n</code> (newline); these sequences look like two characters, but represent only one. In addition, an arbitrary byte-sized bit pattern can be specified by</p>
+<p><code>\ooo</code></p>
+<p>where <em>ooo</em> is one to three octal digits (0...7) or by</p>
+<p><code>\xhh</code></p>
+<p>where <em>hh</em> is one or more hexadecimal digits (0...9, a...f, A...F). So we might write</p>
+<pre><code class="language-c">#define VTAB '\013' /* ASCII vertical tab */ 
+#define BELL '\007' /* ASCII bell character */
+</code></pre>
+<p>or, in hexadecimal,</p>
+<pre><code class="language-c">#define VTAB '\xb' /* ASCII vertical tab */ 
+#define BELL '\x7' /* ASCII bell character */
+</code></pre>
+<p>The complete set of escape sequences is</p>
+<div class="table-wrapper"><table><thead><tr><th>Escape sequence</th><th>Meaning</th><th>Escape sequence</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>\a</code></td><td>alert (bell) character</td><td><code>\\</code></td><td>backslash</td></tr>
+<tr><td><code>\b</code></td><td>backspace</td><td><code>\?</code></td><td>question mark</td></tr>
+<tr><td><code>\f</code></td><td>formfeed</td><td><code>\'</code></td><td>single quote</td></tr>
+<tr><td><code>\n</code></td><td>newline</td><td><code>\"</code></td><td>double quote</td></tr>
+<tr><td><code>\r</code></td><td>carriage return</td><td><code>\ooo</code></td><td>octal number</td></tr>
+<tr><td><code>\t</code></td><td>horizontal tab</td><td><code>\xhh</code></td><td>hexadecimal number</td></tr>
+<tr><td><code>\v</code></td><td>vertical tab</td><td></td><td></td></tr>
+</tbody></table>
+</div>
+<p>The character constant <code>\0</code> represents the character with value zero, the null character. <code>\</code>' is often written instead of 0 to emphasize the character nature of some expression, but the numeric value is just 0.</p>
+<p>A <em>constant expression</em> is an expression that involves only constants. Such expressions may be evaluated at compile-time rather than run-time, and accordingly may be used in any place that a constant can occur, as in</p>
+<pre><code class="language-c">#define MAXLINE 1000 
+char line[MAXLINE+1]; 
+</code></pre>
+<p>or</p>
+<pre><code class="language-c">#define LEAP 1 /* in leap years */ 
+int days[31+28+LEAP+31+30+31+30+31+31+30+31+30+31];
+</code></pre>
+<p>A <em>string constant</em>, or <em>string literal</em>, is a sequence of zero or more characters surrounded by double quotes, as in</p>
+<pre><code class="language-c">"I am a string" 
+</code></pre>
+<p>or</p>
+<pre><code class="language-c"> "" /* the empty string */
+</code></pre>
+<p>The quotes are not part of the string, but serve only to delimit it. The same escape sequences used in character constants apply in strings; <code>\"</code> represents the double-quote character. String constants can be concatenated at compile time:</p>
+<pre><code class="language-c">"hello, " "world" 
+</code></pre>
+<p>is equivalent to</p>
+<pre><code class="language-c">"hello, world" 
+</code></pre>
+<p>This is useful for splitting up long strings across several source lines.</p>
+<p>Technically, a string constant is an array of characters. The internal representation of a string has a null character <code>\0</code> at the end, so the physical storage required is one more than the number of characters written between the quotes. This representation means that there is no limit to how long a string can be, but programs must scan a string completely to determine its length. The standard library function <code>strlen(s)</code> returns the length of its character string argument s, excluding the terminal <code>\0</code>. Here is our version:</p>
+<pre><code class="language-c">/* strlen: return length of s */ 
+int strlen(char s[]) { 
+
+    int i = 0; 
+
+    while (s[i] != '\0') 
+        ++i; 
+    return i; 
+}
+</code></pre>
+<p>strlen and other string functions are declared in the standard header <code>&lt;string.h&gt;</code>.</p>
+<p>Be careful to distinguish between a character constant and a string that contains a single character: 'x' is not the same as "x". The former is an integer, used to produce the numeric value of the letter <em>x</em> in the machine's character set. The latter is an array of characters that contains one character (the letter <em>x</em>) and a <code>\0</code>.</p>
+<p>There is one other kind of constant, the <em>enumeration constant</em>. An enumeration is a list of constant integer values, as in</p>
+<pre><code class="language-c">enum boolean { NO, YES }; 
+</code></pre>
+<p>The first name in an enum has value 0, the next 1, and so on, unless explicit values are specified. If not all values are specified, unspecified values continue the progression from the last specified value, as the second of these examples:</p>
+<pre><code class="language-c">enum escapes { BELL = '\a', BACKSPACE = '\b', TAB = '\t', 
+               NEWLINE = '\n', VTAB = '\v', RETURN = '\r' }; 
+
+enum months { JAN = 1, FEB, MAR, APR, MAY, JUN, 
+              JUL, AUG, SEP, OCT, NOV, DEC }; 
+
+            /* FEB = 2, MAR = 3, etc. */
+</code></pre>
+<p>Names in different enumerations must be distinct. Values need not be distinct in the same enumeration.</p>
+<p>Enumerations provide a convenient way to associate constant values with names, an alternative to <code>#define</code> with the advantage that the values can be generated for you. Although variables of enum types may be declared, compilers need not check that what you store in such a variable is a valid value for the enumeration. Nevertheless, enumeration variables offer the chance of checking and so are often better than #defines. In addition, a debugger may be able to print values of enumeration variables in their symbolic form.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter2/2-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../CHapter2/2-2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter4/4-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter2/2-4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +248,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter2/2-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../CHapter2/2-2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter4/4-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter2/2-4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

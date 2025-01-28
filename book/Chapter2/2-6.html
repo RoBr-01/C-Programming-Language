@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Appendix B - Standard Library - The C Programming Language</title>
+        <title>Relational and Logical Operators - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,47 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="appendix-b---standard-library"><a class="header" href="#appendix-b---standard-library">Appendix B - Standard Library</a></h1>
+                        <h1 id="relational-and-logical-operators"><a class="header" href="#relational-and-logical-operators">Relational and Logical Operators</a></h1>
+<p>The relational operators are</p>
+<pre><code class="language-c">&gt; &gt;= &lt; &lt;=
+</code></pre>
+<p>They all have the same precedence. Just below them in precedence are the equality operators:</p>
+<pre><code class="language-c">== != 
+</code></pre>
+<p>Relational operators have lower precedence than arithmetic operators, so an expression like</p>
+<p><code>i &lt; lim-1</code> is taken as <code>i &lt; (lim-1)</code>, as would be expected.</p>
+<p>More interesting are the logical operators &amp;&amp; and ||. Expressions connected by &amp;&amp; or || are evaluated left to right, and evaluation stops as soon as the truth or falsehood of the result is known. Most C programs rely on these properties. For example, here is a loop from the input function getline that we wrote in <a href="../Chapter1/1-9.html">Chapter 1</a>:</p>
+<pre><code class="language-c">for (i=0; i &lt; lim-1 &amp;&amp; (c=getchar()) != '\n' &amp;&amp; c != EOF; ++i) 
+    s[i] = c;
+</code></pre>
+<p>Before reading a new character it is necessary to check that there is room to store it in the array s, so the test i &lt; lim-1 <em>must</em> be made first. Moreover, if this test fails, we must not go on and read another character.</p>
+<p>Similarly, it would be unfortunate if c were tested against EOF before getchar is called; therefore the call and assignment must occur before the character in c is tested.</p>
+<p>The precedence of &amp;&amp; is higher than that of ||, and both are lower than relational and equality operators, so expressions like</p>
+<pre><code class="language-c">i &lt; lim-1 &amp;&amp; (c=getchar()) != '\n' &amp;&amp; c != EOF 
+</code></pre>
+<p>need no extra parentheses. But since the precedence of != is higher than assignment, parentheses <em>are</em> needed in:</p>
+<pre><code class="language-c">(c=getchar()) != '\n'
+</code></pre>
+<p>to achieve the desired result of assignment to c and then comparison with <code>\n</code>.</p>
+<p>By definition, the numeric value of a relational or logical expression is 1 if the relation is true, and 0 if the relation is false.</p>
+<p>The unary negation operator ! converts a non-zero operand into 0, and a zero operand in 1. A common use of ! is in constructions like</p>
+<pre><code class="language-c">if (!valid) 
+</code></pre>
+<p>rather than</p>
+<pre><code class="language-c">if (valid == 0)
+</code></pre>
+<p>It's hard to generalize about which form is better. Constructions like !valid read nicely ("if not valid"), but more complicated ones can be hard to understand.</p>
+<p><a href="../Solutions/Chapter2/E2-2.html"><strong>Exercise 2-2.</strong></a> Write a loop equivalent to the for loop above without using &amp;&amp; or ||.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../AppendixA/A7-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter2/2-5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../AppendixC.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter2/2-7.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +202,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../AppendixA/A7-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter2/2-5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../AppendixC.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter2/2-7.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

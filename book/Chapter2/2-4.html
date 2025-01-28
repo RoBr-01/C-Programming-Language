@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Appendix B - Standard Library - The C Programming Language</title>
+        <title>Declarations - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,44 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="appendix-b---standard-library"><a class="header" href="#appendix-b---standard-library">Appendix B - Standard Library</a></h1>
+                        <h1 id="declarations"><a class="header" href="#declarations">Declarations</a></h1>
+<p>All variables must be declared before use, although certain declarations can be made implicitly by content. A declaration specifies a type, and contains a list of one or more variables of that type, as in</p>
+<pre><code class="language-c">int lower, upper, step; 
+char c, line[1000];
+</code></pre>
+<p>Variables can be distributed among declarations in any fashion; the lists above could well be written as</p>
+<pre><code class="language-c">int lower; 
+int upper; 
+int step; 
+char c; 
+char line[1000];
+</code></pre>
+<p>The latter form takes more space, but is convenient for adding a comment to each declaration for subsequent modifications.</p>
+<p>A variable may also be initialized in its declaration. If the name is followed by an equals sign and an expression, the expression serves as an initializer, as in</p>
+<pre><code class="language-c">char esc = '\\'; 
+int i = 0; 
+int limit = MAXLINE+1; 
+float eps = 1.0e-5;
+</code></pre>
+<p>If the variable in question is not automatic, the initialization is done once only, conceptionally before the program starts executing, and the initializer must be a constant expression. An explicitly initialized automatic variable is initialized each time the function or block it is in is entered; the initializer may be any expression. External and static variables are initialized to zero by default. Automatic variables for which there is no explicit initializer have undefined (i.e., garbage) values.</p>
+<p>The qualifier <em>const</em> can be applied to the declaration of any variable to specify that its value will not be changed. For an array, the const qualifier says that the elements will not be altered.</p>
+<pre><code class="language-c">const double e = 2.71828182845905; 
+const char msg[] = "warning: ";
+</code></pre>
+<p>The const declaration can also be used with array arguments, to indicate that the function does not change that array:</p>
+<pre><code class="language-c">int strlen(const char[]);
+</code></pre>
+<p>The result is implementation-defined if an attempt is made to change a const.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../AppendixA/A7-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter2/2-3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../AppendixC.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter2/2-5.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +199,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../AppendixA/A7-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter2/2-3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../AppendixC.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter2/2-5.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

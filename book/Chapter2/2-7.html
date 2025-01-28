@@ -1,0 +1,300 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Type Conversions - The C Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The C Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="type-conversions"><a class="header" href="#type-conversions">Type Conversions</a></h1>
+<p>When an operator has operands of different types, they are converted to a common type according to a small number of rules. In general, the only automatic conversions are those that convert a "narrower" operand into a "wider" one without losing information, such as converting an integer into floating point in an expression like f + i. Expressions that don't make sense, like using a float as a subscript, are disallowed. Expressions that might lose information, like assigning a longer integer type to a shorter, or a floating-point type to an integer, may draw a warning, but they are not illegal.</p>
+<p>A char is just a small integer, so chars may be freely used in arithmetic expressions. This permits considerable flexibility in certain kinds of character transformations. One is exemplified by this naive implementation of the function <em>atoi</em>, which converts a string of digits into its numeric equivalent.</p>
+<pre><code class="language-c">/* atoi: convert s to integer */ 
+int atoi(char s[]) { 
+
+    int i, n; 
+
+    n = 0; 
+    for (i = 0; s[i] &gt;= '0' &amp;&amp; s[i] &lt;= '9'; ++i) 
+        n = 10 * n + (s[i] - '0'); 
+    return n; 
+}
+</code></pre>
+<p>As we discussed in <a href="../Chapter1/1-0.html">Chapter 1</a>, the expression:</p>
+<pre><code class="language-c">s[i] - '0'
+</code></pre>
+<p>gives the numeric value of the character stored in s[i], because the values of '0', '1', etc., form a contiguous increasing sequence.</p>
+<p>Another example of char to int conversion is the function <em>lower</em>, which maps a single character to lower case <em>for the ASCII character set</em>. If the character is not an upper case letter, lower returns it unchanged.</p>
+<pre><code class="language-c">/* lower: convert c to lower case; ASCII only */ 
+int lower(int c) { 
+
+    if (c &gt;= 'A' &amp;&amp; c &lt;= 'Z') 
+        return c + 'a' - 'A'; 
+    else 
+        return c; 
+}
+</code></pre>
+<p>This works for ASCII because corresponding upper case and lower case letters are a fixed distance apart as numeric values and each alphabet is contiguous - there is nothing but letters between A and Z. This latter observation is not true of the EBCDIC character set, however, so this code would convert more than just letters in EBCDIC.</p>
+<p>The standard header <code>&lt;ctype.h&gt;</code>, described in Appendix B, defines a family of functions that provide tests and conversions that are independent of character set. For example, the function <em>tolower</em> is a portable replacement for the function <em>lower</em> shown above. Similarly, the test:</p>
+<pre><code class="language-c">c &gt;= '0' &amp;&amp; c &lt;= '9' 
+</code></pre>
+<p>can be replaced by:</p>
+<pre><code class="language-c">isdigit(c)
+</code></pre>
+<p>We will use the <code>&lt;ctype.h&gt;</code> functions from now on.</p>
+<p>There is one subtle point about the conversion of characters to integers. The language does not specify whether variables of type char are signed or unsigned quantities. When a char is converted to an int, can it ever produce a negative integer? The answer varies from machine to machine, reflecting differences in architecture. On some machines a char whose leftmost bit is 1 will be converted to a negative integer ("sign extension"). On others, a char is promoted to an int by adding zeros at the left end, and thus is always positive.</p>
+<p>The definition of C guarantees that any character in the machine's standard printing character set will never be negative, so these characters will always be positive quantities in expressions. But arbitrary bit patterns stored in character variables may appear to be negative on some machines, yet positive on others. For portability, specify signed or unsigned if noncharacter data is to be stored in char variables.</p>
+<p>Relational expressions like i &gt; j and logical expressions connected by &amp;&amp; and || are defined to have value 1 if true, and 0 if false. Thus the assignment:</p>
+<pre><code class="language-c">d = c &gt;= '0' &amp;&amp; c &lt;= '9'
+</code></pre>
+<p>sets d to 1 if c is a digit, and 0 if not. However, functions like <em>isdigit</em> may return any nonzero value for true. In the test part of if, while, for, etc., "true" just means "non-zero", so this makes no difference.</p>
+<p>Implicit arithmetic conversions work much as expected. In general, if an operator like + or * that takes two operands (a binary operator) has operands of different types, the "lower" type is <em>promoted</em> to the "higher" type before the operation proceeds. The result is of the integer type. <a href="../AppendixA/A6-0.html">Section 6 of Appendix A</a> states the conversion rules precisely. If there are no unsigned operands, however, the following informal set of rules will suffice:</p>
+<ul>
+<li>If either operand is long double, convert the other to long double.</li>
+<li>Otherwise, if either operand is double, convert the other to double.</li>
+<li>Otherwise, if either operand is float, convert the other to float.</li>
+<li>Otherwise, convert char and short to int.</li>
+<li>Then, if either operand is long, convert the other to long.</li>
+</ul>
+<p>Notice that floats in an expression are not automatically converted to double; this is a change from the original definition. In general, mathematical functions like those in <code>&lt;math.h&gt;</code> will use double precision. The main reason for using float is to save storage in large arrays, or, less often, to save time on machines where double-precision arithmetic is particularly expensive.</p>
+<p>Conversion rules are more complicated when unsigned operands are involved. The problem is that comparisons between signed and unsigned values are machine-dependent, because they depend on the sizes of the various integer types. For example, suppose that int is 16 bits and long is 32 bits. Then -1L &lt; 1U, because 1U, which is an unsigned int, is promoted to a signed long. But -1L &gt; 1UL because -1L is promoted to unsigned long and thus appears to be a large positive number.</p>
+<p>Conversions take place across assignments; the value of the right side is converted to the type of the left, which is the type of the result.</p>
+<p>A character is converted to an integer, either by sign extension or not, as described above.</p>
+<p>Longer integers are converted to shorter ones or to chars by dropping the excess high-order bits. Thus in:</p>
+<pre><code class="language-c">int i; 
+char c; 
+i = c; 
+c = i;
+</code></pre>
+<p>the value of c is unchanged. This is true whether or not sign extension is involved. Reversing the order of assignments might lose information, however.</p>
+<p>If x is float and i is int, then x = i and i = x both cause conversions; float to int causes truncation of any fractional part. When a double is converted to float, whether the value is rounded or truncated is implementation dependent.</p>
+<p>Since an argument of a function call is an expression, type conversion also takes place when arguments are passed to functions. In the absence of a function prototype, char and short become int, and float becomes double. This is why we have declared function arguments to be int and double even when the function is called with char and float.</p>
+<p>Finally, explicit type conversions can be forced ("coerced") in any expression, with a unary operator called a cast. In the construction</p>
+<pre><code>(*type name*) *expression*
+</code></pre>
+<p>the <em>expression</em> is converted to the named type by the conversion rules above. The precise meaning of a cast is as if the <em>expression</em> were assigned to a variable of the specified type, which is then used in place of the whole construction. For example, the library routine <em>sqrt</em> expects a double argument, and will produce nonsense if inadvertently handed something else. (sqrt is declared in <code>&lt;math.h&gt;</code>.) So if n is an integer, we can use:</p>
+<pre><code class="language-c">sqrt((double) n)
+</code></pre>
+<p>to convert the value of n to double before passing it to sqrt. Note that the cast produces the <em>value</em> of n in the proper type; n itself is not altered. The cast operator has the same high precedence as other unary operators, as summarized in the table at the end of this chapter.</p>
+<p>If arguments are declared by a function prototype, as they normally should be, the declaration causes automatic coercion of any arguments when the function is called. Thus, given a function prototype for sqrt:</p>
+<pre><code class="language-c">double sqrt(double) 
+</code></pre>
+<p>the call:</p>
+<pre><code class="language-c">root2 = sqrt(2) 
+</code></pre>
+<p>coerces the integer 2 into the double value 2.0 without any need for a cast.</p>
+<p>The standard library includes a portable implementation of a pseudo-random number generator and a function for initializing the seed; the former illustrates a cast:</p>
+<pre><code class="language-c">unsigned long int next = 1; 
+/* rand: return pseudo-random integer on 0..32767 */ 
+
+int rand(void) { 
+
+    next = next * 1103515245 + 12345; 
+    return (unsigned int)(next/65536) % 32768; 
+} 
+
+/* srand: set seed for rand() */ 
+void srand(unsigned int seed) { 
+
+    next = seed; 
+}
+</code></pre>
+<p><a href="../Solutions/Chapter2/E2-3.html"><strong>Exercise 2-3.</strong></a> Write a function <code>htoi(s)</code>, which converts a string of hexadecimal digits (including an optional 0x or 0X) into its equivalent integer value. The allowable digits are 0 through 9, a through f, and A through F.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Chapter2/2-6.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Chapter2/2-8.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Chapter2/2-6.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Chapter2/2-8.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

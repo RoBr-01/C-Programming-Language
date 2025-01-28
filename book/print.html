@@ -981,12 +981,398 @@ void copy(void) {
 <p><a href="Chapter1/../Solutions/Chapter1/E1-23.html"><strong>Exercise 1-23.</strong></a> Write a program to remove all comments from a C program. Don't forget to handle quoted strings and character constants properly. C comments don't nest.</p>
 <p><a href="Chapter1/../Solutions/Chapter1/E1-24.html"><strong>Exercise 1-24.</strong></a> Write a program to check a C program for rudimentary syntax errors like unmatched parentheses, brackets and braces. Don't forget about quotes, both single and double, escape sequences, and comments. (This program is hard if you do it in full generality.)</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-2---types-operators-and-expressions"><a class="header" href="#chapter-2---types-operators-and-expressions">Chapter 2 - Types, Operators and Expressions</a></h1>
+<p>Variables and constants are the basic data objects manipulated in a program. Declarations list the variables to be used, and state what type they have and perhaps what their initial values are. Operators specify what is to be done to them. Expressions combine variables and constants to produce new values. The type of an object determines the set of values it can have and what operations can be performed on it. These building blocks are the topics of this chapter.</p>
+<p>The ANSI standard has made many small changes and additions to basic types and expressions. There are now signed and unsigned forms of all integer types, and notations for unsigned constants and hexadecimal character constants. Floating-point operations may be done in single precision; there is also a long double type for extended precision. String constants may be concatenated at compile time. Enumerations have become part of the language, formalizing a feature of long standing. Objects may be declared const, which prevents them from being changed. The rules for automatic coercions among arithmetic types have been augmented to handle the richer set of types.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="variable-names"><a class="header" href="#variable-names">Variable Names</a></h1>
+<p>Although we didn't say so in <a href="Chapter2/../Chapter1/1-0.html">Chapter 1</a>, there are some restrictions on the names of variables and symbolic constants. Names are made up of letters and digits; the first character must be a letter. The underscore "_" counts as a letter; it is sometimes useful for improving the readability of long variable names. Don't begin variable names with underscore, however, since library routines often use such names. Upper and lower case letters are distinct, so x and X are two different names. Traditional C practice is to use lower case for variable names, and all upper case for symbolic constants.</p>
+<p>At least the first 31 characters of an internal name are significant. For function names and external variables, the number may be less than 31, because external names may be used by assemblers and loaders over which the language has no control. For external names, the standard guarantees uniqueness only for 6 characters and a single case. Keywords like if, else, int, float, etc., are reserved: you can't use them as variable names. They must be in lower case.</p>
+<p>It's wise to choose variable names that are related to the purpose of the variable, and that are unlikely to get mixed up typographically. We tend to use short names for local variables, especially loop indices, and longer names for external variables.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="data-types-and-sizes"><a class="header" href="#data-types-and-sizes">Data Types and Sizes</a></h1>
+<p>There are only a few basic data types in C:</p>
+<ul>
+<li>char: a single byte, capable of holding one character in the local character set</li>
+<li>int: an integer, typically reflecting the natural size of integers on the host machine</li>
+<li>float: single-precision floating point</li>
+<li>double: double-precision floating point</li>
+</ul>
+<p>In addition, there are a number of qualifiers that can be applied to these basic types. short and long apply to integers:</p>
+<pre><code class="language-c">short int sh; 
+long int counter; 
+</code></pre>
+<p>The word int can be omitted in such declarations, and typically it is.</p>
+<p>The intent is that short and long should provide different lengths of integers where practical; int will normally be the natural size for a particular machine. short is often 16 bits long, and int either 16 or 32 bits. Each compiler is free to choose appropriate sizes for its own hardware, subject only to the restriction that shorts and ints are at least 16 bits, longs are at least 32 bits, and short is no longer than int, which is no longer than long.</p>
+<p>The qualifier signed or unsigned may be applied to char or any integer. unsigned numbers are always positive or zero, and obey the laws of arithmetic modulo <em>2n</em> , where <em>n</em> is the number of bits in the type. So, for instance, if chars are 8 bits, unsigned char variables have values between 0 and 255, while signed chars have values between -128 and 127 (in a two's complement machine.) Whether plain chars are signed or unsigned is machine-dependent, but printable characters are always positive.</p>
+<p>The type long double specifies extended-precision floating point. As with integers, the sizes of floating-point objects are implementation-defined; float, double and long double could represent one, two or three distinct sizes.</p>
+<p>The standard headers <code>&lt;limits.h&gt;</code> and <code>&lt;float.h&gt;</code> contain symbolic constants for all of these sizes, along with other properties of the machine and compiler. These are discussed in <a href="CHapter2/../AppendixB/B0.html">Appendix B</a>.</p>
+<p><a href="CHapter2/../Solutions/Chapter2/E2-1.html"><strong>Exercise 2-1.</strong></a> Write a program to determine the ranges of char, short, int, and long variables, both signed and unsigned, by printing appropriate values from standard headers and by direct computation. Harder if you compute them: determine the ranges of the various floating-point types.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="constants"><a class="header" href="#constants">Constants</a></h1>
+<p>An integer constant like 1234 is an int. A long constant is written with a terminal l (ell) or L, as in 123456789L; an integer constant too big to fit into an int will also be taken as a long. Unsigned constants are written with a terminal u or U, and the suffix ul or UL indicates unsigned long.</p>
+<p>Floating-point constants contain a decimal point (123.4) or an exponent (1e-2) or both; their type is double, unless suffixed. The suffixes f or F indicate a float constant; l or L indicate a long double.</p>
+<p>The value of an integer can be specified in octal or hexadecimal instead of decimal. A leading 0 (zero) on an integer constant means octal; a leading 0x or 0X means hexadecimal. For example, decimal 31 can be written as 037 in octal and 0x1f or 0x1F in hex. Octal and hexadecimal constants may also be followed by L to make them long and U to make them unsigned: 0XFUL is an <em>unsigned long</em> constant with value 15 decimal.</p>
+<p>A character constant is an integer, written as one character within single quotes, such as 'x'. The value of a character constant is the numeric value of the character in the machine's character set. For example, in the ASCII character set the character constant '0' has the value 48, which is unrelated to the numeric value 0. If we write '0' instead of a numeric value like 48 that depends on the character set, the program is independent of the particular value and easier to read. Character constants participate in numeric operations just as any other integers, although they are most often used in comparisons with other characters.</p>
+<p>Certain characters can be represented in character and string constants by escape sequences like <code>\n</code> (newline); these sequences look like two characters, but represent only one. In addition, an arbitrary byte-sized bit pattern can be specified by</p>
+<p><code>\ooo</code></p>
+<p>where <em>ooo</em> is one to three octal digits (0...7) or by</p>
+<p><code>\xhh</code></p>
+<p>where <em>hh</em> is one or more hexadecimal digits (0...9, a...f, A...F). So we might write</p>
+<pre><code class="language-c">#define VTAB '\013' /* ASCII vertical tab */ 
+#define BELL '\007' /* ASCII bell character */
+</code></pre>
+<p>or, in hexadecimal,</p>
+<pre><code class="language-c">#define VTAB '\xb' /* ASCII vertical tab */ 
+#define BELL '\x7' /* ASCII bell character */
+</code></pre>
+<p>The complete set of escape sequences is</p>
+<div class="table-wrapper"><table><thead><tr><th>Escape sequence</th><th>Meaning</th><th>Escape sequence</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>\a</code></td><td>alert (bell) character</td><td><code>\\</code></td><td>backslash</td></tr>
+<tr><td><code>\b</code></td><td>backspace</td><td><code>\?</code></td><td>question mark</td></tr>
+<tr><td><code>\f</code></td><td>formfeed</td><td><code>\'</code></td><td>single quote</td></tr>
+<tr><td><code>\n</code></td><td>newline</td><td><code>\"</code></td><td>double quote</td></tr>
+<tr><td><code>\r</code></td><td>carriage return</td><td><code>\ooo</code></td><td>octal number</td></tr>
+<tr><td><code>\t</code></td><td>horizontal tab</td><td><code>\xhh</code></td><td>hexadecimal number</td></tr>
+<tr><td><code>\v</code></td><td>vertical tab</td><td></td><td></td></tr>
+</tbody></table>
+</div>
+<p>The character constant <code>\0</code> represents the character with value zero, the null character. <code>\</code>' is often written instead of 0 to emphasize the character nature of some expression, but the numeric value is just 0.</p>
+<p>A <em>constant expression</em> is an expression that involves only constants. Such expressions may be evaluated at compile-time rather than run-time, and accordingly may be used in any place that a constant can occur, as in</p>
+<pre><code class="language-c">#define MAXLINE 1000 
+char line[MAXLINE+1]; 
+</code></pre>
+<p>or</p>
+<pre><code class="language-c">#define LEAP 1 /* in leap years */ 
+int days[31+28+LEAP+31+30+31+30+31+31+30+31+30+31];
+</code></pre>
+<p>A <em>string constant</em>, or <em>string literal</em>, is a sequence of zero or more characters surrounded by double quotes, as in</p>
+<pre><code class="language-c">"I am a string" 
+</code></pre>
+<p>or</p>
+<pre><code class="language-c"> "" /* the empty string */
+</code></pre>
+<p>The quotes are not part of the string, but serve only to delimit it. The same escape sequences used in character constants apply in strings; <code>\"</code> represents the double-quote character. String constants can be concatenated at compile time:</p>
+<pre><code class="language-c">"hello, " "world" 
+</code></pre>
+<p>is equivalent to</p>
+<pre><code class="language-c">"hello, world" 
+</code></pre>
+<p>This is useful for splitting up long strings across several source lines.</p>
+<p>Technically, a string constant is an array of characters. The internal representation of a string has a null character <code>\0</code> at the end, so the physical storage required is one more than the number of characters written between the quotes. This representation means that there is no limit to how long a string can be, but programs must scan a string completely to determine its length. The standard library function <code>strlen(s)</code> returns the length of its character string argument s, excluding the terminal <code>\0</code>. Here is our version:</p>
+<pre><code class="language-c">/* strlen: return length of s */ 
+int strlen(char s[]) { 
+
+    int i = 0; 
+
+    while (s[i] != '\0') 
+        ++i; 
+    return i; 
+}
+</code></pre>
+<p>strlen and other string functions are declared in the standard header <code>&lt;string.h&gt;</code>.</p>
+<p>Be careful to distinguish between a character constant and a string that contains a single character: 'x' is not the same as "x". The former is an integer, used to produce the numeric value of the letter <em>x</em> in the machine's character set. The latter is an array of characters that contains one character (the letter <em>x</em>) and a <code>\0</code>.</p>
+<p>There is one other kind of constant, the <em>enumeration constant</em>. An enumeration is a list of constant integer values, as in</p>
+<pre><code class="language-c">enum boolean { NO, YES }; 
+</code></pre>
+<p>The first name in an enum has value 0, the next 1, and so on, unless explicit values are specified. If not all values are specified, unspecified values continue the progression from the last specified value, as the second of these examples:</p>
+<pre><code class="language-c">enum escapes { BELL = '\a', BACKSPACE = '\b', TAB = '\t', 
+               NEWLINE = '\n', VTAB = '\v', RETURN = '\r' }; 
+
+enum months { JAN = 1, FEB, MAR, APR, MAY, JUN, 
+              JUL, AUG, SEP, OCT, NOV, DEC }; 
+
+            /* FEB = 2, MAR = 3, etc. */
+</code></pre>
+<p>Names in different enumerations must be distinct. Values need not be distinct in the same enumeration.</p>
+<p>Enumerations provide a convenient way to associate constant values with names, an alternative to <code>#define</code> with the advantage that the values can be generated for you. Although variables of enum types may be declared, compilers need not check that what you store in such a variable is a valid value for the enumeration. Nevertheless, enumeration variables offer the chance of checking and so are often better than #defines. In addition, a debugger may be able to print values of enumeration variables in their symbolic form.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="declarations"><a class="header" href="#declarations">Declarations</a></h1>
+<p>All variables must be declared before use, although certain declarations can be made implicitly by content. A declaration specifies a type, and contains a list of one or more variables of that type, as in</p>
+<pre><code class="language-c">int lower, upper, step; 
+char c, line[1000];
+</code></pre>
+<p>Variables can be distributed among declarations in any fashion; the lists above could well be written as</p>
+<pre><code class="language-c">int lower; 
+int upper; 
+int step; 
+char c; 
+char line[1000];
+</code></pre>
+<p>The latter form takes more space, but is convenient for adding a comment to each declaration for subsequent modifications.</p>
+<p>A variable may also be initialized in its declaration. If the name is followed by an equals sign and an expression, the expression serves as an initializer, as in</p>
+<pre><code class="language-c">char esc = '\\'; 
+int i = 0; 
+int limit = MAXLINE+1; 
+float eps = 1.0e-5;
+</code></pre>
+<p>If the variable in question is not automatic, the initialization is done once only, conceptionally before the program starts executing, and the initializer must be a constant expression. An explicitly initialized automatic variable is initialized each time the function or block it is in is entered; the initializer may be any expression. External and static variables are initialized to zero by default. Automatic variables for which there is no explicit initializer have undefined (i.e., garbage) values.</p>
+<p>The qualifier <em>const</em> can be applied to the declaration of any variable to specify that its value will not be changed. For an array, the const qualifier says that the elements will not be altered.</p>
+<pre><code class="language-c">const double e = 2.71828182845905; 
+const char msg[] = "warning: ";
+</code></pre>
+<p>The const declaration can also be used with array arguments, to indicate that the function does not change that array:</p>
+<pre><code class="language-c">int strlen(const char[]);
+</code></pre>
+<p>The result is implementation-defined if an attempt is made to change a const.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="arithmetic-operators"><a class="header" href="#arithmetic-operators">Arithmetic Operators</a></h1>
+<p>The binary arithmetic operators are +, -, *, /, and the modulus operator %. Integer division truncates any fractional part. The expression:</p>
+<pre><code class="language-c">x % y 
+</code></pre>
+<p>produces the remainder when x is divided by y, and thus is zero when y divides x exactly. For example, a year is a leap year if it is divisible by 4 but not by 100, except that years divisible by 400 <em>are</em> leap years. Therefore:</p>
+<pre><code class="language-c">if ((year % 4 == 0 &amp;&amp; year % 100 != 0) || year % 400 == 0) 
+    printf("%d is a leap year\n", year); 
+else 
+    printf("%d is not a leap year\n", year);
+</code></pre>
+<p>The % operator cannot be applied to a float or double. The direction of truncation for / and the sign of the result for % are machine-dependent for negative operands, as is the action taken on overflow or underflow.</p>
+<p>The binary + and - operators have the same precedence, which is lower than the precedence of *, / and %, which is in turn lower than unary + and -. Arithmetic operators associate left to right.</p>
+<p><a href="Chapter2/../Chapter2/2-12.html">Table 2.1</a> at the end of this chapter summarizes precedence and associativity for all operators.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="relational-and-logical-operators"><a class="header" href="#relational-and-logical-operators">Relational and Logical Operators</a></h1>
+<p>The relational operators are</p>
+<pre><code class="language-c">&gt; &gt;= &lt; &lt;=
+</code></pre>
+<p>They all have the same precedence. Just below them in precedence are the equality operators:</p>
+<pre><code class="language-c">== != 
+</code></pre>
+<p>Relational operators have lower precedence than arithmetic operators, so an expression like</p>
+<p><code>i &lt; lim-1</code> is taken as <code>i &lt; (lim-1)</code>, as would be expected.</p>
+<p>More interesting are the logical operators &amp;&amp; and ||. Expressions connected by &amp;&amp; or || are evaluated left to right, and evaluation stops as soon as the truth or falsehood of the result is known. Most C programs rely on these properties. For example, here is a loop from the input function getline that we wrote in <a href="Chapter2/../Chapter1/1-9.html">Chapter 1</a>:</p>
+<pre><code class="language-c">for (i=0; i &lt; lim-1 &amp;&amp; (c=getchar()) != '\n' &amp;&amp; c != EOF; ++i) 
+    s[i] = c;
+</code></pre>
+<p>Before reading a new character it is necessary to check that there is room to store it in the array s, so the test i &lt; lim-1 <em>must</em> be made first. Moreover, if this test fails, we must not go on and read another character.</p>
+<p>Similarly, it would be unfortunate if c were tested against EOF before getchar is called; therefore the call and assignment must occur before the character in c is tested.</p>
+<p>The precedence of &amp;&amp; is higher than that of ||, and both are lower than relational and equality operators, so expressions like</p>
+<pre><code class="language-c">i &lt; lim-1 &amp;&amp; (c=getchar()) != '\n' &amp;&amp; c != EOF 
+</code></pre>
+<p>need no extra parentheses. But since the precedence of != is higher than assignment, parentheses <em>are</em> needed in:</p>
+<pre><code class="language-c">(c=getchar()) != '\n'
+</code></pre>
+<p>to achieve the desired result of assignment to c and then comparison with <code>\n</code>.</p>
+<p>By definition, the numeric value of a relational or logical expression is 1 if the relation is true, and 0 if the relation is false.</p>
+<p>The unary negation operator ! converts a non-zero operand into 0, and a zero operand in 1. A common use of ! is in constructions like</p>
+<pre><code class="language-c">if (!valid) 
+</code></pre>
+<p>rather than</p>
+<pre><code class="language-c">if (valid == 0)
+</code></pre>
+<p>It's hard to generalize about which form is better. Constructions like !valid read nicely ("if not valid"), but more complicated ones can be hard to understand.</p>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-2.html"><strong>Exercise 2-2.</strong></a> Write a loop equivalent to the for loop above without using &amp;&amp; or ||.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="type-conversions"><a class="header" href="#type-conversions">Type Conversions</a></h1>
+<p>When an operator has operands of different types, they are converted to a common type according to a small number of rules. In general, the only automatic conversions are those that convert a "narrower" operand into a "wider" one without losing information, such as converting an integer into floating point in an expression like f + i. Expressions that don't make sense, like using a float as a subscript, are disallowed. Expressions that might lose information, like assigning a longer integer type to a shorter, or a floating-point type to an integer, may draw a warning, but they are not illegal.</p>
+<p>A char is just a small integer, so chars may be freely used in arithmetic expressions. This permits considerable flexibility in certain kinds of character transformations. One is exemplified by this naive implementation of the function <em>atoi</em>, which converts a string of digits into its numeric equivalent.</p>
+<pre><code class="language-c">/* atoi: convert s to integer */ 
+int atoi(char s[]) { 
+
+    int i, n; 
+
+    n = 0; 
+    for (i = 0; s[i] &gt;= '0' &amp;&amp; s[i] &lt;= '9'; ++i) 
+        n = 10 * n + (s[i] - '0'); 
+    return n; 
+}
+</code></pre>
+<p>As we discussed in <a href="Chapter2/../Chapter1/1-0.html">Chapter 1</a>, the expression:</p>
+<pre><code class="language-c">s[i] - '0'
+</code></pre>
+<p>gives the numeric value of the character stored in s[i], because the values of '0', '1', etc., form a contiguous increasing sequence.</p>
+<p>Another example of char to int conversion is the function <em>lower</em>, which maps a single character to lower case <em>for the ASCII character set</em>. If the character is not an upper case letter, lower returns it unchanged.</p>
+<pre><code class="language-c">/* lower: convert c to lower case; ASCII only */ 
+int lower(int c) { 
+
+    if (c &gt;= 'A' &amp;&amp; c &lt;= 'Z') 
+        return c + 'a' - 'A'; 
+    else 
+        return c; 
+}
+</code></pre>
+<p>This works for ASCII because corresponding upper case and lower case letters are a fixed distance apart as numeric values and each alphabet is contiguous - there is nothing but letters between A and Z. This latter observation is not true of the EBCDIC character set, however, so this code would convert more than just letters in EBCDIC.</p>
+<p>The standard header <code>&lt;ctype.h&gt;</code>, described in Appendix B, defines a family of functions that provide tests and conversions that are independent of character set. For example, the function <em>tolower</em> is a portable replacement for the function <em>lower</em> shown above. Similarly, the test:</p>
+<pre><code class="language-c">c &gt;= '0' &amp;&amp; c &lt;= '9' 
+</code></pre>
+<p>can be replaced by:</p>
+<pre><code class="language-c">isdigit(c)
+</code></pre>
+<p>We will use the <code>&lt;ctype.h&gt;</code> functions from now on.</p>
+<p>There is one subtle point about the conversion of characters to integers. The language does not specify whether variables of type char are signed or unsigned quantities. When a char is converted to an int, can it ever produce a negative integer? The answer varies from machine to machine, reflecting differences in architecture. On some machines a char whose leftmost bit is 1 will be converted to a negative integer ("sign extension"). On others, a char is promoted to an int by adding zeros at the left end, and thus is always positive.</p>
+<p>The definition of C guarantees that any character in the machine's standard printing character set will never be negative, so these characters will always be positive quantities in expressions. But arbitrary bit patterns stored in character variables may appear to be negative on some machines, yet positive on others. For portability, specify signed or unsigned if noncharacter data is to be stored in char variables.</p>
+<p>Relational expressions like i &gt; j and logical expressions connected by &amp;&amp; and || are defined to have value 1 if true, and 0 if false. Thus the assignment:</p>
+<pre><code class="language-c">d = c &gt;= '0' &amp;&amp; c &lt;= '9'
+</code></pre>
+<p>sets d to 1 if c is a digit, and 0 if not. However, functions like <em>isdigit</em> may return any nonzero value for true. In the test part of if, while, for, etc., "true" just means "non-zero", so this makes no difference.</p>
+<p>Implicit arithmetic conversions work much as expected. In general, if an operator like + or * that takes two operands (a binary operator) has operands of different types, the "lower" type is <em>promoted</em> to the "higher" type before the operation proceeds. The result is of the integer type. <a href="Chapter2/../AppendixA/A6-0.html">Section 6 of Appendix A</a> states the conversion rules precisely. If there are no unsigned operands, however, the following informal set of rules will suffice:</p>
+<ul>
+<li>If either operand is long double, convert the other to long double.</li>
+<li>Otherwise, if either operand is double, convert the other to double.</li>
+<li>Otherwise, if either operand is float, convert the other to float.</li>
+<li>Otherwise, convert char and short to int.</li>
+<li>Then, if either operand is long, convert the other to long.</li>
+</ul>
+<p>Notice that floats in an expression are not automatically converted to double; this is a change from the original definition. In general, mathematical functions like those in <code>&lt;math.h&gt;</code> will use double precision. The main reason for using float is to save storage in large arrays, or, less often, to save time on machines where double-precision arithmetic is particularly expensive.</p>
+<p>Conversion rules are more complicated when unsigned operands are involved. The problem is that comparisons between signed and unsigned values are machine-dependent, because they depend on the sizes of the various integer types. For example, suppose that int is 16 bits and long is 32 bits. Then -1L &lt; 1U, because 1U, which is an unsigned int, is promoted to a signed long. But -1L &gt; 1UL because -1L is promoted to unsigned long and thus appears to be a large positive number.</p>
+<p>Conversions take place across assignments; the value of the right side is converted to the type of the left, which is the type of the result.</p>
+<p>A character is converted to an integer, either by sign extension or not, as described above.</p>
+<p>Longer integers are converted to shorter ones or to chars by dropping the excess high-order bits. Thus in:</p>
+<pre><code class="language-c">int i; 
+char c; 
+i = c; 
+c = i;
+</code></pre>
+<p>the value of c is unchanged. This is true whether or not sign extension is involved. Reversing the order of assignments might lose information, however.</p>
+<p>If x is float and i is int, then x = i and i = x both cause conversions; float to int causes truncation of any fractional part. When a double is converted to float, whether the value is rounded or truncated is implementation dependent.</p>
+<p>Since an argument of a function call is an expression, type conversion also takes place when arguments are passed to functions. In the absence of a function prototype, char and short become int, and float becomes double. This is why we have declared function arguments to be int and double even when the function is called with char and float.</p>
+<p>Finally, explicit type conversions can be forced ("coerced") in any expression, with a unary operator called a cast. In the construction</p>
+<pre><code>(*type name*) *expression*
+</code></pre>
+<p>the <em>expression</em> is converted to the named type by the conversion rules above. The precise meaning of a cast is as if the <em>expression</em> were assigned to a variable of the specified type, which is then used in place of the whole construction. For example, the library routine <em>sqrt</em> expects a double argument, and will produce nonsense if inadvertently handed something else. (sqrt is declared in <code>&lt;math.h&gt;</code>.) So if n is an integer, we can use:</p>
+<pre><code class="language-c">sqrt((double) n)
+</code></pre>
+<p>to convert the value of n to double before passing it to sqrt. Note that the cast produces the <em>value</em> of n in the proper type; n itself is not altered. The cast operator has the same high precedence as other unary operators, as summarized in the table at the end of this chapter.</p>
+<p>If arguments are declared by a function prototype, as they normally should be, the declaration causes automatic coercion of any arguments when the function is called. Thus, given a function prototype for sqrt:</p>
+<pre><code class="language-c">double sqrt(double) 
+</code></pre>
+<p>the call:</p>
+<pre><code class="language-c">root2 = sqrt(2) 
+</code></pre>
+<p>coerces the integer 2 into the double value 2.0 without any need for a cast.</p>
+<p>The standard library includes a portable implementation of a pseudo-random number generator and a function for initializing the seed; the former illustrates a cast:</p>
+<pre><code class="language-c">unsigned long int next = 1; 
+/* rand: return pseudo-random integer on 0..32767 */ 
+
+int rand(void) { 
+
+    next = next * 1103515245 + 12345; 
+    return (unsigned int)(next/65536) % 32768; 
+} 
+
+/* srand: set seed for rand() */ 
+void srand(unsigned int seed) { 
+
+    next = seed; 
+}
+</code></pre>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-3.html"><strong>Exercise 2-3.</strong></a> Write a function <code>htoi(s)</code>, which converts a string of hexadecimal digits (including an optional 0x or 0X) into its equivalent integer value. The allowable digits are 0 through 9, a through f, and A through F.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="increment-and-decrement-operators"><a class="header" href="#increment-and-decrement-operators">Increment and Decrement Operators</a></h1>
+<p>C provides two unusual operators for incrementing and decrementing variables. The increment operator <code>++</code> adds 1 to its operand, while the decrement operator <code>--</code> subtracts 1. We have frequently used <code>++</code> to increment variables, as in:</p>
+<pre><code class="language-c">if (c == '\n') ++nl;
+</code></pre>
+<p>The unusual aspect is that <code>++</code> and <code>--</code> may be used either as prefix operators (before the variable, as in ++n), or postfix operators (after the variable: n++). In both cases, the effect is to increment n. But the expression ++n increments n <em>before</em> its value is used, while n++ increments n <em>after</em> its value has been used. This means that in a context where the value is being used, not just the effect, ++n and n++ are different. If n is 5, then:</p>
+<pre><code class="language-c">x = n++; 
+</code></pre>
+<p>sets x to 5, but:</p>
+<pre><code class="language-c">x = ++n;
+</code></pre>
+<p>sets x to 6. In both cases, n becomes 6. The increment and decrement operators can only be applied to variables; an expression like <code>(i+j)++</code> is illegal.</p>
+<p>In a context where no value is wanted, just the incrementing effect, as in:</p>
+<pre><code class="language-c">if (c == '\n') 
+    nl++;
+</code></pre>
+<p>prefix and postfix are the same. But there are situations where one or the other is specifically called for. For instance, consider the function <code>squeeze(s,c)</code>, which removes all occurrences of the character c from the string s.</p>
+<pre><code class="language-c">/* squeeze: delete all c from s */ 
+void squeeze(char s[], int c) { 
+
+    int i, j; 
+
+    for (i = j = 0; s[i] != '\0'; i++) 
+        if (s[i] != c) 
+            s[j++] = s[i]; 
+
+    s[j] = '\0'; 
+}
+</code></pre>
+<p>Each time a non-c occurs, it is copied into the current j position, and only then is j incremented to be ready for the next character. This is exactly equivalent to:</p>
+<pre><code class="language-c">if (s[i] != c) { 
+    s[j] = s[i]; 
+    j++; 
+}
+</code></pre>
+<p>Another example of a similar construction comes from the <code>getline</code> function that we wrote in Chapter 1, where we can replace</p>
+<pre><code class="language-c">if (c == '\n') { 
+    s[i] = c; 
+    ++i; 
+}
+</code></pre>
+<p>by the more compact</p>
+<pre><code class="language-c">if (c == '\n') 
+    s[i++] = c;
+</code></pre>
+<p>As a third example, consider the standard function <code>strcat(s,t)</code>, which concatenates the string t to the end of string s. <code>strcat</code> assumes that there is enough space in s to hold the combination. As we have written it, <code>strcat</code> returns no value; the standard library version returns a pointer to the resulting string.</p>
+<pre><code class="language-c">/* strcat: concatenate t to end of s; s must be big enough */ 
+void strcat(char s[], char t[]) {
+    
+    int i, j; 
+    i = j = 0; 
+    while (s[i] != '\0') /* find end of s */ 
+        i++; 
+    while ((s[i++] = t[j++]) != '\0') /* copy t */ 
+        ; 
+}
+</code></pre>
+<p>As each member is copied from t to s, the postfix ++ is applied to both i and j to make sure that they are in position for the next pass through the loop.</p>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-4.html"><strong>Exercise 2-4.</strong></a> Write an alternative version of squeeze(s1,s2) that deletes each character in s1 that matches any character in the <em>string</em> s2.</p>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-4.html"><strong>Exercise 2-5.</strong></a> Write the function <code>any(s1,s2)</code>, which returns the first location in a string s1 where any character from the string s2 occurs, or -1 if s1 contains no characters from s2. (The standard library function <code>strpbrk</code> does the same job but returns a pointer to the location.)</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="bitwise-operators"><a class="header" href="#bitwise-operators">Bitwise Operators</a></h1>
+<p>C provides six operators for bit manipulation; these may only be applied to integral operands, that is, char, short, int, and long, whether signed or unsigned.</p>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>&amp;</td><td>bitwise AND</td></tr>
+<tr><td>|</td><td>bitwise inclusive OR</td></tr>
+<tr><td>^</td><td>bitwise exclusive OR</td></tr>
+<tr><td>&lt;&lt;</td><td>left shift</td></tr>
+<tr><td>&gt;&gt;</td><td>right shift</td></tr>
+<tr><td>~</td><td>one's complement (unary)</td></tr>
+</tbody></table>
+</div>
+<p>The bitwise AND operator (&amp;) is often used to mask off some set of bits, for example</p>
+<pre><code class="language-c">n = n &amp; 0177; 
+</code></pre>
+<p>sets to zero all but the low-order 7 bits of n.</p>
+<p>The bitwise OR operator | is used to turn bits on:</p>
+<pre><code class="language-c">x = x | SET_ON; 
+</code></pre>
+<p>sets to one in x the bits that are set to one in SET_ON.</p>
+<p>The bitwise exclusive OR operator ^ sets a one in each bit position where its operands have different bits, and zero where they are the same.</p>
+<p>One must distinguish the bitwise operators &amp; and | from the logical operators &amp;&amp; and ||, which imply left-to-right evaluation of a truth value. For example, if x is 1 and y is 2, then x &amp; y is zero while x &amp;&amp; y is one.</p>
+<p>The shift operators &lt;&lt; and &gt;&gt; perform left and right shifts of their left operand by the number of bit positions given by the right operand, which must be non-negative. Thus x &lt;&lt; 2 shifts the value of x by two positions, filling vacated bits with zero; this is equivalent to multiplication by 4. Right shifting an unsigned quantity always fits the vacated bits with zero. Right shifting a signed quantity will fill with bit signs ("arithmetic shift") on some machines and with 0-bits ("logical shift") on others.</p>
+<p>The unary operator ~ yields the one's complement of an integer; that is, it converts each 1-bit into a 0-bit and vice versa. For example</p>
+<pre><code class="language-c">x = x &amp; ~077
+</code></pre>
+<p>sets the last six bits of x to zero. Note that x &amp; ~077 is independent of word length, and is thus preferable to, for example, x &amp; 0177700, which assumes that x is a 16-bit quantity. The portable form involves no extra cost, since ~077 is a constant expression that can be evaluated at compile time.</p>
+<p>As an illustration of some of the bit operators, consider the function <code>getbits(x,p,n)</code> that returns the (right adjusted) n-bit field of x that begins at position p. We assume that bit position 0 is at the right end and that n and p are sensible positive values. For example, <code>getbits(x,4,3)</code> returns the three bits in positions 4, 3 and 2, right-adjusted.</p>
+<pre><code class="language-c">/* getbits: get n bits from position p */ 
+unsigned getbits(unsigned x, int p, int n) { 
+
+    return (x &gt;&gt; (p+1-n)) &amp; ~(~0 &lt;&lt; n); 
+}
+</code></pre>
+<p>The expression x &gt;&gt; (p+1-n) moves the desired field to the right end of the word. ~0 is all 1-bits; shifting it left n positions with ~0&lt;&lt;n places zeros in the rightmost n bits; complementing that with ~ makes a mask with ones in the rightmost n bits.</p>
+<blockquote>
+<p><strong>Note</strong><br />
+If that confused you, it confused me too. So let's go step by step.</p>
+<p>Imagine we have a number; say 37. in binary that would be: <code>100101</code><br />
+(most significant bit first, the lowest bit on the right)</p>
+<p>We would like to have bits 2 and 1, so p = 2 and n = 2.<br />
+(We start counting from 0, that's why the position is 2 instead of 3, and p determines the upper bound, we count n down from there)</p>
+<p>Original number: <code>100101</code></p>
+<p><code>x &gt;&gt; (p+1-n)</code>results in <code>x &gt;&gt; (1)</code><br />
+So we shift all digits 1 position to the right, dropping the rightmost digit.</p>
+<p>After shift: <code>010010</code></p>
+<p><code>~(~0 &lt;&lt; n)</code>constructs a mask like this:</p>
+<p><code>~0</code> turns <code>000000</code>into <code>111111</code>(however many zeros we want, deduced at compile-time) then:<br />
+<code>&lt;&lt; n </code>shifts them left by n (in our case 2) places, resulting in: <code>111100</code><br />
+the final <code>~</code> inverts it leaving: <code>000011</code></p>
+<p>then we AND our shifted input and the mask together, which results in:
+<code>000010</code></p>
+<p>I included a little example program so you can check that out too.</p>
+</blockquote>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-6.html"><strong>Exercise 2-6.</strong></a> Write a function <code>setbits(x,p,n,y)</code> that returns x with the n bits that begin at position p set to the rightmost n bits of y, leaving the other bits unchanged.</p>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-7.html"><strong>Exercise 2-7.</strong></a> Write a function <code>invert(x,p,n)</code> that returns x with the n bits that begin at position p inverted (i.e., 1 changed into 0 and vice versa), leaving the others unchanged.</p>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-8.html"><strong>Exercise 2-8.</strong></a> Write a function <code>rightrot(x,n)</code> that returns the value of the integer x rotated to the right by n positions.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="assignment-operators-and-expressions"><a class="header" href="#assignment-operators-and-expressions">Assignment Operators and Expressions</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="conditional-expressions"><a class="header" href="#conditional-expressions">Conditional Expressions</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="precedence-and-order-of-evaluation"><a class="header" href="#precedence-and-order-of-evaluation">Precedence and Order of Evaluation</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-4---functions-and-program-structure"><a class="header" href="#chapter-4---functions-and-program-structure">Chapter 4 - Functions and Program Structure</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-7---input-and-output"><a class="header" href="#chapter-7---input-and-output">Chapter 7 - Input and Output</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="formatted-input---scanf"><a class="header" href="#formatted-input---scanf">Formatted Input - Scanf</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="introduction-1"><a class="header" href="#introduction-1">Introduction</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="conversions"><a class="header" href="#conversions">Conversions</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="expressions"><a class="header" href="#expressions">Expressions</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-b---standard-library"><a class="header" href="#appendix-b---standard-library">Appendix B - Standard Library</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-c---summary-of-changes"><a class="header" href="#appendix-c---summary-of-changes">Appendix C - Summary of Changes</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-1-1"><a class="header" href="#exercise-1-1">Exercise 1-1</a></h1>
@@ -1013,6 +1399,14 @@ void copy(void) {
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-1-22"><a class="header" href="#exercise-1-22">Exercise 1-22</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-1-23"><a class="header" href="#exercise-1-23">Exercise 1-23</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-1-24"><a class="header" href="#exercise-1-24">Exercise 1-24</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-1"><a class="header" href="#exercise-2-1">Exercise 2-1</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-2"><a class="header" href="#exercise-2-2">Exercise 2-2</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-3"><a class="header" href="#exercise-2-3">Exercise 2-3</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-4"><a class="header" href="#exercise-2-4">Exercise 2-4</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-5"><a class="header" href="#exercise-2-5">Exercise 2-5</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-6"><a class="header" href="#exercise-2-6">Exercise 2-6</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-7"><a class="header" href="#exercise-2-7">Exercise 2-7</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-8"><a class="header" href="#exercise-2-8">Exercise 2-8</a></h1>
 
                     </main>
 

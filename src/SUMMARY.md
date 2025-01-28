@@ -21,19 +21,19 @@
     - [Character Arrays](Chapter1/1-9.md)                                   Done
     - [External Variables and Scope](Chapter1/1-10.md)                      Done
 
-- [Chapter 2 - Types, Operators and Expressions](Chapter2/2-0.md)
-    - [Variable Names]()
-    - [Data Types and Sizes]()
-    - [Constants](Chapter2/2-3.md)
-    - [Declarations]()
-    - [Arithmetic Operators]()
-    - [Relational and Logical Operators]()
-    - [Type Conversions]()
-    - [Increment and Decrement Operators]()
-    - [Bitwise Operators]()
-    - [Assignment Operators and Expressions]()
-    - [Conditional Expressions]()
-    - [Precedence and Order of Evaluation]()
+- [Chapter 2 - Types, Operators and Expressions](Chapter2/2-0.md)           Done         
+    - [Variable Names](Chapter2/2-1.md)                                     Done                              
+    - [Data Types and Sizes](CHapter2/2-2.md)                               Done                              
+    - [Constants](Chapter2/2-3.md)                                          Done
+    - [Declarations](Chapter2/2-4.md)                                       Done
+    - [Arithmetic Operators](Chapter2/2-5.md)                               Done
+    - [Relational and Logical Operators](Chapter2/2-6.md)                   Done
+    - [Type Conversions](Chapter2/2-7.md)                                   Done
+    - [Increment and Decrement Operators](Chapter2/2-8.md)                  Done
+    - [Bitwise Operators](Chapter2/2-9.md)                                  Done  
+    - [Assignment Operators and Expressions](Chapter2/2-10.md)
+    - [Conditional Expressions](Chapter2/2-11.md)
+    - [Precedence and Order of Evaluation](Chapter2/2-12.md)
 
 - [Chapter 3 - Control Flow]()
     - [Statements and Blocks]()
@@ -128,7 +128,7 @@
         - [Derived Types]()
         - [Type Qualifiers]()
     - [Objects and Lvalues]()
-    - [Conversions]()
+    - [Conversions](AppendixA/A6-0.md)
         - [Integral Promotion]()
         - [Integral Conversions]()
         - [Integer and Floating]()
@@ -137,7 +137,7 @@
         - [Pointers and Integers]()
         - [Void]()
         - [Pointers to Void]()
-    - [Expressions]()
+    - [Expressions](AppendixA/A7-0.md)
         - [Pointer Conversion]()
         - [Primary Expressions]()
         - [Postfix Expressions]()
@@ -243,6 +243,14 @@
         - [Exercise 1-23](Solutions/Chapter1/E1-23.md)
         - [Exercise 1-24](Solutions/Chapter1/E1-24.md)
     - [Chapter 2]()
+        - [Exercise 2-1](Solutions/Chapter2/E2-1.md)
+        - [Exercise 2-2](Solutions/Chapter2/E2-2.md)
+        - [Exercise 2-3](Solutions/Chapter2/E2-3.md)
+        - [Exercise 2-4](Solutions/Chapter2/E2-4.md)
+        - [Exercise 2-5](Solutions/Chapter2/E2-5.md)
+        - [Exercise 2-6](Solutions/Chapter2/E2-6.md)
+        - [Exercise 2-7](Solutions/Chapter2/E2-7.md)
+        - [Exercise 2-8](Solutions/Chapter2/E2-8.md)
     - [Chapter 3]()
     - [Chapter 4]()
     - [Chapter 5]()

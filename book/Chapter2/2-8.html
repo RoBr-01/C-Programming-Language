@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Appendix B - Standard Library - The C Programming Language</title>
+        <title>Increment and Decrement Operators - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,75 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="appendix-b---standard-library"><a class="header" href="#appendix-b---standard-library">Appendix B - Standard Library</a></h1>
+                        <h1 id="increment-and-decrement-operators"><a class="header" href="#increment-and-decrement-operators">Increment and Decrement Operators</a></h1>
+<p>C provides two unusual operators for incrementing and decrementing variables. The increment operator <code>++</code> adds 1 to its operand, while the decrement operator <code>--</code> subtracts 1. We have frequently used <code>++</code> to increment variables, as in:</p>
+<pre><code class="language-c">if (c == '\n') ++nl;
+</code></pre>
+<p>The unusual aspect is that <code>++</code> and <code>--</code> may be used either as prefix operators (before the variable, as in ++n), or postfix operators (after the variable: n++). In both cases, the effect is to increment n. But the expression ++n increments n <em>before</em> its value is used, while n++ increments n <em>after</em> its value has been used. This means that in a context where the value is being used, not just the effect, ++n and n++ are different. If n is 5, then:</p>
+<pre><code class="language-c">x = n++; 
+</code></pre>
+<p>sets x to 5, but:</p>
+<pre><code class="language-c">x = ++n;
+</code></pre>
+<p>sets x to 6. In both cases, n becomes 6. The increment and decrement operators can only be applied to variables; an expression like <code>(i+j)++</code> is illegal.</p>
+<p>In a context where no value is wanted, just the incrementing effect, as in:</p>
+<pre><code class="language-c">if (c == '\n') 
+    nl++;
+</code></pre>
+<p>prefix and postfix are the same. But there are situations where one or the other is specifically called for. For instance, consider the function <code>squeeze(s,c)</code>, which removes all occurrences of the character c from the string s.</p>
+<pre><code class="language-c">/* squeeze: delete all c from s */ 
+void squeeze(char s[], int c) { 
+
+    int i, j; 
+
+    for (i = j = 0; s[i] != '\0'; i++) 
+        if (s[i] != c) 
+            s[j++] = s[i]; 
+
+    s[j] = '\0'; 
+}
+</code></pre>
+<p>Each time a non-c occurs, it is copied into the current j position, and only then is j incremented to be ready for the next character. This is exactly equivalent to:</p>
+<pre><code class="language-c">if (s[i] != c) { 
+    s[j] = s[i]; 
+    j++; 
+}
+</code></pre>
+<p>Another example of a similar construction comes from the <code>getline</code> function that we wrote in Chapter 1, where we can replace</p>
+<pre><code class="language-c">if (c == '\n') { 
+    s[i] = c; 
+    ++i; 
+}
+</code></pre>
+<p>by the more compact</p>
+<pre><code class="language-c">if (c == '\n') 
+    s[i++] = c;
+</code></pre>
+<p>As a third example, consider the standard function <code>strcat(s,t)</code>, which concatenates the string t to the end of string s. <code>strcat</code> assumes that there is enough space in s to hold the combination. As we have written it, <code>strcat</code> returns no value; the standard library version returns a pointer to the resulting string.</p>
+<pre><code class="language-c">/* strcat: concatenate t to end of s; s must be big enough */ 
+void strcat(char s[], char t[]) {
+    
+    int i, j; 
+    i = j = 0; 
+    while (s[i] != '\0') /* find end of s */ 
+        i++; 
+    while ((s[i++] = t[j++]) != '\0') /* copy t */ 
+        ; 
+}
+</code></pre>
+<p>As each member is copied from t to s, the postfix ++ is applied to both i and j to make sure that they are in position for the next pass through the loop.</p>
+<p><a href="../Solutions/Chapter2/E2-4.html"><strong>Exercise 2-4.</strong></a> Write an alternative version of squeeze(s1,s2) that deletes each character in s1 that matches any character in the <em>string</em> s2.</p>
+<p><a href="../Solutions/Chapter2/E2-4.html"><strong>Exercise 2-5.</strong></a> Write the function <code>any(s1,s2)</code>, which returns the first location in a string s1 where any character from the string s2 occurs, or -1 if s1 contains no characters from s2. (The standard library function <code>strpbrk</code> does the same job but returns a pointer to the location.)</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../AppendixA/A7-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter2/2-7.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../AppendixC.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter2/2-9.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +230,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../AppendixA/A7-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter2/2-7.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../AppendixC.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter2/2-9.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

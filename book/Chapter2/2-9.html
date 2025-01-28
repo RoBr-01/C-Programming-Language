@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Appendix B - Standard Library - The C Programming Language</title>
+        <title>Bitwise Operators - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,72 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="appendix-b---standard-library"><a class="header" href="#appendix-b---standard-library">Appendix B - Standard Library</a></h1>
+                        <h1 id="bitwise-operators"><a class="header" href="#bitwise-operators">Bitwise Operators</a></h1>
+<p>C provides six operators for bit manipulation; these may only be applied to integral operands, that is, char, short, int, and long, whether signed or unsigned.</p>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>&amp;</td><td>bitwise AND</td></tr>
+<tr><td>|</td><td>bitwise inclusive OR</td></tr>
+<tr><td>^</td><td>bitwise exclusive OR</td></tr>
+<tr><td>&lt;&lt;</td><td>left shift</td></tr>
+<tr><td>&gt;&gt;</td><td>right shift</td></tr>
+<tr><td>~</td><td>one's complement (unary)</td></tr>
+</tbody></table>
+</div>
+<p>The bitwise AND operator (&amp;) is often used to mask off some set of bits, for example</p>
+<pre><code class="language-c">n = n &amp; 0177; 
+</code></pre>
+<p>sets to zero all but the low-order 7 bits of n.</p>
+<p>The bitwise OR operator | is used to turn bits on:</p>
+<pre><code class="language-c">x = x | SET_ON; 
+</code></pre>
+<p>sets to one in x the bits that are set to one in SET_ON.</p>
+<p>The bitwise exclusive OR operator ^ sets a one in each bit position where its operands have different bits, and zero where they are the same.</p>
+<p>One must distinguish the bitwise operators &amp; and | from the logical operators &amp;&amp; and ||, which imply left-to-right evaluation of a truth value. For example, if x is 1 and y is 2, then x &amp; y is zero while x &amp;&amp; y is one.</p>
+<p>The shift operators &lt;&lt; and &gt;&gt; perform left and right shifts of their left operand by the number of bit positions given by the right operand, which must be non-negative. Thus x &lt;&lt; 2 shifts the value of x by two positions, filling vacated bits with zero; this is equivalent to multiplication by 4. Right shifting an unsigned quantity always fits the vacated bits with zero. Right shifting a signed quantity will fill with bit signs ("arithmetic shift") on some machines and with 0-bits ("logical shift") on others.</p>
+<p>The unary operator ~ yields the one's complement of an integer; that is, it converts each 1-bit into a 0-bit and vice versa. For example</p>
+<pre><code class="language-c">x = x &amp; ~077
+</code></pre>
+<p>sets the last six bits of x to zero. Note that x &amp; ~077 is independent of word length, and is thus preferable to, for example, x &amp; 0177700, which assumes that x is a 16-bit quantity. The portable form involves no extra cost, since ~077 is a constant expression that can be evaluated at compile time.</p>
+<p>As an illustration of some of the bit operators, consider the function <code>getbits(x,p,n)</code> that returns the (right adjusted) n-bit field of x that begins at position p. We assume that bit position 0 is at the right end and that n and p are sensible positive values. For example, <code>getbits(x,4,3)</code> returns the three bits in positions 4, 3 and 2, right-adjusted.</p>
+<pre><code class="language-c">/* getbits: get n bits from position p */ 
+unsigned getbits(unsigned x, int p, int n) { 
+
+    return (x &gt;&gt; (p+1-n)) &amp; ~(~0 &lt;&lt; n); 
+}
+</code></pre>
+<p>The expression x &gt;&gt; (p+1-n) moves the desired field to the right end of the word. ~0 is all 1-bits; shifting it left n positions with ~0&lt;&lt;n places zeros in the rightmost n bits; complementing that with ~ makes a mask with ones in the rightmost n bits.</p>
+<blockquote>
+<p><strong>Note</strong><br />
+If that confused you, it confused me too. So let's go step by step.</p>
+<p>Imagine we have a number; say 37. in binary that would be: <code>100101</code><br />
+(most significant bit first, the lowest bit on the right)</p>
+<p>We would like to have bits 2 and 1, so p = 2 and n = 2.<br />
+(We start counting from 0, that's why the position is 2 instead of 3, and p determines the upper bound, we count n down from there)</p>
+<p>Original number: <code>100101</code></p>
+<p><code>x &gt;&gt; (p+1-n)</code>results in <code>x &gt;&gt; (1)</code><br />
+So we shift all digits 1 position to the right, dropping the rightmost digit.</p>
+<p>After shift: <code>010010</code></p>
+<p><code>~(~0 &lt;&lt; n)</code>constructs a mask like this:</p>
+<p><code>~0</code> turns <code>000000</code>into <code>111111</code>(however many zeros we want, deduced at compile-time) then:<br />
+<code>&lt;&lt; n </code>shifts them left by n (in our case 2) places, resulting in: <code>111100</code><br />
+the final <code>~</code> inverts it leaving: <code>000011</code></p>
+<p>then we AND our shifted input and the mask together, which results in:
+<code>000010</code></p>
+<p>I included a little example program so you can check that out too.</p>
+</blockquote>
+<p><a href="../Solutions/Chapter2/E2-6.html"><strong>Exercise 2-6.</strong></a> Write a function <code>setbits(x,p,n,y)</code> that returns x with the n bits that begin at position p set to the rightmost n bits of y, leaving the other bits unchanged.</p>
+<p><a href="../Solutions/Chapter2/E2-7.html"><strong>Exercise 2-7.</strong></a> Write a function <code>invert(x,p,n)</code> that returns x with the n bits that begin at position p inverted (i.e., 1 changed into 0 and vice versa), leaving the others unchanged.</p>
+<p><a href="../Solutions/Chapter2/E2-8.html"><strong>Exercise 2-8.</strong></a> Write a function <code>rightrot(x,n)</code> that returns the value of the integer x rotated to the right by n positions.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../AppendixA/A7-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter2/2-8.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../AppendixC.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter2/2-10.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +227,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../AppendixA/A7-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter2/2-8.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../AppendixC.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter2/2-10.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
