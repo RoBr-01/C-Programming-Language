@@ -23,7 +23,7 @@
 
 - [Chapter 2 - Types, Operators and Expressions](Chapter2/2-0.md)           Done         
     - [Variable Names](Chapter2/2-1.md)                                     Done                              
-    - [Data Types and Sizes](CHapter2/2-2.md)                               Done                              
+    - [Data Types and Sizes](Chapter2/2-2.md)                               Done                              
     - [Constants](Chapter2/2-3.md)                                          Done
     - [Declarations](Chapter2/2-4.md)                                       Done
     - [Arithmetic Operators](Chapter2/2-5.md)                               Done
