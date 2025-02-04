@@ -153,6 +153,48 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="assignment-operators-and-expressions"><a class="header" href="#assignment-operators-and-expressions">Assignment Operators and Expressions</a></h1>
+<p>An expression such as:</p>
+<pre><code class="language-c">i = i + 2
+</code></pre>
+<p>in which the variable on the left side is repeated immediately on the right, can be written in the compressed form:</p>
+<pre><code class="language-c">i += 2
+</code></pre>
+<p>The operator <code>+=</code> is called an <em>assignment operator</em>.</p>
+<p>Most binary operators (operators like <code>+</code> that have a left and right operand) have a corresponding assignment operator <code>op=</code>, where <em>op</em> is one of</p>
+<pre><code class="language-c">+ - * / % &lt;&lt; &gt;&gt; &amp; ^ | 
+</code></pre>
+<p>If <em>expr1</em> and <em>expr2</em> are expressions, then:</p>
+<pre><code class="language-c">expr1 op= expr2
+</code></pre>
+<p>is equivalent to:</p>
+<pre><code class="language-c">*expr1* = (*expr1*) *op* (*expr2*) 
+</code></pre>
+<p>except that <em>expr1</em> is computed only once. Notice the parentheses around <em>expr2</em>:</p>
+<p><code>x *= y + 1</code> means <code>x = x * (y + 1)</code> rather than <code>x = x * y + 1</code></p>
+<p>As an example, the function bitcount counts the number of 1-bits in its integer argument.</p>
+<pre><code class="language-c">/* bitcount: count 1 bits in x */ 
+int bitcount(unsigned x) { 
+
+    int b; 
+
+    for (b = 0; x != 0; x &gt;&gt;= 1) 
+        if (x &amp; 01) 
+            b++; 
+    return b; 
+}
+</code></pre>
+<p>Declaring the argument x to be unsigned (int) ensures that when it is right-shifted, vacated bits will be filled with zeros, not sign bits, regardless of the machine the program is run on.</p>
+<p>Quite apart from conciseness, assignment operators have the advantage that they correspond better to the way people think. We say "add 2 to i" or "increment i by 2", not "take i, add 2, then put the result back in i". Thus the expression <code>i += 2</code> is preferable to <code>i = i+2</code>. In addition, for a complicated expression like:</p>
+<pre><code class="language-c">yyval[yypv[p3+p4] + yypv[p1]] += 2
+</code></pre>
+<p>the assignment operator makes the code easier to understand, since the reader doesn't have to check painstakingly that two long expressions are indeed the same, or to wonder why they're not. And an assignment operator may even help a compiler to produce efficient code.</p>
+<p>We have already seen that the assignment statement has a value and can occur in expressions; the most common example is:</p>
+<pre><code class="language-c">while ((c = getchar()) != EOF) 
+    ...
+</code></pre>
+<p>The other assignment operators (<code>+=</code>, <code>-=</code>, etc.) can also occur in expressions, although this is less frequent.</p>
+<p>In all such expressions, the type of an assignment expression is the type of its left operand, and the value is the value after the assignment.</p>
+<p><a href="../Solutions/Chapter2/E2-9.html"><strong>Exercise 2-9.</strong></a> In a two's complement number system, x &amp;= (x-1) deletes the rightmost 1-bit in x. Explain why. Use this observation to write a faster version of bitcount.</p>
 
                     </main>
 

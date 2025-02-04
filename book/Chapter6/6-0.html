@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Precedence and Order of Evaluation - The C Programming Language</title>
+        <title>Chapter 6 - Structures - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,57 +152,17 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="precedence-and-order-of-evaluation"><a class="header" href="#precedence-and-order-of-evaluation">Precedence and Order of Evaluation</a></h1>
-<p>Table 2.1 summarizes the rules for precedence and associativity of all operators, including those that we have not yet discussed. Operators on the same line have the same precedence; rows are in order of decreasing precedence, so, for example; <code>*</code>, <code>/</code>, and <code>%</code> all have the same precedence, which is higher than that of binary <code>+</code> and <code>-</code>. The "operator" <code>()</code>refers to function call. The operators <code>-&gt;</code> and <code>.</code> are used to access members of structures; they will be covered in <a href="../Chapter6/6-0.html">Chapter 6</a>, along with <code>sizeof</code> (size of an object). <a href="../Chapter5/5-0.html">Chapter 5</a> discusses <code>*</code> (indirection through a pointer) and <code>&amp;</code> (address of an object), and <a href="../Chapter3/3-0.html">Chapter 3</a> discusses the comma operator.</p>
-<hr />
-<h4 id="table-21-precedence-and-associativity-of-operators"><a class="header" href="#table-21-precedence-and-associativity-of-operators"><em>Table 2.1: Precedence and Associativity of Operators</em></a></h4>
-<div class="table-wrapper"><table><thead><tr><th>Precedence</th><th>Operators</th><th>Associativity</th></tr></thead><tbody>
-<tr><td>1</td><td><code>()</code> (function call) <code>[]</code> <code>-&gt;</code> <code>.</code></td><td>Left to right</td></tr>
-<tr><td>2</td><td><code>!</code> <code>~</code> <code>++</code> <code>--</code> <code>+</code> (unary) <code>-</code> (unary) <code>*</code> (dereference) <code>(type)</code> <code>sizeof</code></td><td>Right to left</td></tr>
-<tr><td>3</td><td><code>*</code> <code>/</code> <code>%</code></td><td>Left to right</td></tr>
-<tr><td>4</td><td><code>+</code> <code>-</code></td><td>Left to right</td></tr>
-<tr><td>5</td><td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td><td>Left to right</td></tr>
-<tr><td>6</td><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>Left to right</td></tr>
-<tr><td>7</td><td><code>==</code> <code>!=</code></td><td>Left to right</td></tr>
-<tr><td>8</td><td><code>&amp;</code></td><td>Left to right</td></tr>
-<tr><td>9</td><td><code>^</code></td><td>Left to right</td></tr>
-<tr><td>10</td><td><code>|</code></td><td>Left to right</td></tr>
-<tr><td>11</td><td><code>&amp;&amp;</code></td><td>Left to right</td></tr>
-<tr><td>12</td><td><code>||</code></td><td>Left to right</td></tr>
-<tr><td>13</td><td><code>?:</code></td><td>Right to left</td></tr>
-<tr><td>14</td><td><code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code> <code>&amp;=</code> <code>^=</code> <code>|=</code> <code>&lt;&lt;=</code> <code>&gt;&gt;=</code></td><td>Right to left</td></tr>
-<tr><td>15</td><td><code>,</code></td><td>Left to right</td></tr>
-</tbody></table>
-</div>
-<p>Unary <code>&amp;</code>, <code>+</code>, <code>-</code>, and <code>*</code> have higher precedence than the binary forms.</p>
-<p>Note that the precedence of the bitwise operators <code>&amp;</code>, <code>^</code>, and <code>|</code> falls below <code>==</code> and <code>!=</code>. This implies that bit-testing expressions like:</p>
-<pre><code class="language-c">if ((x &amp; MASK) == 0) ... 
-</code></pre>
-<p>must be fully parenthesized to give proper results.</p>
-<p>C, like most languages, does not specify the order in which the operands of an operator are evaluated. (The exceptions are <code>&amp;&amp;</code>, <code>||</code>, <code>?:</code>, and <code>,</code>.) For example, in a statement like</p>
-<p><code>x = f() + g();</code></p>
-<p>f may be evaluated before g or vice versa; thus if either f or g alters a variable on which the other depends, x can depend on the order of evaluation. Intermediate results can be stored in temporary variables to ensure a particular sequence.</p>
-<p>Similarly, the order in which function arguments are evaluated is not specified, so the statement:</p>
-<pre><code class="language-c">printf("%d %d\n", ++n, power(2, n)); /* WRONG */ 
-</code></pre>
-<p>can produce different results with different compilers, depending on whether n is incremented before power is called. The solution, of course, is to write:</p>
-<pre><code class="language-c">printf("%d %d\n", n, power(2, n));
-</code></pre>
-<p>Function calls, nested assignment statements, and increment and decrement operators cause "side effects" - some variable is changed as a by-product of the evaluation of an expression. In any expression involving side effects, there can be subtle dependencies on the order in which variables taking part in the expression are updated. One unhappy situation is typified by the statement:</p>
-<pre><code class="language-c">a[i] = i++;
-</code></pre>
-<p>The question is whether the subscript is the old value of i or the new. Compilers can interpret this in different ways, and generate different answers depending on their interpretation. The standard intentionally leaves most such matters unspecified. When side effects (assignment to variables) take place within an expression, the order is left to the discretion of the compiler, since the best order depends strongly on machine architecture. (The standard does specify that all side effects on arguments take effect before a function is called, but that would not help in the call to printf above.)</p>
-<p>The moral is that writing code that depends on order of evaluation is a bad programming practice in any language. Naturally, it is necessary to know what things to avoid, but if you don't know <em>how</em> they are done on various machines, you won't be tempted to take advantage of a particular implementation.</p>
+                        <h1 id="chapter-6---structures"><a class="header" href="#chapter-6---structures">Chapter 6 - Structures</a></h1>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter2/2-11.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter5/5-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter3/3-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter7/7-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -212,11 +172,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter2/2-11.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter5/5-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter3/3-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter7/7-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

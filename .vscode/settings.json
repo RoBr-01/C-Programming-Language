@@ -1,7 +1,18 @@
 {
     "cSpell.words": [
+        "Creat",
+        "ctype",
+        "Fopen",
+        "Getc",
         "initialisation",
         "initialised",
-        "initialising"
+        "initialising",
+        "Lseek",
+        "Lvalues",
+        "Scanf",
+        "setjmp",
+        "stdarg",
+        "stdlib",
+        "Ungetc"
     ]
 }

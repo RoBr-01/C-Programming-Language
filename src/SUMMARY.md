@@ -31,11 +31,11 @@
     - [Type Conversions](Chapter2/2-7.md)                                   Done
     - [Increment and Decrement Operators](Chapter2/2-8.md)                  Done
     - [Bitwise Operators](Chapter2/2-9.md)                                  Done  
-    - [Assignment Operators and Expressions](Chapter2/2-10.md)
-    - [Conditional Expressions](Chapter2/2-11.md)
-    - [Precedence and Order of Evaluation](Chapter2/2-12.md)
+    - [Assignment Operators and Expressions](Chapter2/2-10.md)              Done
+    - [Conditional Expressions](Chapter2/2-11.md)                           Done
+    - [Precedence and Order of Evaluation](Chapter2/2-12.md)                Done
 
-- [Chapter 3 - Control Flow]()
+- [Chapter 3 - Control Flow](Chapter3/3-0.md)
     - [Statements and Blocks]()
     - [If-Else]()
     - [Else-If]()
@@ -75,7 +75,7 @@
     - [Pointers to Functions]()
     - [Complicated Declarations]()
 
-- [Chapter 6 - Structures]()
+- [Chapter 6 - Structures](Chapter6/6-0.md)
     - [Basics of Structures]()
     - [Structures and Functions]()
     - [Arrays of Structures]()
@@ -251,6 +251,8 @@
         - [Exercise 2-6](Solutions/Chapter2/E2-6.md)
         - [Exercise 2-7](Solutions/Chapter2/E2-7.md)
         - [Exercise 2-8](Solutions/Chapter2/E2-8.md)
+        - [Exercise 2-9](Solutions/Chapter2/E2-9.md)
+        - [Exercise 2-10](Solutions/Chapter2/E2-10.md)
     - [Chapter 3]()
     - [Chapter 4]()
     - [Chapter 5]()

@@ -1364,10 +1364,124 @@ the final <code>~</code> inverts it leaving: <code>000011</code></p>
 <p><a href="Chapter2/../Solutions/Chapter2/E2-7.html"><strong>Exercise 2-7.</strong></a> Write a function <code>invert(x,p,n)</code> that returns x with the n bits that begin at position p inverted (i.e., 1 changed into 0 and vice versa), leaving the others unchanged.</p>
 <p><a href="Chapter2/../Solutions/Chapter2/E2-8.html"><strong>Exercise 2-8.</strong></a> Write a function <code>rightrot(x,n)</code> that returns the value of the integer x rotated to the right by n positions.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="assignment-operators-and-expressions"><a class="header" href="#assignment-operators-and-expressions">Assignment Operators and Expressions</a></h1>
+<p>An expression such as:</p>
+<pre><code class="language-c">i = i + 2
+</code></pre>
+<p>in which the variable on the left side is repeated immediately on the right, can be written in the compressed form:</p>
+<pre><code class="language-c">i += 2
+</code></pre>
+<p>The operator <code>+=</code> is called an <em>assignment operator</em>.</p>
+<p>Most binary operators (operators like <code>+</code> that have a left and right operand) have a corresponding assignment operator <code>op=</code>, where <em>op</em> is one of</p>
+<pre><code class="language-c">+ - * / % &lt;&lt; &gt;&gt; &amp; ^ | 
+</code></pre>
+<p>If <em>expr1</em> and <em>expr2</em> are expressions, then:</p>
+<pre><code class="language-c">expr1 op= expr2
+</code></pre>
+<p>is equivalent to:</p>
+<pre><code class="language-c">*expr1* = (*expr1*) *op* (*expr2*) 
+</code></pre>
+<p>except that <em>expr1</em> is computed only once. Notice the parentheses around <em>expr2</em>:</p>
+<p><code>x *= y + 1</code> means <code>x = x * (y + 1)</code> rather than <code>x = x * y + 1</code></p>
+<p>As an example, the function bitcount counts the number of 1-bits in its integer argument.</p>
+<pre><code class="language-c">/* bitcount: count 1 bits in x */ 
+int bitcount(unsigned x) { 
+
+    int b; 
+
+    for (b = 0; x != 0; x &gt;&gt;= 1) 
+        if (x &amp; 01) 
+            b++; 
+    return b; 
+}
+</code></pre>
+<p>Declaring the argument x to be unsigned (int) ensures that when it is right-shifted, vacated bits will be filled with zeros, not sign bits, regardless of the machine the program is run on.</p>
+<p>Quite apart from conciseness, assignment operators have the advantage that they correspond better to the way people think. We say "add 2 to i" or "increment i by 2", not "take i, add 2, then put the result back in i". Thus the expression <code>i += 2</code> is preferable to <code>i = i+2</code>. In addition, for a complicated expression like:</p>
+<pre><code class="language-c">yyval[yypv[p3+p4] + yypv[p1]] += 2
+</code></pre>
+<p>the assignment operator makes the code easier to understand, since the reader doesn't have to check painstakingly that two long expressions are indeed the same, or to wonder why they're not. And an assignment operator may even help a compiler to produce efficient code.</p>
+<p>We have already seen that the assignment statement has a value and can occur in expressions; the most common example is:</p>
+<pre><code class="language-c">while ((c = getchar()) != EOF) 
+    ...
+</code></pre>
+<p>The other assignment operators (<code>+=</code>, <code>-=</code>, etc.) can also occur in expressions, although this is less frequent.</p>
+<p>In all such expressions, the type of an assignment expression is the type of its left operand, and the value is the value after the assignment.</p>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-9.html"><strong>Exercise 2-9.</strong></a> In a two's complement number system, x &amp;= (x-1) deletes the rightmost 1-bit in x. Explain why. Use this observation to write a faster version of bitcount.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="conditional-expressions"><a class="header" href="#conditional-expressions">Conditional Expressions</a></h1>
+<p>The statements</p>
+<pre><code class="language-c">if (a &gt; b) 
+    z = a; 
+else 
+    z = b;
+</code></pre>
+<p>compute in z the maximum of a and b. The <em>conditional expression</em>, written with the ternary operator <code>?:</code>, provides an alternate way to write this and similar constructions. In the expression:</p>
+<p><code>expr1 ? expr2 : expr3</code></p>
+<p>the expression <em>expr1</em> is evaluated first. If it is non-zero (true), then the expression <em>expr2</em> is
+evaluated, and that is the value of the conditional expression. Otherwise <em>expr3</em> is evaluated,
+and that is the value. Only one of <em>expr2</em> and <em>expr3</em> is evaluated. Thus to set z to the maximum
+of a and b;</p>
+<pre><code class="language-c">z = (a &gt; b) ? a : b; /* z = max(a, b) */ 
+</code></pre>
+<p>It should be noted that the conditional expression is indeed an expression, and it can be used
+wherever any other expression can be. If <em>expr2</em> and <em>expr3</em> are of different types, the type of the
+result is determined by the conversion rules discussed earlier in this chapter. For example, if f
+is a float and n an int, then the expression:</p>
+<pre><code class="language-c">(n &gt; 0) ? f : n 
+</code></pre>
+<p>is of type float regardless of whether n is positive.</p>
+<p>Parentheses are not necessary around the first expression of a conditional expression, since the precedence of <code>?:</code> is very low, just above assignment. They are advisable anyway, however, since they make the condition part of the expression easier to see.</p>
+<p>The conditional expression often leads to succinct code. For example, this loop prints n elements of an array, 10 per line, with each column separated by one blank, and with each line (including the last) terminated by a newline.</p>
+<pre><code class="language-c">for (i = 0; i &lt; n; i++) 
+    printf("%6d%c", a[i], (i%10==9 || i==n-1) ? '\n' : ' ');
+</code></pre>
+<p>A newline is printed after every tenth element, and after the n-th. All other elements are followed by one blank. This might look tricky, but it's more compact than the equivalent if-else. Another good example is:</p>
+<pre><code class="language-c">printf("You have %d item%s.\n", n, n==1 ? "" : "s"); 
+</code></pre>
+<p><a href="Chapter2/../Solutions/Chapter2/E2-10.html"><strong>Exercise 2-10.</strong></a> Rewrite the function <code>lower</code>, which converts upper case letters to lower case, with a conditional expression instead of if-else.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="precedence-and-order-of-evaluation"><a class="header" href="#precedence-and-order-of-evaluation">Precedence and Order of Evaluation</a></h1>
+<p>Table 2.1 summarizes the rules for precedence and associativity of all operators, including those that we have not yet discussed. Operators on the same line have the same precedence; rows are in order of decreasing precedence, so, for example; <code>*</code>, <code>/</code>, and <code>%</code> all have the same precedence, which is higher than that of binary <code>+</code> and <code>-</code>. The "operator" <code>()</code>refers to function call. The operators <code>-&gt;</code> and <code>.</code> are used to access members of structures; they will be covered in <a href="Chapter2/../Chapter6/6-0.html">Chapter 6</a>, along with <code>sizeof</code> (size of an object). <a href="Chapter2/../Chapter5/5-0.html">Chapter 5</a> discusses <code>*</code> (indirection through a pointer) and <code>&amp;</code> (address of an object), and <a href="Chapter2/../Chapter3/3-0.html">Chapter 3</a> discusses the comma operator.</p>
+<hr />
+<h4 id="table-21-precedence-and-associativity-of-operators"><a class="header" href="#table-21-precedence-and-associativity-of-operators"><em>Table 2.1: Precedence and Associativity of Operators</em></a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Precedence</th><th>Operators</th><th>Associativity</th></tr></thead><tbody>
+<tr><td>1</td><td><code>()</code> (function call) <code>[]</code> <code>-&gt;</code> <code>.</code></td><td>Left to right</td></tr>
+<tr><td>2</td><td><code>!</code> <code>~</code> <code>++</code> <code>--</code> <code>+</code> (unary) <code>-</code> (unary) <code>*</code> (dereference) <code>(type)</code> <code>sizeof</code></td><td>Right to left</td></tr>
+<tr><td>3</td><td><code>*</code> <code>/</code> <code>%</code></td><td>Left to right</td></tr>
+<tr><td>4</td><td><code>+</code> <code>-</code></td><td>Left to right</td></tr>
+<tr><td>5</td><td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td><td>Left to right</td></tr>
+<tr><td>6</td><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>Left to right</td></tr>
+<tr><td>7</td><td><code>==</code> <code>!=</code></td><td>Left to right</td></tr>
+<tr><td>8</td><td><code>&amp;</code></td><td>Left to right</td></tr>
+<tr><td>9</td><td><code>^</code></td><td>Left to right</td></tr>
+<tr><td>10</td><td><code>|</code></td><td>Left to right</td></tr>
+<tr><td>11</td><td><code>&amp;&amp;</code></td><td>Left to right</td></tr>
+<tr><td>12</td><td><code>||</code></td><td>Left to right</td></tr>
+<tr><td>13</td><td><code>?:</code></td><td>Right to left</td></tr>
+<tr><td>14</td><td><code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code> <code>&amp;=</code> <code>^=</code> <code>|=</code> <code>&lt;&lt;=</code> <code>&gt;&gt;=</code></td><td>Right to left</td></tr>
+<tr><td>15</td><td><code>,</code></td><td>Left to right</td></tr>
+</tbody></table>
+</div>
+<p>Unary <code>&amp;</code>, <code>+</code>, <code>-</code>, and <code>*</code> have higher precedence than the binary forms.</p>
+<p>Note that the precedence of the bitwise operators <code>&amp;</code>, <code>^</code>, and <code>|</code> falls below <code>==</code> and <code>!=</code>. This implies that bit-testing expressions like:</p>
+<pre><code class="language-c">if ((x &amp; MASK) == 0) ... 
+</code></pre>
+<p>must be fully parenthesized to give proper results.</p>
+<p>C, like most languages, does not specify the order in which the operands of an operator are evaluated. (The exceptions are <code>&amp;&amp;</code>, <code>||</code>, <code>?:</code>, and <code>,</code>.) For example, in a statement like</p>
+<p><code>x = f() + g();</code></p>
+<p>f may be evaluated before g or vice versa; thus if either f or g alters a variable on which the other depends, x can depend on the order of evaluation. Intermediate results can be stored in temporary variables to ensure a particular sequence.</p>
+<p>Similarly, the order in which function arguments are evaluated is not specified, so the statement:</p>
+<pre><code class="language-c">printf("%d %d\n", ++n, power(2, n)); /* WRONG */ 
+</code></pre>
+<p>can produce different results with different compilers, depending on whether n is incremented before power is called. The solution, of course, is to write:</p>
+<pre><code class="language-c">printf("%d %d\n", n, power(2, n));
+</code></pre>
+<p>Function calls, nested assignment statements, and increment and decrement operators cause "side effects" - some variable is changed as a by-product of the evaluation of an expression. In any expression involving side effects, there can be subtle dependencies on the order in which variables taking part in the expression are updated. One unhappy situation is typified by the statement:</p>
+<pre><code class="language-c">a[i] = i++;
+</code></pre>
+<p>The question is whether the subscript is the old value of i or the new. Compilers can interpret this in different ways, and generate different answers depending on their interpretation. The standard intentionally leaves most such matters unspecified. When side effects (assignment to variables) take place within an expression, the order is left to the discretion of the compiler, since the best order depends strongly on machine architecture. (The standard does specify that all side effects on arguments take effect before a function is called, but that would not help in the call to printf above.)</p>
+<p>The moral is that writing code that depends on order of evaluation is a bad programming practice in any language. Naturally, it is necessary to know what things to avoid, but if you don't know <em>how</em> they are done on various machines, you won't be tempted to take advantage of a particular implementation.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-3---control-flow"><a class="header" href="#chapter-3---control-flow">Chapter 3 - Control Flow</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-4---functions-and-program-structure"><a class="header" href="#chapter-4---functions-and-program-structure">Chapter 4 - Functions and Program Structure</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-6---structures"><a class="header" href="#chapter-6---structures">Chapter 6 - Structures</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-7---input-and-output"><a class="header" href="#chapter-7---input-and-output">Chapter 7 - Input and Output</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="formatted-input---scanf"><a class="header" href="#formatted-input---scanf">Formatted Input - Scanf</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="introduction-1"><a class="header" href="#introduction-1">Introduction</a></h1>
@@ -1407,6 +1521,8 @@ the final <code>~</code> inverts it leaving: <code>000011</code></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-6"><a class="header" href="#exercise-2-6">Exercise 2-6</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-7"><a class="header" href="#exercise-2-7">Exercise 2-7</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-8"><a class="header" href="#exercise-2-8">Exercise 2-8</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-9"><a class="header" href="#exercise-2-9">Exercise 2-9</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-2-10"><a class="header" href="#exercise-2-10">Exercise 2-10</a></h1>
 
                     </main>
 
