@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 4 - Functions and Program Structure - The C Programming Language</title>
+        <title>Loops - Do-While - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,49 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-4---functions-and-program-structure"><a class="header" href="#chapter-4---functions-and-program-structure">Chapter 4 - Functions and Program Structure</a></h1>
+                        <h1 id="loops---do-while"><a class="header" href="#loops---do-while">Loops - Do-While</a></h1>
+<p>As we discussed in <a href="../Chapter1/1-0.html">Chapter 1</a>, the <code>while</code> and <code>for</code> loops test the termination condition at the top. By contrast, the third loop in C, the <code>do-while</code>, tests at the bottom <em>after</em> making each pass through the loop body; the body is always executed at least once.</p>
+<p>The syntax of the <code>do</code> is:</p>
+<pre><code>do 
+    *statement* 
+while (*expression*);
+</code></pre>
+<p>The <em>statement</em> is executed, then <em>expression</em> is evaluated. If it is true, <em>statement</em> is evaluated again, and so on. When the expression becomes false, the loop terminates. Except for the sense of the test, <code>do-while</code> is equivalent to the Pascal <code>repeat-until</code> statement.</p>
+<p>Experience shows that <code>do-while</code> is much less used than <code>while</code> and <code>for</code>. Nonetheless, from time to time it is valuable, as in the following function <code>itoa</code>, which converts a number to a character string (the inverse of <code>atoi</code>). The job is slightly more complicated than might be thought at first, because the easy methods of generating the digits generate them in the wrong order. We have chosen to generate the string backwards, then reverse it.</p>
+<pre><code class="language-c">/* itoa: convert n to characters in s */ 
+void itoa(int n, char s[]) { 
+
+    int i, sign; 
+
+    if ((sign = n) &lt; 0) /* record sign */ 
+        n = -n; /* make n positive */ 
+    
+    i = 0; 
+    do { /* generate digits in reverse order */ 
+        s[i++] = n % 10 + '0'; /* get next digit */ 
+    } while ((n /= 10) &gt; 0); /* delete it */ 
+
+    if (sign &lt; 0) 
+        s[i++] = '-'; 
+    s[i] = '\0'; 
+
+    reverse(s); 
+}
+</code></pre>
+<p>The <code>do-while</code> is necessary, or at least convenient, since at least one character must be installed in the array <code>s</code>, even if <code>n</code> is zero. We also used braces around the single statement that makes up the body of the <code>do-while</code>, even though they are unnecessary, so the hasty reader will not mistake the while part for the <em>beginning</em> of a <code>while</code> loop.</p>
+<p><a href="../Solutions/Chapter3/E3-4.html"><strong>Exercise 3-4.</strong></a> In a two's complement number representation, our version of <code>itoa</code> does not handle the largest negative number, that is, the value of <code>n</code> equal to -(2^(wordsize-1)). Explain why not. Modify it to print that value correctly, regardless of the machine on which it runs.</p>
+<p><a href="../Solutions/Chapter3/E3-5.html"><strong>Exercise 3-5.</strong></a> Write the function <code>itob(n,s,b)</code> that converts the integer <code>n</code> into a base <code>b</code> character representation in the string <code>s</code>. In particular, <code>itob(n,s,16)</code> formats <code>n</code> as a hexadecimal integer in <code>s</code>.</p>
+<p><a href="../Solutions/Chapter3/E3-6.html"><strong>Exercise 3-6.</strong></a> Write a version of <code>itoa</code> that accepts three arguments instead of two. The third argument is a minimum field width; the converted number must be padded with blanks on the left if necessary to make it wide enough.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter3/3-8.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter3/3-5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter5/5-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter3/3-7.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +204,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter3/3-8.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter3/3-5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter5/5-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter3/3-7.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

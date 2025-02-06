@@ -35,15 +35,15 @@
     - [Conditional Expressions](Chapter2/2-11.md)                           Done
     - [Precedence and Order of Evaluation](Chapter2/2-12.md)                Done
 
-- [Chapter 3 - Control Flow](Chapter3/3-0.md)
-    - [Statements and Blocks]()
-    - [If-Else]()
-    - [Else-If]()
-    - [Switch]()
-    - [Loops - While and For]()
-    - [Loops - Do-While]()
-    - [Break and Continue]()
-    - [Goto and Labels]()
+- [Chapter 3 - Control Flow](Chapter3/3-0.md)                               Done
+    - [Statements and Blocks](Chapter3/3-1.md)                              Done
+    - [If-Else](Chapter3/3-2.md)                                            Done
+    - [Else-If](Chapter3/3-3.md)                                            Done         
+    - [Switch](Chapter3/3-4.md)                                             Done
+    - [Loops - While and For](Chapter3/3-5.md)                              Done
+    - [Loops - Do-While](Chapter3/3-6.md)                                   Done
+    - [Break and Continue](Chapter3/3-7.md)                                 
+    - [Goto and Labels](Chapter3/3-8.md)
 
 - [Chapter 4 - Functions and Program Structure](Chapter4/4-0.md)
     - [Basics of Functions]()
@@ -254,6 +254,12 @@
         - [Exercise 2-9](Solutions/Chapter2/E2-9.md)
         - [Exercise 2-10](Solutions/Chapter2/E2-10.md)
     - [Chapter 3]()
+        - [Exercise 3-1](Solutions/Chapter3/E3-1.md)
+        - [Exercise 3-2](Solutions/Chapter3/E3-2.md)
+        - [Exercise 3-3](Solutions/Chapter3/E3-3.md)
+        - [Exercise 3-4](Solutions/Chapter3/E3-4.md)
+        - [Exercise 3-5](Solutions/Chapter3/E3-5.md)
+        - [Exercise 3-6](Solutions/Chapter3/E3-6.md)
     - [Chapter 4]()
     - [Chapter 5]()
     - [Chapter 6]()

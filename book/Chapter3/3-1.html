@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 4 - Functions and Program Structure - The C Programming Language</title>
+        <title>Statements and Blocks - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,24 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-4---functions-and-program-structure"><a class="header" href="#chapter-4---functions-and-program-structure">Chapter 4 - Functions and Program Structure</a></h1>
+                        <h1 id="statements-and-blocks"><a class="header" href="#statements-and-blocks">Statements and Blocks</a></h1>
+<p>An expression such as <code>x = 0</code> or <code>i++</code> or <code>printf(...)</code> becomes a <em>statement</em> when it is followed by a semicolon, as in:</p>
+<pre><code class="language-c">x = 0; 
+i++; 
+printf(...);
+</code></pre>
+<p>In C, the semicolon is a statement terminator, rather than a separator as it is in languages like Pascal.</p>
+<p>Braces <code>{</code> and <code>}</code> are used to group declarations and statements together into a <em>compound statement</em>, or <em>block</em>, so that they are syntactically equivalent to a single statement. The braces that surround the statements of a function are one obvious example; braces around multiple statements after an <code>if</code>, <code>else</code>, <code>while</code>, or <code>for</code> are another. (Variables can be declared inside <em>any</em> block; we will talk about this in <a href="../Chapter4/4-0.html">Chapter 4</a>.) There is <em><strong>no</strong></em> semicolon after the right brace that ends a block.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter3/3-8.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter3/3-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter5/5-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter3/3-2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +179,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter3/3-8.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter3/3-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter5/5-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter3/3-2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
