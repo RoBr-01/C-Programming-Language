@@ -5,6 +5,7 @@
         "ctype",
         "Fopen",
         "Getc",
+        "gotos",
         "initialisation",
         "initialised",
         "initialising",

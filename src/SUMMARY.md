@@ -14,23 +14,23 @@
         - [File Copying](Chapter1/1-5-1.md)                                 Done
         - [Character Counting](Chapter1/1-5-2.md)                           Done
         - [Line Counting](Chapter1/1-5-3.md)                                Done
-        - [Word Counting](Chapter1/1-5-4.md)                                Done                               
+        - [Word Counting](Chapter1/1-5-4.md)                                Done
     - [Arrays](Chapter1/1-6.md)                                             Done
-    - [Functions](Chapter1/1-7.md)                                          Done                  
+    - [Functions](Chapter1/1-7.md)                                          Done
     - [Arguments - Call by Value](Chapter1/1-8.md)                          Done
     - [Character Arrays](Chapter1/1-9.md)                                   Done
     - [External Variables and Scope](Chapter1/1-10.md)                      Done
 
-- [Chapter 2 - Types, Operators and Expressions](Chapter2/2-0.md)           Done         
-    - [Variable Names](Chapter2/2-1.md)                                     Done                              
-    - [Data Types and Sizes](Chapter2/2-2.md)                               Done                              
+- [Chapter 2 - Types, Operators and Expressions](Chapter2/2-0.md)           Done
+    - [Variable Names](Chapter2/2-1.md)                                     Done
+    - [Data Types and Sizes](Chapter2/2-2.md)                               Done
     - [Constants](Chapter2/2-3.md)                                          Done
     - [Declarations](Chapter2/2-4.md)                                       Done
     - [Arithmetic Operators](Chapter2/2-5.md)                               Done
     - [Relational and Logical Operators](Chapter2/2-6.md)                   Done
     - [Type Conversions](Chapter2/2-7.md)                                   Done
     - [Increment and Decrement Operators](Chapter2/2-8.md)                  Done
-    - [Bitwise Operators](Chapter2/2-9.md)                                  Done  
+    - [Bitwise Operators](Chapter2/2-9.md)                                  Done
     - [Assignment Operators and Expressions](Chapter2/2-10.md)              Done
     - [Conditional Expressions](Chapter2/2-11.md)                           Done
     - [Precedence and Order of Evaluation](Chapter2/2-12.md)                Done
@@ -38,12 +38,12 @@
 - [Chapter 3 - Control Flow](Chapter3/3-0.md)                               Done
     - [Statements and Blocks](Chapter3/3-1.md)                              Done
     - [If-Else](Chapter3/3-2.md)                                            Done
-    - [Else-If](Chapter3/3-3.md)                                            Done         
+    - [Else-If](Chapter3/3-3.md)                                            Done
     - [Switch](Chapter3/3-4.md)                                             Done
     - [Loops - While and For](Chapter3/3-5.md)                              Done
     - [Loops - Do-While](Chapter3/3-6.md)                                   Done
-    - [Break and Continue](Chapter3/3-7.md)                                 
-    - [Goto and Labels](Chapter3/3-8.md)
+    - [Break and Continue](Chapter3/3-7.md)                                 Done
+    - [Goto and Labels](Chapter3/3-8.md)                                    Done
 
 - [Chapter 4 - Functions and Program Structure](Chapter4/4-0.md)
     - [Basics of Functions]()

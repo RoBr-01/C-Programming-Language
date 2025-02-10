@@ -1765,7 +1765,77 @@ void itoa(int n, char s[]) {
 <p><a href="Chapter3/../Solutions/Chapter3/E3-5.html"><strong>Exercise 3-5.</strong></a> Write the function <code>itob(n,s,b)</code> that converts the integer <code>n</code> into a base <code>b</code> character representation in the string <code>s</code>. In particular, <code>itob(n,s,16)</code> formats <code>n</code> as a hexadecimal integer in <code>s</code>.</p>
 <p><a href="Chapter3/../Solutions/Chapter3/E3-6.html"><strong>Exercise 3-6.</strong></a> Write a version of <code>itoa</code> that accepts three arguments instead of two. The third argument is a minimum field width; the converted number must be padded with blanks on the left if necessary to make it wide enough.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="break-and-continue"><a class="header" href="#break-and-continue">Break and Continue</a></h1>
+<p>It is sometimes convenient to be able to exit from a loop other than by testing at the top or bottom. The <code>break</code> statement provides an early exit from <code>for</code>, <code>while</code>, and <code>do</code>, just as from <code>switch</code>. A <code>break</code> causes the innermost enclosing loop or <code>switch</code> to be exited immediately.</p>
+<p>The following function, <code>trim</code>, removes trailing blanks, tabs and newlines from the end of a string, using a <code>break</code> to exit from a loop when the rightmost non-blank, non-tab, non-newline is found.</p>
+<pre><code class="language-c">/* trim: remove trailing blanks, tabs, newlines */ 
+int trim(char s[]) 
+{ 
+    int n; 
+    for (n = strlen(s) - 1; n &gt;= 0; n--) 
+    {
+        if (s[n] != ' ' &amp;&amp; s[n] != '\t' &amp;&amp; s[n] != '\n') 
+            break; 
+    }
+    s[n + 1] = '\0'; 
+    return n; 
+}
+</code></pre>
+<p><code>strlen</code> returns the length of the string. The <code>for</code> loop starts at the end and scans backwards looking for the first character that is not a blank or tab or newline. The loop is broken when one is found, or when n becomes negative (that is, when the entire string has been scanned). You should verify that this is correct behavior even when the string is empty or contains only white space characters.</p>
+<p>The <code>continue</code> statement is related to break, but less often used; it causes the next iteration of the enclosing <code>for</code>, <code>while</code>, or <code>do</code> loop to begin. In the <code>while</code> and <code>do</code>, this means that the test part is executed immediately; in the <code>for</code>, control passes to the increment step. The <code>continue</code> statement applies only to loops, not to <code>switch</code>. A <code>continue</code> inside a <code>switch</code> inside a loop causes the next loop iteration.</p>
+<p>As an example, this fragment processes only the non-negative elements in the array a; negative values are skipped.</p>
+<pre><code class="language-c">for (i = 0; i &lt; n; i++) 
+    if (a[i] &lt; 0) /* skip negative elements */ 
+        continue; 
+    ... /* do positive elements */
+</code></pre>
+<p>The <code>continue</code> statement is often used when the part of the loop that follows is complicated, so that reversing a test and indenting another level would nest the program too deeply.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="goto-and-labels"><a class="header" href="#goto-and-labels">Goto and Labels</a></h1>
+<p>C provides the infinitely-abusable <code>goto</code> statement, and labels to branch to. Formally, the <code>goto</code> statement is <em>never</em> necessary, and in practice it is almost always easy to write code without it. We have not used <code>goto</code> in this book.</p>
+<p>Nevertheless, there are a few situations where gotos may find a place. The most common is to abandon processing in some deeply nested structure, such as breaking out of two or more loops at once. The break statement cannot be used directly since it only exits from the innermost loop. Thus:</p>
+<pre><code class="language-c">    for ( ... ) 
+        for ( ... ) { 
+                ... 
+            if (disaster) 
+                goto error; 
+        } 
+    ... 
+error: 
+    /* clean up the mess */
+</code></pre>
+<p>This organization is handy if the error-handling code is non-trivial, and if errors can occur in several places.</p>
+<p>A label has the same form as a variable name, and is followed by a colon. It can be attached to any statement in the same function as the <code>goto</code>. The scope of a label is the entire function.</p>
+<p>As another example, consider the problem of determining whether two arrays a and b have an element in common. One possibility is:</p>
+<pre><code class="language-c">    for (i = 0; i &lt; n; i++) 
+        for (j = 0; j &lt; m; j++) 
+            if (a[i] == b[j]) 
+                goto found; 
+    /* didn't find any common element */ 
+    ... 
+found: 
+    /* got one: a[i] == b[j] */ 
+    ...
+</code></pre>
+<p>Code involving a <code>goto</code> can <em>always</em> be written without one, though perhaps at the price of some repeated tests or an extra variable. For example, the array search becomes:</p>
+<pre><code class="language-c">found = 0; 
+for (i = 0; i &lt; n &amp;&amp; !found; i++) 
+    for (j = 0; j &lt; m &amp;&amp; !found; j++) 
+        if (a[i] == b[j]) 
+            found = 1; 
+if (found) 
+    /* got one: a[i-1] == b[j-1] */ 
+    ... 
+else 
+    /* didn't find any common element */ 
+    ...
+</code></pre>
+<p>With a few exceptions like those cited here, code that relies on <code>goto</code> statements is generally harder to understand and to maintain than code without gotos. Although we are not dogmatic about the matter, it does seem that <code>goto</code> statements should be used rarely, if at all.</p>
+<blockquote>
+<p><strong>Important Note:</strong></p>
+<p>Never, <em>ever</em> use a <code>goto</code>.</p>
+<p>The <code>goto</code>statement is a remnant of <strong>Assembly</strong>. In Assembly there is often a <code>jump</code> instruction, that allows you to <em>jump</em> to any part of your code.
+Jumping around in your code like that is a necessity in Assembly, because it is so low level.</p>
+<p>C provides structured control flow constructs like <code>for</code> and <code>while</code>, which allow us to achieve the same logic as <code>goto</code> in a clearer, more maintainable way as discussed in Chapter 3. These can, as mentioned above, achieve the exact same goal as a <code>goto</code>can. So there is no reason to use it. Additionally, using goto can obscure control flow, making debugging and maintenance harder.</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-4---functions-and-program-structure"><a class="header" href="#chapter-4---functions-and-program-structure">Chapter 4 - Functions and Program Structure</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-6---structures"><a class="header" href="#chapter-6---structures">Chapter 6 - Structures</a></h1>

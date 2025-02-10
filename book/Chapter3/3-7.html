@@ -153,6 +153,30 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="break-and-continue"><a class="header" href="#break-and-continue">Break and Continue</a></h1>
+<p>It is sometimes convenient to be able to exit from a loop other than by testing at the top or bottom. The <code>break</code> statement provides an early exit from <code>for</code>, <code>while</code>, and <code>do</code>, just as from <code>switch</code>. A <code>break</code> causes the innermost enclosing loop or <code>switch</code> to be exited immediately.</p>
+<p>The following function, <code>trim</code>, removes trailing blanks, tabs and newlines from the end of a string, using a <code>break</code> to exit from a loop when the rightmost non-blank, non-tab, non-newline is found.</p>
+<pre><code class="language-c">/* trim: remove trailing blanks, tabs, newlines */ 
+int trim(char s[]) 
+{ 
+    int n; 
+    for (n = strlen(s) - 1; n &gt;= 0; n--) 
+    {
+        if (s[n] != ' ' &amp;&amp; s[n] != '\t' &amp;&amp; s[n] != '\n') 
+            break; 
+    }
+    s[n + 1] = '\0'; 
+    return n; 
+}
+</code></pre>
+<p><code>strlen</code> returns the length of the string. The <code>for</code> loop starts at the end and scans backwards looking for the first character that is not a blank or tab or newline. The loop is broken when one is found, or when n becomes negative (that is, when the entire string has been scanned). You should verify that this is correct behavior even when the string is empty or contains only white space characters.</p>
+<p>The <code>continue</code> statement is related to break, but less often used; it causes the next iteration of the enclosing <code>for</code>, <code>while</code>, or <code>do</code> loop to begin. In the <code>while</code> and <code>do</code>, this means that the test part is executed immediately; in the <code>for</code>, control passes to the increment step. The <code>continue</code> statement applies only to loops, not to <code>switch</code>. A <code>continue</code> inside a <code>switch</code> inside a loop causes the next loop iteration.</p>
+<p>As an example, this fragment processes only the non-negative elements in the array a; negative values are skipped.</p>
+<pre><code class="language-c">for (i = 0; i &lt; n; i++) 
+    if (a[i] &lt; 0) /* skip negative elements */ 
+        continue; 
+    ... /* do positive elements */
+</code></pre>
+<p>The <code>continue</code> statement is often used when the part of the loop that follows is complicated, so that reversing a test and indenting another level would nest the program too deeply.</p>
 
                     </main>
 
