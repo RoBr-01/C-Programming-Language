@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 5 - Pointers and Arrays - The C Programming Language</title>
+        <title>Functions Returning Non-Integers - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,85 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
+                        <h1 id="functions-returning-non-integers"><a class="header" href="#functions-returning-non-integers">Functions Returning Non-Integers</a></h1>
+<p>So far our examples of functions have returned either no value (<code>void</code>) or an <code>int</code>. What if a function must return some other type? many numerical functions like sqrt, sin, and cos return <code>double</code>; other specialized functions return other types. To illustrate how to deal with this, let us write and use the function <code>atof(s)</code>, which converts the string s to its double precision floating-point equivalent. <code>atof</code> is an extension of <code>atoi</code>, which we showed versions of in <a href="../Chapter2/2-0.html">Chapters 2</a> and <a href="../Chapter3/3-0.html">Chapter 3</a>. It handles an optional sign and decimal point, and the presence or absence of either part or fractional part. Our version is <em>not</em> a high-quality input conversion routine; that would take more space than we care to use. The standard library includes an <code>atof</code>; the header &lt;stdlib.h&gt; declares it.</p>
+<p>First, <code>atof</code> itself must declare the type of value it returns, since it is not <code>int</code>. The type name precedes the function name:</p>
+<pre><code class="language-c">#include &lt;ctype.h&gt; 
+
+/* atof: convert string s to double */ 
+double atof(char s[]) {
+
+    double val, power; 
+    int i, sign; 
+    for (i = 0; isspace(s[i]); i++) /* skip white space */ 
+        ; 
+    sign = (s[i] == '-') ? -1 : 1; 
+    if (s[i] == '+' || s[i] == '-') 
+        i++; 
+    for (val = 0.0; isdigit(s[i]); i++) 
+        val = 10.0 * val + (s[i] - '0'); 
+    if (s[i] == '.') 
+        i++; 
+    for (power = 1.0; isdigit(s[i]); i++) { 
+        val = 10.0 * val + (s[i] - '0'); 
+        power *= 10; 
+    } 
+    return sign * val / power; 
+}
+</code></pre>
+<p>Second, and just as important, the calling routine must know that <code>atof</code> returns a non-int value. One way to ensure this is to declare <code>atof</code> explicitly in the calling routine. The declaration is shown in this primitive calculator (barely adequate for check-book balancing), which reads one number per line, optionally preceded with a sign, and adds them up, printing the running sum after each input:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#define MAXLINE 100
+
+/* rudimentary calculator */
+main(){
+
+    double sum, atof(char []);
+    char line[MAXLINE];
+    int getline(char line[], int max);
+    sum = 0;
+    while (getline(line, MAXLINE) &gt; 0)
+        printf("\t%g\n", sum += atof(line));
+    return 0;
+}
+</code></pre>
+<p>The declaration:</p>
+<pre><code class="language-c">double sum, atof(char []);
+</code></pre>
+<p>says that <code>sum</code> is a double variable, and that <code>atof</code> is a function that takes one <code>char[]</code> argument and returns a <code>double</code>.</p>
+<p>The function <code>atof</code> must be declared and defined consistently. If <code>atof</code> itself and the call to it in <code>main</code> have inconsistent types in the same source file, the error will be detected by the compiler. But if (as is more likely) <code>atof</code> were compiled separately, the mismatch would not be detected, <code>atof</code> would return a <code>double</code> that <code>main</code> would treat as an <code>int</code>, and meaningless answers would result.</p>
+<p>In the light of what we have said about how declarations must match definitions, this might seem surprising. The reason a mismatch can happen is that if there is no function prototype, a function is implicitly declared by its first appearance in an expression, such as:</p>
+<pre><code class="language-c">sum += atof(line)
+</code></pre>
+<p>If a name that has not been previously declared occurs in an expression and is followed by a left parentheses, it is declared by context to be a function name, the function is assumed to return an <code>int</code>, and nothing is assumed about its arguments. Furthermore, if a function declaration does not include arguments, as in:</p>
+<pre><code class="language-c">double atof();
+</code></pre>
+<p>that too is taken to mean that nothing is to be assumed about the arguments of <code>atof</code>; all parameter checking is turned off. This special meaning of the empty argument list is intended to permit older C programs to compile with new compilers. But it's a bad idea to use it with new C programs. If the function takes arguments, declare them; if it takes no arguments, use <code>void</code>.</p>
+<p>Given <code>atof</code>, properly declared, we could write <code>atoi</code> (convert a string to <code>int</code>) in terms of it:</p>
+<pre><code class="language-c">/* atoi: convert string s to integer using atof */ 
+int atoi(char s[]) { 
+
+    double atof(char s[]);
+    return (int) atof(s);
+} 
+</code></pre>
+<p>Notice the structure of the declarations and the return statement. The value of the expression in:</p>
+<pre><code class="language-c"> return expression;
+</code></pre>
+<p>is converted to the type of the function before the return is taken. Therefore, the value of atof, a double, is converted automatically to int when it appears in this return, since the function atoi returns an int. This operation does potentionally discard information, however, so some compilers warn of it. The cast states explicitly that the operation is intended, and suppresses any warning.</p>
+<p><strong>Exercise 4-2.</strong> Extend atof to handle scientific notation of the form</p>
+<p>123.45e-6</p>
+<p>where a floating-point number may be followed by e or E and an optionally signed exponent.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter4/4-2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter4/4-1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter6/6-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter5/5-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +240,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter4/4-2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter4/4-1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter6/6-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter5/5-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -8,3 +8,7 @@ title = "The C Programming Language"
 [output.html]
 site-url = "https://robr-01.github.io/C-Programming-Language/"
 prefix = "/C-Programming-Language/book"
+
+[output.html.print]
+enable = true    # include support for printable output
+page-break = true # insert page-break after each chapter

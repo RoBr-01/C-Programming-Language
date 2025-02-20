@@ -1837,6 +1837,181 @@ Jumping around in your code like that is a necessity in Assembly, because it is 
 <p>C provides structured control flow constructs like <code>for</code> and <code>while</code>, which allow us to achieve the same logic as <code>goto</code> in a clearer, more maintainable way as discussed in Chapter 3. These can, as mentioned above, achieve the exact same goal as a <code>goto</code>can. So there is no reason to use it. Additionally, using goto can obscure control flow, making debugging and maintenance harder.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-4---functions-and-program-structure"><a class="header" href="#chapter-4---functions-and-program-structure">Chapter 4 - Functions and Program Structure</a></h1>
+<p>Functions break large computing tasks into smaller ones, and enable people to build on what others have done instead of starting over from scratch. Appropriate functions hide details of operation from parts of the program that don't need to know about them, thus clarifying the whole, and easing the pain of making changes.</p>
+<p>C has been designed to make functions efficient and easy to use; C programs generally consist of many small functions rather than a few big ones. A program may reside in one or more source files. Source files may be compiled separately and loaded together, along with previously compiled functions from libraries. We will not go into that process here, however, since the details vary from system to system.</p>
+<p>Function declaration and definition is the area where the ANSI standard has made the most changes to C. As we saw first in <a href="Chapter4/../Chapter1/1-0.html">Chapter 1</a>, it is now possible to declare the type of arguments when a function is declared. The syntax of function declaration also changes, so that declarations and definitions match. This makes it possible for a compiler to detect many more errors than it could before. Furthermore, when arguments are properly declared, appropriate type coercions are performed automatically.</p>
+<p>The standard clarifies the rules on the scope of names; in particular, it requires that there be only one definition of each external object. Initialization is more general: automatic arrays and structures may now be initialized.</p>
+<p>The C preprocessor has also been enhanced. New preprocessor facilities include a more complete set of conditional compilation directives, a way to create quoted strings from macro arguments, and better control over the macro expansion process.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="basics-of-functions"><a class="header" href="#basics-of-functions">Basics of Functions</a></h1>
+<p>To begin with, let us design and write a program to print each line of its input that contains a particular "pattern" or string of characters. (This is a special case of the UNIX program <code>grep</code>.) For example, searching for the pattern of letters "ould" in the set of lines:</p>
+<pre><code>Ah Love! could you and I with Fate conspire 
+To grasp this sorry Scheme of Things entire, 
+Would not we shatter it to bits -- and then 
+Re-mould it nearer to the Heart's Desire!
+</code></pre>
+<p>will produce the output:</p>
+<pre><code>Ah Love! could you and I with Fate conspire 
+Would not we shatter it to bits -- and then 
+Re-mould it nearer to the Heart's Desire!
+</code></pre>
+<p>The job falls neatly into three pieces:</p>
+<pre><code>while (there's another line) 
+    if (the line contains the pattern) 
+        print it
+</code></pre>
+<p>Although it's certainly possible to put the code for all of this in <code>main</code>, a better way is to use the structure to our  advantage by making each part a separate function. Three small pieces are better to deal with than one big one, because irrelevant details can be buried in the functions, and the chance of unwanted interactions is minimized. And the pieces may even be useful in other programs.</p>
+<p>"While there's another line" is <code>getline</code>, a function that we wrote in <a href="Chapter4/../Chapter1/1-0.html">Chapter 1</a>, and "print it" is <code>printf</code>, which someone has already provided for us. This means we need only write a routine to decide whether the line contains an occurrence of the pattern.</p>
+<p>We can solve that problem by writing a function <code>strindex(s,t)</code> that returns the position or index in the string <code>s</code> where the string <code>t</code> begins, or -1 if <code>s</code> does not contain <code>t</code>. Because C arrays begin at position zero, indexes will be zero or positive, and so a negative value like -1 is convenient for signaling failure. When we later need more sophisticated pattern matching, we only have to replace <code>strindex</code>; the rest of the code can remain the same. (The standard library provides a function <code>strstr</code> that is similar to <code>strindex</code>, except that it returns a pointer instead of an index.)</p>
+<p>Given this much design, filling in the details of the program is straightforward. Here is the whole thing, so you can see how the pieces fit together. For now, the pattern to be searched for is a literal string, which is not the most general of mechanisms. We will return shortly to a discussion of how to initialize character arrays, and in <a href="Chapter4/../Chapter5/5-0.html">Chapter 5</a> will show how to make the pattern a parameter that is set when the program is run. There is also a slightly different version of <code>getline</code>; you might find it instructive to compare it to the one in <a href="Chapter4/../Chapter1/1-0.html">Chapter 1</a>.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#define MAXLINE 1000 /* maximum input line length */
+
+int getline_local(char line[], int max);
+int strindex(char source[], char searchfor[]);
+
+char pattern[] = "ould"; /* pattern to search for */
+
+/* find all lines matching pattern */
+int main() {
+
+    char line[MAXLINE];
+    int found = 0;
+
+    while (getline_local(line, MAXLINE) &gt; 0)
+        if (strindex(line, pattern) &gt;= 0) {
+            printf("%s", line);
+            found++;
+        }
+    return found;
+}
+
+/* getline: get line into s, return length */
+int getline_local(char s[], int lim) {
+
+    int c, i;
+
+    i = 0;
+    while (--lim &gt; 0 &amp;&amp; (c=getchar()) != EOF &amp;&amp; c != '\n')
+        s[i++] = c;
+    if (c == '\n')
+        s[i++] = c;
+    s[i] = '\0';
+    return i;
+}
+
+/* strindex: return index of t in s, -1 if none */
+int strindex(char s[], char t[]) {
+
+    int i, j, k;
+
+    for (i = 0; s[i] != '\0'; i++) {
+        for (j=i, k=0; t[k]!='\0' &amp;&amp; s[j]==t[k]; j++, k++)
+            ;
+        if (k &gt; 0 &amp;&amp; t[k] == '\0')
+            return i;
+    }
+    return -1;
+}
+</code></pre>
+<p>Each function definition has the form</p>
+<pre><code>return-type function-name(*argument declarations) { 
+    
+    *declarations and statements* 
+
+}
+</code></pre>
+<p>Various parts may be absent; a minimal function is</p>
+<pre><code>dummy() {}
+</code></pre>
+<p>which does nothing and returns nothing. A do-nothing function like this is sometimes useful as a placeholder during program development. If the return type is omitted, <code>int</code> is assumed.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>That last statement "If the return type is omitted, <code>int</code> is assumed." is only true for older versions of C. Starting from C99, the implicit return type is no longer present and will result in a compiler error.</p>
+</blockquote>
+<p>A program is just a set of definitions of variables and functions. Communication between the functions is by arguments and values returned by the functions, and through external variables. The functions can occur in any order in the source file, and the source program can be split into multiple files, so long as no function is split.</p>
+<p>The <code>return</code> statement is the mechanism for returning a value from the called function to its caller. Any expression can follow <code>return</code>:</p>
+<pre><code>return *expression*;
+</code></pre>
+<p>The <em>expression</em> will be converted to the return type of the function if necessary. Parentheses are often used around the <em>expression</em>, but they are optional.</p>
+<p>The calling function is free to ignore the returned value. Furthermore, there need to be no expression after <code>return</code>; in that case, no value is returned to the caller. Control also returns to the caller with no value when execution "falls off the end" of the function by reaching the closing right brace. It is not illegal, but probably a sign of trouble, if a function returns a value from one place and no value from another. In any case, if a function fails to return a value, its "value" is certain to be garbage.</p>
+<p>The pattern-searching program returns a status from <code>main</code>, the number of matches found. This value is available for use by the environment that called the program.</p>
+<p>The mechanics of how to compile and load a C program that resides on multiple source files vary from one system to the next. On the UNIX system, for example, the <code>cc</code> command mentioned in <a href="Chapter4/../Chapter1/1-0.html">Chapter 1</a> does the job. Suppose that the three functions are stored in three files called <code>main.c</code>, <code>getline.c</code>, and <code>strindex.c</code>. Then the command:</p>
+<pre><code>cc main.c getline.c strindex.c
+</code></pre>
+<p>compiles the three files, placing the resulting object code in files <code>main.o</code>, <code>getline.o</code>, and <code>strindex.o</code>, then loads them all into an executable file called <code>a.out</code>. If there is an error, say in <code>main.c</code>, the file can be recompiled by itself and the result loaded with the previous object files, with the command:</p>
+<pre><code>cc main.c getline.o strindex.o 
+</code></pre>
+<p>The <code>cc</code> command uses the ".c" versus ".o" naming convention to distinguish source files from object files.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-1.html"><strong>Exercise 4-1.</strong></a> Write the function <code>strindex(s,t)</code> which returns the position of the <em>rightmost</em> occurrence of <code>t</code> in <code>s</code>, or -1 if there is none.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="functions-returning-non-integers"><a class="header" href="#functions-returning-non-integers">Functions Returning Non-Integers</a></h1>
+<p>So far our examples of functions have returned either no value (<code>void</code>) or an <code>int</code>. What if a function must return some other type? many numerical functions like sqrt, sin, and cos return <code>double</code>; other specialized functions return other types. To illustrate how to deal with this, let us write and use the function <code>atof(s)</code>, which converts the string s to its double precision floating-point equivalent. <code>atof</code> is an extension of <code>atoi</code>, which we showed versions of in <a href="Chapter4/../Chapter2/2-0.html">Chapters 2</a> and <a href="Chapter4/../Chapter3/3-0.html">Chapter 3</a>. It handles an optional sign and decimal point, and the presence or absence of either part or fractional part. Our version is <em>not</em> a high-quality input conversion routine; that would take more space than we care to use. The standard library includes an <code>atof</code>; the header &lt;stdlib.h&gt; declares it.</p>
+<p>First, <code>atof</code> itself must declare the type of value it returns, since it is not <code>int</code>. The type name precedes the function name:</p>
+<pre><code class="language-c">#include &lt;ctype.h&gt; 
+
+/* atof: convert string s to double */ 
+double atof(char s[]) {
+
+    double val, power; 
+    int i, sign; 
+    for (i = 0; isspace(s[i]); i++) /* skip white space */ 
+        ; 
+    sign = (s[i] == '-') ? -1 : 1; 
+    if (s[i] == '+' || s[i] == '-') 
+        i++; 
+    for (val = 0.0; isdigit(s[i]); i++) 
+        val = 10.0 * val + (s[i] - '0'); 
+    if (s[i] == '.') 
+        i++; 
+    for (power = 1.0; isdigit(s[i]); i++) { 
+        val = 10.0 * val + (s[i] - '0'); 
+        power *= 10; 
+    } 
+    return sign * val / power; 
+}
+</code></pre>
+<p>Second, and just as important, the calling routine must know that <code>atof</code> returns a non-int value. One way to ensure this is to declare <code>atof</code> explicitly in the calling routine. The declaration is shown in this primitive calculator (barely adequate for check-book balancing), which reads one number per line, optionally preceded with a sign, and adds them up, printing the running sum after each input:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#define MAXLINE 100
+
+/* rudimentary calculator */
+main(){
+
+    double sum, atof(char []);
+    char line[MAXLINE];
+    int getline(char line[], int max);
+    sum = 0;
+    while (getline(line, MAXLINE) &gt; 0)
+        printf("\t%g\n", sum += atof(line));
+    return 0;
+}
+</code></pre>
+<p>The declaration:</p>
+<pre><code class="language-c">double sum, atof(char []);
+</code></pre>
+<p>says that <code>sum</code> is a double variable, and that <code>atof</code> is a function that takes one <code>char[]</code> argument and returns a <code>double</code>.</p>
+<p>The function <code>atof</code> must be declared and defined consistently. If <code>atof</code> itself and the call to it in <code>main</code> have inconsistent types in the same source file, the error will be detected by the compiler. But if (as is more likely) <code>atof</code> were compiled separately, the mismatch would not be detected, <code>atof</code> would return a <code>double</code> that <code>main</code> would treat as an <code>int</code>, and meaningless answers would result.</p>
+<p>In the light of what we have said about how declarations must match definitions, this might seem surprising. The reason a mismatch can happen is that if there is no function prototype, a function is implicitly declared by its first appearance in an expression, such as:</p>
+<pre><code class="language-c">sum += atof(line)
+</code></pre>
+<p>If a name that has not been previously declared occurs in an expression and is followed by a left parentheses, it is declared by context to be a function name, the function is assumed to return an <code>int</code>, and nothing is assumed about its arguments. Furthermore, if a function declaration does not include arguments, as in:</p>
+<pre><code class="language-c">double atof();
+</code></pre>
+<p>that too is taken to mean that nothing is to be assumed about the arguments of <code>atof</code>; all parameter checking is turned off. This special meaning of the empty argument list is intended to permit older C programs to compile with new compilers. But it's a bad idea to use it with new C programs. If the function takes arguments, declare them; if it takes no arguments, use <code>void</code>.</p>
+<p>Given <code>atof</code>, properly declared, we could write <code>atoi</code> (convert a string to <code>int</code>) in terms of it:</p>
+<pre><code class="language-c">/* atoi: convert string s to integer using atof */ 
+int atoi(char s[]) { 
+
+    double atof(char s[]);
+    return (int) atof(s);
+} 
+</code></pre>
+<p>Notice the structure of the declarations and the return statement. The value of the expression in:</p>
+<pre><code class="language-c"> return expression;
+</code></pre>
+<p>is converted to the type of the function before the return is taken. Therefore, the value of atof, a double, is converted automatically to int when it appears in this return, since the function atoi returns an int. This operation does potentionally discard information, however, so some compilers warn of it. The cast states explicitly that the operation is intended, and suppresses any warning.</p>
+<p><strong>Exercise 4-2.</strong> Extend atof to handle scientific notation of the form</p>
+<p>123.45e-6</p>
+<p>where a floating-point number may be followed by e or E and an optionally signed exponent.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-6---structures"><a class="header" href="#chapter-6---structures">Chapter 6 - Structures</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-7---input-and-output"><a class="header" href="#chapter-7---input-and-output">Chapter 7 - Input and Output</a></h1>
@@ -1886,6 +2061,7 @@ Jumping around in your code like that is a necessity in Assembly, because it is 
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-3-4"><a class="header" href="#exercise-3-4">Exercise 3-4</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-3-5"><a class="header" href="#exercise-3-5">Exercise 3-5</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-3-6"><a class="header" href="#exercise-3-6">Exercise 3-6</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-1"><a class="header" href="#exercise-4-1">Exercise 4-1</a></h1>
 
                     </main>
 

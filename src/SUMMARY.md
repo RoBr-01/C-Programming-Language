@@ -45,9 +45,9 @@
     - [Break and Continue](Chapter3/3-7.md)                                 Done
     - [Goto and Labels](Chapter3/3-8.md)                                    Done
 
-- [Chapter 4 - Functions and Program Structure](Chapter4/4-0.md)
-    - [Basics of Functions]()
-    - [Functions Returning Non-Integers]()
+- [Chapter 4 - Functions and Program Structure](Chapter4/4-0.md)            Done
+    - [Basics of Functions](Chapter4/4-1.md)                                Done
+    - [Functions Returning Non-Integers](Chapter4/4-2.md)
     - [External Variables]()
     - [Scope Rules]()
     - [Header Files]()
@@ -260,6 +260,9 @@
         - [Exercise 3-4](Solutions/Chapter3/E3-4.md)
         - [Exercise 3-5](Solutions/Chapter3/E3-5.md)
         - [Exercise 3-6](Solutions/Chapter3/E3-6.md)
+
+    - [Chapter 4]()
+        - [Exercise 4-1](Solutions/Chapter4/E4-1.md)
     - [Chapter 4]()
     - [Chapter 5]()
     - [Chapter 6]()

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 5 - Pointers and Arrays - The C Programming Language</title>
+        <title>Basics of Functions - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,117 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
+                        <h1 id="basics-of-functions"><a class="header" href="#basics-of-functions">Basics of Functions</a></h1>
+<p>To begin with, let us design and write a program to print each line of its input that contains a particular "pattern" or string of characters. (This is a special case of the UNIX program <code>grep</code>.) For example, searching for the pattern of letters "ould" in the set of lines:</p>
+<pre><code>Ah Love! could you and I with Fate conspire 
+To grasp this sorry Scheme of Things entire, 
+Would not we shatter it to bits -- and then 
+Re-mould it nearer to the Heart's Desire!
+</code></pre>
+<p>will produce the output:</p>
+<pre><code>Ah Love! could you and I with Fate conspire 
+Would not we shatter it to bits -- and then 
+Re-mould it nearer to the Heart's Desire!
+</code></pre>
+<p>The job falls neatly into three pieces:</p>
+<pre><code>while (there's another line) 
+    if (the line contains the pattern) 
+        print it
+</code></pre>
+<p>Although it's certainly possible to put the code for all of this in <code>main</code>, a better way is to use the structure to our  advantage by making each part a separate function. Three small pieces are better to deal with than one big one, because irrelevant details can be buried in the functions, and the chance of unwanted interactions is minimized. And the pieces may even be useful in other programs.</p>
+<p>"While there's another line" is <code>getline</code>, a function that we wrote in <a href="../Chapter1/1-0.html">Chapter 1</a>, and "print it" is <code>printf</code>, which someone has already provided for us. This means we need only write a routine to decide whether the line contains an occurrence of the pattern.</p>
+<p>We can solve that problem by writing a function <code>strindex(s,t)</code> that returns the position or index in the string <code>s</code> where the string <code>t</code> begins, or -1 if <code>s</code> does not contain <code>t</code>. Because C arrays begin at position zero, indexes will be zero or positive, and so a negative value like -1 is convenient for signaling failure. When we later need more sophisticated pattern matching, we only have to replace <code>strindex</code>; the rest of the code can remain the same. (The standard library provides a function <code>strstr</code> that is similar to <code>strindex</code>, except that it returns a pointer instead of an index.)</p>
+<p>Given this much design, filling in the details of the program is straightforward. Here is the whole thing, so you can see how the pieces fit together. For now, the pattern to be searched for is a literal string, which is not the most general of mechanisms. We will return shortly to a discussion of how to initialize character arrays, and in <a href="../Chapter5/5-0.html">Chapter 5</a> will show how to make the pattern a parameter that is set when the program is run. There is also a slightly different version of <code>getline</code>; you might find it instructive to compare it to the one in <a href="../Chapter1/1-0.html">Chapter 1</a>.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#define MAXLINE 1000 /* maximum input line length */
+
+int getline_local(char line[], int max);
+int strindex(char source[], char searchfor[]);
+
+char pattern[] = "ould"; /* pattern to search for */
+
+/* find all lines matching pattern */
+int main() {
+
+    char line[MAXLINE];
+    int found = 0;
+
+    while (getline_local(line, MAXLINE) &gt; 0)
+        if (strindex(line, pattern) &gt;= 0) {
+            printf("%s", line);
+            found++;
+        }
+    return found;
+}
+
+/* getline: get line into s, return length */
+int getline_local(char s[], int lim) {
+
+    int c, i;
+
+    i = 0;
+    while (--lim &gt; 0 &amp;&amp; (c=getchar()) != EOF &amp;&amp; c != '\n')
+        s[i++] = c;
+    if (c == '\n')
+        s[i++] = c;
+    s[i] = '\0';
+    return i;
+}
+
+/* strindex: return index of t in s, -1 if none */
+int strindex(char s[], char t[]) {
+
+    int i, j, k;
+
+    for (i = 0; s[i] != '\0'; i++) {
+        for (j=i, k=0; t[k]!='\0' &amp;&amp; s[j]==t[k]; j++, k++)
+            ;
+        if (k &gt; 0 &amp;&amp; t[k] == '\0')
+            return i;
+    }
+    return -1;
+}
+</code></pre>
+<p>Each function definition has the form</p>
+<pre><code>return-type function-name(*argument declarations) { 
+    
+    *declarations and statements* 
+
+}
+</code></pre>
+<p>Various parts may be absent; a minimal function is</p>
+<pre><code>dummy() {}
+</code></pre>
+<p>which does nothing and returns nothing. A do-nothing function like this is sometimes useful as a placeholder during program development. If the return type is omitted, <code>int</code> is assumed.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>That last statement "If the return type is omitted, <code>int</code> is assumed." is only true for older versions of C. Starting from C99, the implicit return type is no longer present and will result in a compiler error.</p>
+</blockquote>
+<p>A program is just a set of definitions of variables and functions. Communication between the functions is by arguments and values returned by the functions, and through external variables. The functions can occur in any order in the source file, and the source program can be split into multiple files, so long as no function is split.</p>
+<p>The <code>return</code> statement is the mechanism for returning a value from the called function to its caller. Any expression can follow <code>return</code>:</p>
+<pre><code>return *expression*;
+</code></pre>
+<p>The <em>expression</em> will be converted to the return type of the function if necessary. Parentheses are often used around the <em>expression</em>, but they are optional.</p>
+<p>The calling function is free to ignore the returned value. Furthermore, there need to be no expression after <code>return</code>; in that case, no value is returned to the caller. Control also returns to the caller with no value when execution "falls off the end" of the function by reaching the closing right brace. It is not illegal, but probably a sign of trouble, if a function returns a value from one place and no value from another. In any case, if a function fails to return a value, its "value" is certain to be garbage.</p>
+<p>The pattern-searching program returns a status from <code>main</code>, the number of matches found. This value is available for use by the environment that called the program.</p>
+<p>The mechanics of how to compile and load a C program that resides on multiple source files vary from one system to the next. On the UNIX system, for example, the <code>cc</code> command mentioned in <a href="../Chapter1/1-0.html">Chapter 1</a> does the job. Suppose that the three functions are stored in three files called <code>main.c</code>, <code>getline.c</code>, and <code>strindex.c</code>. Then the command:</p>
+<pre><code>cc main.c getline.c strindex.c
+</code></pre>
+<p>compiles the three files, placing the resulting object code in files <code>main.o</code>, <code>getline.o</code>, and <code>strindex.o</code>, then loads them all into an executable file called <code>a.out</code>. If there is an error, say in <code>main.c</code>, the file can be recompiled by itself and the result loaded with the previous object files, with the command:</p>
+<pre><code>cc main.c getline.o strindex.o 
+</code></pre>
+<p>The <code>cc</code> command uses the ".c" versus ".o" naming convention to distinguish source files from object files.</p>
+<p><a href="../Solutions/Chapter4/E4-1.html"><strong>Exercise 4-1.</strong></a> Write the function <code>strindex(s,t)</code> which returns the position of the <em>rightmost</em> occurrence of <code>t</code> in <code>s</code>, or -1 if there is none.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter4/4-2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter4/4-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter6/6-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter4/4-2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +272,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter4/4-2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter4/4-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter6/6-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter4/4-2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
