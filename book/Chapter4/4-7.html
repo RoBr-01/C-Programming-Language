@@ -153,6 +153,24 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="register-variables"><a class="header" href="#register-variables">Register Variables</a></h1>
+<p>A <code>register</code> declaration advises the compiler that the variable in question will be heavily used. The idea is that register variables are to be placed in machine registers, which may result in smaller and faster programs. But compilers are free to ignore the advice.</p>
+<p>The register declaration looks like:</p>
+<pre><code class="language-c">register int x; register char c; 
+</code></pre>
+<p>and so on. The <code>register</code> declaration can only be applied to automatic variables and to the formal parameters of a function. In this later case, it looks like:</p>
+<pre><code class="language-c">f(register unsigned m, register long n) { 
+
+    register int i; 
+    ...
+}
+</code></pre>
+<p>In practice, there are restrictions on <code>register</code> variables, reflecting the realities of underlying hardware. Only a few variables in each function may be kept in registers, and only certain types are allowed. Excess <code>register</code> declarations are harmless, however, since the word <code>register</code> is ignored for excess or disallowed declarations. And it is not possible to take the address of a register variable (a topic covered in <a href="../Chapter5/5-0.html">Chapter 5</a>), regardless of whether the variable is actually placed in a register. The specific restrictions on number and types of register variables vary from machine to machine.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>You <em>really</em> don't need this, unless you're planning on programming embedded systems.<br />
+The compiler is optimized to such an extent that i will plainly ignore all the <code>register</code> declarations, since 9 times out of 10 it can find a more efficient approach.</p>
+<p>You will probably never see or use this keyword in any C code.</p>
+</blockquote>
 
                     </main>
 

@@ -153,6 +153,25 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="static-variables"><a class="header" href="#static-variables">Static Variables</a></h1>
+<p>The variables <code>sp</code> and <code>val</code> in <code>stack.c</code>, and <code>buf</code> and <code>bufp</code> in <code>getch.c</code>, are for the private use of the functions in their respective source files, and are not meant to be accessed by anything else. The <code>static</code> declaration, applied to an external variable or function, limits the scope of that object to the rest of the source file being compiled. External <code>static</code> thus provides a way to hide names like <code>buf</code> and <code>bufp</code> in the <code>getch-ungetch</code> combination, which must be external so they can be shared, yet which should not be visible to users of <code>getch</code> and <code>ungetch</code>.</p>
+<p>Static storage is specified by prefixing the normal declaration with the word <code>static</code>. If the two routines and the two variables are compiled in one file, as in:</p>
+<pre><code class="language-c">static char buf[BUFSIZE]; /* buffer for ungetch */ 
+static int bufp = 0; /* next free position in buf */ 
+
+int getch(void) { ... } 
+void ungetch(int c) { ... }
+</code></pre>
+<p>then no other routine will be able to access <code>buf</code> and <code>bufp</code>, and those names will not conflict with the same names in other files of the same program. In the same way, the variables that <code>push</code> and <code>pop</code> use for stack manipulation can be hidden, by declaring <code>sp</code> and <code>val</code> to be static.</p>
+<p>The external <code>static</code> declaration is most often used for variables, but it can be applied to functions as well. Normally, function names are global, visible to any part of the entire program. If a function is declared <code>static</code>, however, its name is invisible outside of the file in which it is declared.</p>
+<p>The <code>static</code> declaration can also be applied to internal variables. Internal <code>static</code> variables are local to a particular function just as automatic variables are, but unlike automatics, they remain in existence rather than coming and going each time the function is activated. This means that internal static variables provide private, permanent storage within a single function.</p>
+<p><a href="../Solutions/Chapter4/E4-11.html"><strong>Exercise 4-11.</strong></a> Modify <code>getop</code> so that it doesn't need to use <code>ungetch</code>. Hint: use an internal <code>static</code> variable.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>To clear up some details, <code>extern</code> means the variable (or function) is accessible by anyone, in any file.</p>
+<p><code>Static</code>, however, can be used in 2 ways.<br />
+The first is as an "external" <code>static</code>, that means the entire source file can use it, but no one outside of it.<br />
+The second is as an "internal" <code>static</code>, where it's tied to a specific function, and can't be used by anyone else even in the same source file.</p>
+</blockquote>
 
                     </main>
 

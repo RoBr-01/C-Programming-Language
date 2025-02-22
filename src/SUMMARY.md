@@ -49,10 +49,10 @@
     - [Basics of Functions](Chapter4/4-1.md)                                Done
     - [Functions Returning Non-Integers](Chapter4/4-2.md)                   Done
     - [External Variables](Chapter4/4-3.md)                                 Done
-    - [Scope Rules](Chapter4/4-4.md)
-    - [Header Files](Chapter4/4-5.md)
-    - [Static Variables](Chapter4/4-6.md)
-    - [Register Variables](Chapter4/4-7.md)
+    - [Scope Rules](Chapter4/4-4.md)                                        Done
+    - [Header Files](Chapter4/4-5.md)                                       Done
+    - [Static Variables](Chapter4/4-6.md)                                   Done
+    - [Register Variables](Chapter4/4-7.md)                                 Done
     - [Block Structure](Chapter4/4-8.md)
     - [Initialization](Chapter4/4-9.md)
     - [Recursion](Chapter4/4-10.md)
@@ -272,6 +272,7 @@
         - [Exercise 4-8](Solutions/Chapter4/E4-8.md)
         - [Exercise 4-9](Solutions/Chapter4/E4-9.md)
         - [Exercise 4-10](Solutions/Chapter4/E4-10.md)
+        - [Exercise 4-11](Solutions/Chapter4/E4-11.md)
     - [Chapter 4]()
     - [Chapter 5]()
     - [Chapter 6]()
