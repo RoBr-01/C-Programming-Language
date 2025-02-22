@@ -53,13 +53,13 @@
     - [Header Files](Chapter4/4-5.md)                                       Done
     - [Static Variables](Chapter4/4-6.md)                                   Done
     - [Register Variables](Chapter4/4-7.md)                                 Done
-    - [Block Structure](Chapter4/4-8.md)
-    - [Initialization](Chapter4/4-9.md)
-    - [Recursion](Chapter4/4-10.md)
-    - [The C Preprocessor](Chapter4/4-11.md)
-    - [File Inclusion](Chapter4/4-12.md)
-    - [Macro Substitution](Chapter4/4-13.md)
-    - [Conditional Inclusion](Chapter4/4-14.md)
+    - [Block Structure](Chapter4/4-8.md)                                    Done
+    - [Initialization](Chapter4/4-9.md)                                     Done
+    - [Recursion](Chapter4/4-10.md)                                         Done
+    - [The C Preprocessor](Chapter4/4-11.md)                                Done
+        - [File Inclusion](Chapter4/4-11-1.md)                              Done
+        - [Macro Substitution](Chapter4/4-11-2.md)                          Done
+        - [Conditional Inclusion](Chapter4/4-11-3.md)                       Done
 
 - [Chapter 5 - Pointers and Arrays](Chapter5/5-0.md)
     - [Pointers and Addresses]()
@@ -103,7 +103,7 @@
         - [Mathematical Functions]()
         - [Random Number Generation]()
 
-- [Chapter 8 - The UNIX System Interface]()
+- [Chapter 8 - The UNIX System Interface](Chapter8/8-0.md)
     - [File Descriptors]()
     - [Low Level I/O - Read and Write]()
     - [Open, Creat, Close, Unlink]()
@@ -273,6 +273,9 @@
         - [Exercise 4-9](Solutions/Chapter4/E4-9.md)
         - [Exercise 4-10](Solutions/Chapter4/E4-10.md)
         - [Exercise 4-11](Solutions/Chapter4/E4-11.md)
+        - [Exercise 4-12](Solutions/Chapter4/E4-12.md)
+        - [Exercise 4-13](Solutions/Chapter4/E4-13.md)
+        - [Exercise 4-14](Solutions/Chapter4/E4-14.md)
     - [Chapter 4]()
     - [Chapter 5]()
     - [Chapter 6]()

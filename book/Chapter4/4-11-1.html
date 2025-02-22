@@ -153,6 +153,15 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="file-inclusion"><a class="header" href="#file-inclusion">File Inclusion</a></h1>
+<p>File inclusion makes it easy to handle collections of #defines and declarations (among other things). Any source line of the form:</p>
+<pre><code class="language-c">#include "filename"
+</code></pre>
+<p>or:</p>
+<pre><code class="language-c">#include &lt;filename&gt;
+</code></pre>
+<p>is replaced by the contents of the file <em>filename</em>. If the <em>filename</em> is quoted, searching for the file typically begins where the source program was found; if it is not found there, or if the name is enclosed in <code>&lt;</code> and <code>&gt;</code>, searching follows an implementation-defined rule to find the file. An included file may itself contain <code>#include</code> lines.</p>
+<p>There are often several <code>#include</code> lines at the beginning of a source file, to include common <code>#define</code> statements and extern declarations, or to access the function prototype declarations for library functions from headers like <code>&lt;stdio.h&gt;</code>. (Strictly speaking, these need not be files; the details of how headers are accessed are implementation-dependent.)</p>
+<p><code>#include</code> is the preferred way to tie the declarations together for a large program. It guarantees that all the source files will be supplied with the same definitions and variable declarations, and thus eliminates a particularly nasty kind of bug. Naturally, when an included file is changed, all files that depend on it must be recompiled.</p>
 
                     </main>
 
@@ -162,7 +171,7 @@
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter4/4-13.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter4/4-11-2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -176,7 +185,7 @@
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter4/4-13.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter4/4-11-2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -2289,16 +2289,219 @@ The compiler is optimized to such an extent that i will plainly ignore all the <
 <p>You will probably never see or use this keyword in any C code.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="block-structure"><a class="header" href="#block-structure">Block Structure</a></h1>
+<p>C is not a block-structured language in the sense of Pascal or similar languages, because functions may not be defined within other functions. On the other hand, variables can be defined in a block-structured fashion within a function. Declarations of variables (including initializations) may follow the left brace that introduces <em>any</em> compound statement, not just the one that begins a function. Variables declared in this way hide any identically named variables in outer blocks, and remain in existence until the matching right brace. For example, in:</p>
+<pre><code class="language-c">if (n &gt; 0) { 
+
+    int i; /* declare a new i */ 
+    for (i = 0; i &lt; n; i++) 
+        ... 
+}
+</code></pre>
+<p>the scope of the variable <code>i</code> is the "true" branch of the <code>if</code>; this <code>i</code> is unrelated to any <code>i</code> outside the block. An automatic variable declared and initialized in a block is initialized each time the block is entered.</p>
+<p>Automatic variables, including formal parameters, also hide external variables and functions of the same name. Given the declarations:</p>
+<pre><code class="language-c">int x; 
+int y; 
+f(double x) { 
+
+    double y; 
+}
+</code></pre>
+<p>then within the function <code>f</code>, occurrences of <code>x</code> refer to the parameter, which is a double; outside <code>f</code>, they refer to the external <code>int</code>. The same is true of the variable <code>y</code>.</p>
+<p>As a matter of style, it's best to avoid variable names that conceal names in an outer scope; the potential for confusion and error is too great.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="initialization"><a class="header" href="#initialization">Initialization</a></h1>
+<p>Initialization has been mentioned in passing many times so far, but always peripherally to some other topic. This section summarizes some of the rules, now that we have discussed the various storage classes.</p>
+<p>In the absence of explicit initialization, external and static variables are guaranteed to be initialized to zero; automatic and register variables have undefined (i.e., garbage) initial values.</p>
+<p>Scalar variables may be initialized when they are defined, by following the name with an equals sign and an expression:</p>
+<pre><code class="language-c">int x = 1; 
+char squota = '\''; 
+long day = 1000L * 60L * 60L * 24L; /* milliseconds/day */
+</code></pre>
+<p>For external and static variables, the initializer must be a constant expression; the initialization is done once, conceptually before the program begins execution. For automatic and register variables, the initializer is not restricted to being a constant: it may be any expression involving previously defined values, even function calls. For example, the initialization of the binary search program in <a href="Chapter4/../Chapter3/3-3.html">Section 3.3</a> could be written as</p>
+<pre><code class="language-c">int binsearch(int x, int v[], int n) { 
+
+    int low = 0; 
+    int high = n - 1; 
+    int mid; 
+    ... 
+} 
+</code></pre>
+<p>instead of:</p>
+<pre><code class="language-c">int low, high, mid; 
+low = 0; 
+high = n - 1;
+</code></pre>
+<p>In effect, initialization of automatic variables are just shorthand for assignment statements. Which form to prefer is largely a matter of taste. We have generally used explicit assignments, because initializers in declarations are harder to see and further away from the point of use.</p>
+<p>An array may be initialized by following its declaration with a list of initializers enclosed in braces and separated by commas. For example, to initialize an array <code>days</code> with the number of days in each month:</p>
+<pre><code class="language-c">int days[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+</code></pre>
+<p>When the size of the array is omitted, the compiler will compute the length by counting the initializers, of which there are 12 in this case.</p>
+<p>If there are fewer initializers for an array than the specified size, the others will be zero for external, static and automatic variables. It is an error to have too many initializers. There is no way to specify repetition of an initializer, nor to initialize an element in the middle of an array without supplying all the preceding values as well.</p>
+<p>Character arrays are a special case of initialization; a string may be used instead of the braces and commas notation:</p>
+<pre><code class="language-c">char pattern[] = "ould"; 
+</code></pre>
+<p>is a shorthand for the longer but equivalent:</p>
+<pre><code class="language-c">char pattern[] = { 'o', 'u', 'l', 'd', '\0' }; 
+</code></pre>
+<p>In this case, the array size is five (four characters plus the terminating '\0').</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>When using a string literal like "ould", an important side effect is that it will always be stored in static memory and last for the entire duration of the program.</p>
+<p>On the contrary, using the second approach, it exists solely on the stack for the duration of the scope it was declared in.</p>
+<p>In both cases, the actual array exists on the stack, but the memory for the string literal is <em>still</em> statically allocated.</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="recursion"><a class="header" href="#recursion">Recursion</a></h1>
+<p>C functions may be used recursively; that is, a function may call itself either directly or indirectly. Consider printing a number as a character string. As we mentioned before, the digits are generated in the wrong order: low-order digits are available before high-order digits, but they have to be printed the other way around.</p>
+<p>There are two solutions to this problem. One is to store the digits in an array as they are generated, then print them in the reverse order, as we did with <code>itoa</code> in <a href="Chapter4/../Chapter3/3-6.html">section 3.6</a>. The alternative is a recursive solution, in which <code>printd</code> first calls itself to cope with any leading digits, then prints the trailing digit. Again, this version can fail on the largest negative number.</p>
+<pre><code class="language-c">    #include &lt;stdio.h&gt; 
+    /* printd: print n in decimal */ 
+    void printd(int n) { 
+
+        if (n &lt; 0) { 
+            putchar('-'); 
+            n = -n; 
+        } 
+        if (n / 10) 
+            printd(n / 10); 
+        putchar(n % 10 + '0'); 
+    }
+</code></pre>
+<p>When a function calls itself recursively, each invocation gets a fresh set of all the automatic variables, independent of the previous set. In <code>printd(123)</code> the first <code>printd</code> receives the argument n = 123. It passes 12 to a second <code>printd</code>, which in turn passes 1 to a third. The third-level <code>printd</code> prints 1, then returns to the second level. That <code>printd</code> prints 2, then returns to the first level. That one prints 3 and terminates.</p>
+<p>Another good example of recursion is quicksort, a sorting algorithm developed by <em>C.A.R. Hoare</em> in 1962. Given an array, one element is chosen and the others partitioned in two subsets - those less than the partition element and those greater than or equal to it. The same process is then applied recursively to the two subsets. When a subset has fewer than two elements, it doesn't need any sorting; this stops the recursion.</p>
+<p>Our version of quicksort is not the fastest possible, but it's one of the simplest. We use the middle element of each subarray for partitioning.</p>
+<pre><code class="language-c">    /* qsort: sort v[left]...v[right] into increasing order */ 
+    void qsort(int v[], int left, int right) { 
+
+        int i, last; 
+        void swap(int v[], int i, int j);
+
+        if (left &gt;= right) /* do nothing if array contains */ 
+            return; /* fewer than two elements */ 
+        swap(v, left, (left + right)/2); /* move partition elem */ 
+        last = left; /* to v[0] */ 
+        for (i = left + 1; i &lt;= right; i++) /* partition */ 
+            if (v[i] &lt; v[left]) 
+                swap(v, ++last, i); 
+        swap(v, left, last); /* restore partition elem */ 
+        qsort(v, left, last-1); 
+        qsort(v, last+1, right);
+    }
+</code></pre>
+<p>We moved the swapping operation into a separate function <code>swap</code> because it occurs three times in <code>qsort</code>.</p>
+<pre><code class="language-c">    /* swap: interchange v[i] and v[j] */ 
+    void swap(int v[], int i, int j) { 
+        int temp; 
+        temp = v[i]; 
+        v[i] = v[j]; 
+        v[j] = temp; 
+    }
+</code></pre>
+<p>The standard library includes a version of <code>qsort</code> that can sort objects of any type.</p>
+<p>Recursion may provide no saving in storage, since somewhere a stack of the values being processed must be maintained. Nor will it be faster. But recursive code is more compact, and often much easier to write and understand than the non-recursive equivalent. Recursion is especially convenient for recursively defined data structures like trees, we will see a nice example in <a href="Chapter4/../Chapter6/6-0.html">Section 6.6</a>.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-12.html"><strong>Exercise 4-12.</strong></a> Adapt the ideas of <code>printd</code> to write a recursive version of <code>itoa</code>; that is, convert an integer into a string by calling a recursive routine.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-13.html"><strong>Exercise 4-13.</strong></a> Write a recursive version of the function <code>reverse(s)</code>, which reverses the string s in place.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-c-preprocessor"><a class="header" href="#the-c-preprocessor">The C Preprocessor</a></h1>
+<p>C provides certain language facilities by means of a preprocessor, which is conceptually a separate first step in compilation. The two most frequently used features are <code>#include</code>, to include the contents of a file during compilation, and <code>#define</code>, to replace a token by an arbitrary sequence of characters. Other features described in this section include conditional compilation and macros with arguments.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="file-inclusion"><a class="header" href="#file-inclusion">File Inclusion</a></h1>
+<p>File inclusion makes it easy to handle collections of #defines and declarations (among other things). Any source line of the form:</p>
+<pre><code class="language-c">#include "filename"
+</code></pre>
+<p>or:</p>
+<pre><code class="language-c">#include &lt;filename&gt;
+</code></pre>
+<p>is replaced by the contents of the file <em>filename</em>. If the <em>filename</em> is quoted, searching for the file typically begins where the source program was found; if it is not found there, or if the name is enclosed in <code>&lt;</code> and <code>&gt;</code>, searching follows an implementation-defined rule to find the file. An included file may itself contain <code>#include</code> lines.</p>
+<p>There are often several <code>#include</code> lines at the beginning of a source file, to include common <code>#define</code> statements and extern declarations, or to access the function prototype declarations for library functions from headers like <code>&lt;stdio.h&gt;</code>. (Strictly speaking, these need not be files; the details of how headers are accessed are implementation-dependent.)</p>
+<p><code>#include</code> is the preferred way to tie the declarations together for a large program. It guarantees that all the source files will be supplied with the same definitions and variable declarations, and thus eliminates a particularly nasty kind of bug. Naturally, when an included file is changed, all files that depend on it must be recompiled.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="macro-substitution"><a class="header" href="#macro-substitution">Macro Substitution</a></h1>
+<p>A definition has the form:</p>
+<pre><code class="language-c">#define name replacement text 
+</code></pre>
+<p>It calls for a macro substitution of the simplest kind - subsequent occurrences of the token name will be replaced by the <em>replacement text</em>. The name in a <code>#define</code> has the same form as a variable name; the replacement text is arbitrary. Normally the replacement text is the rest of the line, but a long definition may be continued onto several lines by placing a <code>\</code> at the end of each line to be continued. The scope of a name defined with <code>#define</code> is from its point of definition to the end of the source file being compiled. A definition may use previous definitions. Substitutions are made only for tokens, and do not take place within quoted strings. For example, if <code>YES</code> is a defined name, there would be no substitution in <code>printf("YES")</code> or in <code>YESMAN</code>.</p>
+<p>Any name may be defined with any replacement text. For example:</p>
+<pre><code class="language-c">#define forever for (;;) /* infinite loop */ 
+</code></pre>
+<p>defines a new word, <code>forever</code>, for an infinite loop.</p>
+<p>It is also possible to define macros with arguments, so the replacement text can be different for different calls of the macro. As an example, define a macro called <code>max</code>:</p>
+<pre><code class="language-c">#define max(A, B) ((A) &gt; (B) ? (A) : (B)) 
+</code></pre>
+<p>Although it looks like a function call, a use of <code>max</code> expands into in-line code. Each occurrence of a formal parameter (here A or B) will be replaced by the corresponding actual argument. Thus the line:</p>
+<pre><code class="language-c">x = max(p+q, r+s); 
+</code></pre>
+<p>will be replaced by the line:</p>
+<pre><code class="language-c">x = ((p+q) &gt; (r+s) ? (p+q) : (r+s)); 
+</code></pre>
+<p>So long as the arguments are treated consistently, this macro will serve for any data type; there is no need for different kinds of max for different data types, as there would be with functions.</p>
+<p>If you examine the expansion of <code>max</code>, you will notice some pitfalls. The expressions are evaluated twice; this is bad if they involve side effects like increment operators or input and output. For instance:</p>
+<pre><code class="language-c">max(i++, j++) /* WRONG */ 
+</code></pre>
+<p>will increment the larger twice. Some care also has to be taken with parentheses to make sure the order of evaluation is preserved; consider what happens when the macro:</p>
+<pre><code class="language-c">#define square(x) x * x /* WRONG */ 
+</code></pre>
+<p>is invoked as <code>square(z+1)</code>.</p>
+<p>Nonetheless, macros are valuable. One practical example comes from <code>&lt;stdio.h&gt;</code>, in which <code>getchar</code> and <code>putchar</code> are often defined as macros to avoid the run-time overhead of a function call per character processed. The functions in <code>&lt;ctype.h&gt;</code> are also usually implemented as macros.</p>
+<p>Names may be undefined with <code>#undef</code>, usually to ensure that a routine is really a function, not a macro:</p>
+<pre><code class="language-c">#undef getchar
+
+int getchar(void) { ... }
+</code></pre>
+<p>Formal parameters are not replaced within quoted strings. If, however, a parameter name is preceded by a <code>#</code> in the replacement text, the combination will be expanded into a quoted string with the parameter replaced by the actual argument. This can be combined with string concatenation to make, for example, a debugging print macro:</p>
+<pre><code class="language-c">#define dprint(expr) printf(#expr " = %g\n", expr) 
+</code></pre>
+<p>When this is invoked, as in:</p>
+<pre><code class="language-c">dprint(x/y) 
+</code></pre>
+<p>the macro is expanded into:</p>
+<pre><code class="language-c">printf("x/y" " = %g\n", x/y); 
+</code></pre>
+<p>and the strings are concatenated, so the effect is</p>
+<pre><code class="language-c">printf("x/y = %g\n", x/y);
+</code></pre>
+<p>Within the actual argument, each <code>"</code> is replaced by <code>\"</code> and each <code>\</code> by <code>\\</code>, so the result is a legal string constant.</p>
+<p>The preprocessor operator <code>##</code> provides a way to concatenate actual arguments during macro expansion. If a parameter in the replacement text is adjacent to a <code>##</code>, the parameter is replaced by the actual argument, the <code>##</code> and surrounding white space are removed, and the result is re-scanned. For example, the macro <code>paste</code> concatenates its two arguments:</p>
+<pre><code class="language-c">#define paste(front, back) front ## back 
+</code></pre>
+<p>so :</p>
+<pre><code class="language-c">paste(name, 1) 
+</code></pre>
+<p>creates the token <code>name1</code>.</p>
+<p>The rules for nested uses of <code>##</code> are arcane; further details may be found in <a href="Chapter4/../AppendixA/A1.html">Appendix A</a>.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-14.html"><strong>Exercise 4-14.</strong></a> Define a macro <code>swap(t,x,y)</code> that interchanges two arguments of type <code>t</code>. (Block structure will help.)</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="conditional-inclusion"><a class="header" href="#conditional-inclusion">Conditional Inclusion</a></h1>
+<p>It is possible to control preprocessing itself with conditional statements that are evaluated during preprocessing. This provides a way to include code selectively, depending on the value of conditions evaluated during compilation.</p>
+<p>The <code>#if</code> line evaluates a constant integer expression (which may not include <code>sizeof</code>, casts, or <code>enum</code> constants). If the expression is non-zero, subsequent lines until an <code>#endif</code> or <code>#elif</code> or <code>#else</code> are included. (The preprocessor statement <code>#elif</code> is like <code>else-if</code>.) The expression <code>defined(*name*)</code> in a <code>#if</code> is 1 if the <em>name</em> has been defined, and 0 otherwise.</p>
+<p>For example, to make sure that the contents of a file <code>hdr.h</code> are included only once, the contents of the file are surrounded with a conditional like this:</p>
+<pre><code class="language-c">#if !defined(HDR) 
+#define HDR 
+
+/* contents of hdr.h go here */ 
+
+#endif
+</code></pre>
+<p>The first inclusion of <code>hdr.h</code> defines the name <code>HDR</code>; subsequent inclusions will find the name defined and skip down to the <code>#endif</code>. A similar style can be used to avoid including files multiple times. If this style is used consistently, then each header can itself include any other headers on which it depends, without the user of the header having to deal with the interdependence.</p>
+<p>This sequence tests the name <code>SYSTEM</code> to decide which version of a header to include:</p>
+<pre><code class="language-c">#if SYSTEM == SYSV 
+    #define HDR "sysv.h" 
+#elif SYSTEM == BSD 
+    #define HDR "bsd.h" 
+#elif SYSTEM == MSDOS 
+    #define HDR "msdos.h" 
+#else 
+    #define HDR "default.h" 
+#endif 
+#include HDR
+</code></pre>
+<p>The <code>#ifdef</code> and <code>#ifndef</code> lines are specialized forms that test whether a name is defined. The first example of <code>#if</code> above could have been written:</p>
+<pre><code class="language-c">#ifndef HDR 
+#define HDR 
+
+/* contents of hdr.h go here */ 
+
+#endif
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-6---structures"><a class="header" href="#chapter-6---structures">Chapter 6 - Structures</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-7---input-and-output"><a class="header" href="#chapter-7---input-and-output">Chapter 7 - Input and Output</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="formatted-input---scanf"><a class="header" href="#formatted-input---scanf">Formatted Input - Scanf</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-8---the-unix-system-interface"><a class="header" href="#chapter-8---the-unix-system-interface">Chapter 8 - The UNIX System Interface</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="introduction-1"><a class="header" href="#introduction-1">Introduction</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="conversions"><a class="header" href="#conversions">Conversions</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="expressions"><a class="header" href="#expressions">Expressions</a></h1>
@@ -2355,6 +2558,9 @@ The compiler is optimized to such an extent that i will plainly ignore all the <
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-9"><a class="header" href="#exercise-4-9">Exercise 4-9</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-10"><a class="header" href="#exercise-4-10">Exercise 4-10</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-11"><a class="header" href="#exercise-4-11">Exercise 4-11</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-12"><a class="header" href="#exercise-4-12">Exercise 4-12</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-13"><a class="header" href="#exercise-4-13">Exercise 4-13</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-14"><a class="header" href="#exercise-4-14">Exercise 4-14</a></h1>
 
                     </main>
 

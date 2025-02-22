@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Recursion - The C Programming Language</title>
+        <title>Chapter 8 - The UNIX System Interface - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,66 +152,17 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="recursion"><a class="header" href="#recursion">Recursion</a></h1>
-<p>C functions may be used recursively; that is, a function may call itself either directly or indirectly. Consider printing a number as a character string. As we mentioned before, the digits are generated in the wrong order: low-order digits are available before high-order digits, but they have to be printed the other way around.</p>
-<p>There are two solutions to this problem. One is to store the digits in an array as they are generated, then print them in the reverse order, as we did with <code>itoa</code> in <a href="../Chapter3/3-6.html">section 3.6</a>. The alternative is a recursive solution, in which <code>printd</code> first calls itself to cope with any leading digits, then prints the trailing digit. Again, this version can fail on the largest negative number.</p>
-<pre><code class="language-c">    #include &lt;stdio.h&gt; 
-    /* printd: print n in decimal */ 
-    void printd(int n) { 
-
-        if (n &lt; 0) { 
-            putchar('-'); 
-            n = -n; 
-        } 
-        if (n / 10) 
-            printd(n / 10); 
-        putchar(n % 10 + '0'); 
-    }
-</code></pre>
-<p>When a function calls itself recursively, each invocation gets a fresh set of all the automatic variables, independent of the previous set. In <code>printd(123)</code> the first <code>printd</code> receives the argument n = 123. It passes 12 to a second <code>printd</code>, which in turn passes 1 to a third. The third-level <code>printd</code> prints 1, then returns to the second level. That <code>printd</code> prints 2, then returns to the first level. That one prints 3 and terminates.</p>
-<p>Another good example of recursion is quicksort, a sorting algorithm developed by <em>C.A.R. Hoare</em> in 1962. Given an array, one element is chosen and the others partitioned in two subsets - those less than the partition element and those greater than or equal to it. The same process is then applied recursively to the two subsets. When a subset has fewer than two elements, it doesn't need any sorting; this stops the recursion.</p>
-<p>Our version of quicksort is not the fastest possible, but it's one of the simplest. We use the middle element of each subarray for partitioning.</p>
-<pre><code class="language-c">    /* qsort: sort v[left]...v[right] into increasing order */ 
-    void qsort(int v[], int left, int right) { 
-
-        int i, last; 
-        void swap(int v[], int i, int j);
-
-        if (left &gt;= right) /* do nothing if array contains */ 
-            return; /* fewer than two elements */ 
-        swap(v, left, (left + right)/2); /* move partition elem */ 
-        last = left; /* to v[0] */ 
-        for (i = left + 1; i &lt;= right; i++) /* partition */ 
-            if (v[i] &lt; v[left]) 
-                swap(v, ++last, i); 
-        swap(v, left, last); /* restore partition elem */ 
-        qsort(v, left, last-1); 
-        qsort(v, last+1, right);
-    }
-</code></pre>
-<p>We moved the swapping operation into a separate function <code>swap</code> because it occurs three times in <code>qsort</code>.</p>
-<pre><code class="language-c">    /* swap: interchange v[i] and v[j] */ 
-    void swap(int v[], int i, int j) { 
-        int temp; 
-        temp = v[i]; 
-        v[i] = v[j]; 
-        v[j] = temp; 
-    }
-</code></pre>
-<p>The standard library includes a version of <code>qsort</code> that can sort objects of any type.</p>
-<p>Recursion may provide no saving in storage, since somewhere a stack of the values being processed must be maintained. Nor will it be faster. But recursive code is more compact, and often much easier to write and understand than the non-recursive equivalent. Recursion is especially convenient for recursively defined data structures like trees, we will see a nice example in <a href="../Chapter6/6-0.html">Section 6.6</a>.</p>
-<p><a href="../Solutions/Chapter4/E4-12.html"><strong>Exercise 4-12.</strong></a> Adapt the ideas of <code>printd</code> to write a recursive version of <code>itoa</code>; that is, convert an integer into a string by calling a recursive routine.</p>
-<p><a href="../Solutions/Chapter4/E4-13.html"><strong>Exercise 4-13.</strong></a> Write a recursive version of the function <code>reverse(s)</code>, which reverses the string s in place.</p>
+                        <h1 id="chapter-8---the-unix-system-interface"><a class="header" href="#chapter-8---the-unix-system-interface">Chapter 8 - The UNIX System Interface</a></h1>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter4/4-9.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter7/7-4.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter4/4-11.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../AppendixA/A1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -221,11 +172,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter4/4-9.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter7/7-4.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter4/4-11.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../AppendixA/A1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
