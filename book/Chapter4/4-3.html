@@ -1,0 +1,397 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>External Variables - The C Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The C Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="external-variables"><a class="header" href="#external-variables">External Variables</a></h1>
+<p>A C program consists of a set of external objects, which are either variables or functions. The adjective "external" is used in contrast to "internal", which describes the arguments and variables defined inside functions. External variables are defined outside of any function, and are thus potentially available to many functions. Functions themselves are always external, because C does not allow functions to be defined inside other functions. By default, external variables and functions have the property that all references to them by the same name, even from functions compiled separately, are references to the same thing. (The standard calls this property <em>external linkage</em>.) In this sense, external variables are analogous to Fortran COMMON blocks or variables in the outermost block in Pascal. We will see later how to define external variables and functions that are visible only within a single source file. Because external variables are globally accessible, they provide an alternative to function arguments and return values for communicating data between functions. Any function may access an external variable by referring to it by name, if the name has been declared somehow.</p>
+<p>If a large number of variables must be shared among functions, external variables are more convenient and efficient than long argument lists. As pointed out in <a href="../Chapter1/1-0.html">Chapter 1</a>, however, this reasoning should be applied with some caution, for it can have a bad effect on program structure, and lead to programs with too many data connections between functions.</p>
+<p>External variables are also useful because of their greater scope and lifetime. Automatic variables are internal to a function; they come into existence when the function is entered, and disappear when it is left. External variables, on the other hand, are permanent, so they can retain values from one function invocation to the next. Thus if two functions must share some data, yet neither calls the other, it is often most convenient if the shared data is kept in external variables rather than being passed in and out via arguments.</p>
+<p>Let us examine this issue with a larger example. The problem is to write a calculator program that provides the operators <code>+</code>, <code>-</code>, <code>*</code> and <code>/</code>. Because it is easier to implement, the calculator will use reverse Polish notation instead of infix. (Reverse Polish notation is used by some pocket calculators, and in languages like Forth and Postscript.)</p>
+<p>In reverse Polish notation, each operator follows its operands; an infix expression like:</p>
+<pre><code>(1 - 2) * (4 + 5)
+</code></pre>
+<p>is entered as:</p>
+<pre><code>1 2 - 4 5 + *
+</code></pre>
+<p>Parentheses are not needed; the notation is unambiguous as long as we know how many operands each operator expects.</p>
+<p>The implementation is simple. Each operand is pushed onto a stack; when an operator arrives, the proper number of operands (two for binary operators) is popped, the operator is applied to them, and the result is pushed back onto the stack. In the example above, for instance, 1 and 2 are pushed, then replaced by their difference, -1. Next, 4 and 5 are pushed and then replaced by their sum, 9. The product of -1 and 9, which is -9, replaces them on the stack. The value on the top of the stack is popped and printed when the end of the input line is encountered.</p>
+<p>The structure of the program is thus a loop that performs the proper operation on each operator and operand as it appears:</p>
+<pre><code class="language-c">while (next operator or operand is not end-of-file indicator) 
+    if (number) 
+        push it
+    else if (operator) 
+        pop operands
+        do operation
+        push result
+    else if (newline) 
+        pop and print top of stack
+    else 
+        error
+</code></pre>
+<p>The operation of pushing and popping a stack are trivial, but by the time error detection and recovery are added, they are long enough that it is better to put each in a separate function than to repeat the code throughout the whole program. And there should be a separate function for fetching the next input operator or operand.</p>
+<p>The main design decision that has not yet been discussed is <em>where</em> the stack is, that is, which routines access it directly. One possibility is to keep it in <code>main</code>, and pass the stack and the current stack position to the routines that push and pop it. But <code>main</code> doesn't need to know about the variables that control the stack; it only does <code>push</code> and <code>pop</code> operations. So we have decided to store the stack and its associated information in external variables accessible to the <code>push</code> and <code>pop</code> functions but not to <code>main</code>.</p>
+<p>Translating this outline into code is easy enough. If for now we think of the program as existing in one source file, it will look like this:</p>
+<pre><code>#includes 
+#defines 
+
+function declarations for *main* 
+
+main() { ... }
+
+external variables for *push* and *pop*
+
+void push( double f) { ... } 
+
+double pop(void) { ... } 
+
+int getop(char s[]) { ... } 
+    routines called by getop
+</code></pre>
+<p>Later we will discuss how this might be split into two or more source files.</p>
+<p>The function <code>main</code> is a loop containing a big switch on the type of operator or operand; this is a more typical use of switch than the one shown in <a href="../Chapter3/3-4.html">Section 3.4</a>.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt; /* for atof() */
+
+#define MAXOP 100 /* max size of operand or operator */
+#define NUMBER '0' /* signal that a number was found */
+
+int getop(char []);
+void push(double);
+double pop(void);
+
+/* reverse Polish calculator */
+int main() {
+
+    int type;
+    double op2;
+    char s[MAXOP];
+
+    while ((type = getop(s)) != EOF) {
+
+        switch (type) {
+            case NUMBER:
+                push(atof(s));
+                break;
+            case '+':
+                push(pop() + pop());
+                break;
+            case '*':
+                push(pop() * pop());
+                break;
+            case '-':
+                op2 = pop();
+                push(pop() - op2);
+                break;
+            case '/':
+                op2 = pop();
+                if (op2 != 0.0)
+                    push(pop() / op2);
+                else
+                    printf("error: zero divisor\n");
+                break;
+            case '\n':
+                printf("\t%.8g\n", pop());
+                break;
+            default:
+                printf("error: unknown command %s\n", s);
+                break;
+        }
+    }
+    return 0;
+}
+</code></pre>
+<p>Because <code>+</code> and <code>*</code> are commutative operators, the order in which the popped operands are combined is irrelevant, but for <code>-</code> and <code>/</code> the left and right operand must be distinguished. In:</p>
+<pre><code class="language-c">push(pop() - pop()); /* WRONG */ 
+</code></pre>
+<p>the order in which the two calls of pop are evaluated is not defined. To guarantee the right order, it is necessary to pop the first value into a temporary variable as we did in <code>main</code>.</p>
+<pre><code class="language-c">#define MAXVAL 100 /* maximum depth of val stack */ 
+
+int sp = 0; /* next free stack position */ 
+double val[MAXVAL]; /* value stack */ 
+
+/* push: push f onto value stack */ 
+void push(double f) { 
+    if (sp &lt; MAXVAL) 
+        val[sp++] = f; 
+    else 
+        printf("error: stack full, can't push %g\n", f); 
+} 
+
+/* pop: pop and return top value from stack */ 
+double pop(void) { 
+    if (sp &gt; 0) 
+        return val[--sp]; 
+    else { 
+        printf("error: stack empty\n"); 
+        return 0.0; 
+    } 
+}
+</code></pre>
+<p>A variable is external if it is defined outside of any function. Thus the stack and stack index that must be shared by <code>push</code> and <code>pop</code> are defined outside these functions. But <code>main</code> itself does not refer to the stack or stack position - the representation can be hidden.</p>
+<p>Let us now turn to the implementation of <code>getop</code>, the function that fetches the next operator or operand. The task is easy. Skip blanks and tabs. If the next character is not a digit or a hexadecimal point, return it. Otherwise, collect a string of digits (which might include a decimal point), and return NUMBER, the signal that a number has been collected.</p>
+<pre><code class="language-c">#include &lt;ctype.h&gt; 
+
+int getch(void); 
+void ungetch(int); 
+
+/* getop: get next character or numeric operand */ 
+int getop(char s[]) { 
+
+    int i, c; 
+
+    while ((s[0] = c = getch()) == ' ' || c == '\t') 
+        ; 
+
+    s[1] = '\0'; 
+
+    if (!isdigit(c) &amp;&amp; c != '.') 
+        return c; /* not a number */ 
+
+    i = 0; 
+
+    if (isdigit(c)) /* collect integer part */ 
+        while (isdigit(s[++i] = c = getch())) 
+            ; 
+    if (c == '.') /* collect fraction part */ 
+        while (isdigit(s[++i] = c = getch())) 
+            ; 
+
+    s[i] = '\0'; 
+
+    if (c != EOF) 
+        ungetch(c); 
+    return NUMBER; 
+}
+</code></pre>
+<p>What are <code>getch</code> and <code>ungetch</code>? It is often the case that a program cannot determine that it has read enough input until it has read too much. One instance is collecting characters that make up a number: until the first non-digit is seen, the number is not complete. But then the program has read one character too far, a character that it is not prepared for.</p>
+<p>The problem would be solved if it were possible to "un-read" the unwanted character. Then, every time the program reads one character too many, it could push it back on the input, so the rest of the code could behave as if it had never been read. Fortunately, it's easy to simulate un-getting a character, by writing a pair of cooperating functions. <code>getch</code> delivers the next input character to be considered; <code>ungetch</code> will return them before reading new input.</p>
+<p>How they work together is simple. <code>ungetch</code> puts the pushed-back characters into a shared buffer -- a character array. <code>getch</code> reads from the buffer if there is anything else, and calls <code>getchar</code> if the buffer is empty. There must also be an index variable that records the position of the current character in the buffer.</p>
+<p>Since the buffer and the index are shared by <code>getch</code> and <code>ungetch</code> and must retain their values between calls, they must be external to both routines. Thus we can write <code>getch</code>, <code>ungetch</code>, and their shared variables as:</p>
+<pre><code class="language-c">#define BUFSIZE 100 
+char buf[BUFSIZE]; /* buffer for ungetch */ 
+int bufp = 0; /* next free position in buf */ 
+
+int getch(void) {  /* get a (possibly pushed-back) character */ 
+
+    return (bufp &gt; 0) ? buf[--bufp] : getchar(); 
+} 
+
+void ungetch(int c) {  /* push character back on input */ 
+
+    if (bufp &gt;= BUFSIZE) 
+        printf("ungetch: too many characters\n"); 
+    else 
+        buf[bufp++] = c; 
+}
+</code></pre>
+<p>The standard library includes a function <code>ungetch</code> that provides one character of pushback; we will discuss it in <a href="../Chapter7/7-0.html">Chapter 7</a>. We have used an array for the pushback, rather than a single character, to illustrate a more general approach.</p>
+<p><a href="../Solutions/Chapter4/E4-3.html"><strong>Exercise 4-3.</strong></a> Given the basic framework, it's straightforward to extend the calculator. Add the modulus (%) operator and provisions for negative numbers.</p>
+<p><a href="../Solutions/Chapter4/E4-4.html"><strong>Exercise 4-4.</strong></a> Add the commands to print the top elements of the stack without popping, to duplicate it, and to swap the top two elements. Add a command to clear the stack.</p>
+<p><a href="../Solutions/Chapter4/E4-5.html"><strong>Exercise 4-5.</strong></a> Add access to library functions like <code>sin</code>, <code>exp</code>, and <code>pow</code>. See <code>&lt;math.h&gt;</code> in <a href="../AppendixB/B0.html">Appendix B, Section 4</a>.</p>
+<p><a href="../Solutions/Chapter4/E4-6.html"><strong>Exercise 4-6.</strong></a> Add commands for handling variables. (It's easy to provide twenty-six variables with single-letter names.) Add a variable for the most recently printed value.</p>
+<p><a href="../Solutions/Chapter4/E4-7.html"><strong>Exercise 4-7.</strong></a> Write a routine <code>ungets(s)</code> that will push back an entire string onto the input. Should <code>ungets</code> know about <code>buf</code> and <code>bufp</code>, or should it just use <code>ungetch</code>?</p>
+<p><a href="../Solutions/Chapter4/E4-8.html"><strong>Exercise 4-8.</strong></a> Suppose that there will never be more than one character of pushback. Modify <code>getch</code> and <code>ungetch</code> accordingly.</p>
+<p><a href="../Solutions/Chapter4/E4-9.html"><strong>Exercise 4-9.</strong></a> Our <code>getch</code> and <code>ungetch</code> do not handle a pushed-back EOF correctly. Decide what their properties ought to be if an EOF is pushed back, then implement your design.</p>
+<p><a href="../Solutions/Chapter4/E4-10.html"><strong>Exercise 4-10.</strong></a> An alternate organization uses <code>getline</code> to read an entire input line; this makes <code>getch</code> and <code>ungetch</code> unnecessary. Revise the calculator to use this approach.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Chapter4/4-2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Chapter4/4-4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Chapter4/4-2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Chapter4/4-4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

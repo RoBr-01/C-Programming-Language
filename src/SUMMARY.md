@@ -47,19 +47,19 @@
 
 - [Chapter 4 - Functions and Program Structure](Chapter4/4-0.md)            Done
     - [Basics of Functions](Chapter4/4-1.md)                                Done
-    - [Functions Returning Non-Integers](Chapter4/4-2.md)
-    - [External Variables]()
-    - [Scope Rules]()
-    - [Header Files]()
-    - [Static Variables]()
-    - [Register Variables]()
-    - [Block Structure]()
-    - [Initialization]()
-    - [Recursion]()
-    - [The C Preprocessor]()
-    - [File Inclusion]()
-    - [Macro Substitution]()
-    - [Conditional Inclusion]()
+    - [Functions Returning Non-Integers](Chapter4/4-2.md)                   Done
+    - [External Variables](Chapter4/4-3.md)                                 Done
+    - [Scope Rules](Chapter4/4-4.md)
+    - [Header Files](Chapter4/4-5.md)
+    - [Static Variables](Chapter4/4-6.md)
+    - [Register Variables](Chapter4/4-7.md)
+    - [Block Structure](Chapter4/4-8.md)
+    - [Initialization](Chapter4/4-9.md)
+    - [Recursion](Chapter4/4-10.md)
+    - [The C Preprocessor](Chapter4/4-11.md)
+    - [File Inclusion](Chapter4/4-12.md)
+    - [Macro Substitution](Chapter4/4-13.md)
+    - [Conditional Inclusion](Chapter4/4-14.md)
 
 - [Chapter 5 - Pointers and Arrays](Chapter5/5-0.md)
     - [Pointers and Addresses]()
@@ -263,6 +263,15 @@
 
     - [Chapter 4]()
         - [Exercise 4-1](Solutions/Chapter4/E4-1.md)
+        - [Exercise 4-2](Solutions/Chapter4/E4-2.md)
+        - [Exercise 4-3](Solutions/Chapter4/E4-3.md)
+        - [Exercise 4-4](Solutions/Chapter4/E4-4.md)
+        - [Exercise 4-5](Solutions/Chapter4/E4-5.md)
+        - [Exercise 4-6](Solutions/Chapter4/E4-6.md)
+        - [Exercise 4-7](Solutions/Chapter4/E4-7.md)
+        - [Exercise 4-8](Solutions/Chapter4/E4-8.md)
+        - [Exercise 4-9](Solutions/Chapter4/E4-9.md)
+        - [Exercise 4-10](Solutions/Chapter4/E4-10.md)
     - [Chapter 4]()
     - [Chapter 5]()
     - [Chapter 6]()

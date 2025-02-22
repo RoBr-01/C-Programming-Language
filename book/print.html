@@ -1944,7 +1944,7 @@ int strindex(char s[], char t[]) {
 <p>The <code>cc</code> command uses the ".c" versus ".o" naming convention to distinguish source files from object files.</p>
 <p><a href="Chapter4/../Solutions/Chapter4/E4-1.html"><strong>Exercise 4-1.</strong></a> Write the function <code>strindex(s,t)</code> which returns the position of the <em>rightmost</em> occurrence of <code>t</code> in <code>s</code>, or -1 if there is none.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="functions-returning-non-integers"><a class="header" href="#functions-returning-non-integers">Functions Returning Non-Integers</a></h1>
-<p>So far our examples of functions have returned either no value (<code>void</code>) or an <code>int</code>. What if a function must return some other type? many numerical functions like sqrt, sin, and cos return <code>double</code>; other specialized functions return other types. To illustrate how to deal with this, let us write and use the function <code>atof(s)</code>, which converts the string s to its double precision floating-point equivalent. <code>atof</code> is an extension of <code>atoi</code>, which we showed versions of in <a href="Chapter4/../Chapter2/2-0.html">Chapters 2</a> and <a href="Chapter4/../Chapter3/3-0.html">Chapter 3</a>. It handles an optional sign and decimal point, and the presence or absence of either part or fractional part. Our version is <em>not</em> a high-quality input conversion routine; that would take more space than we care to use. The standard library includes an <code>atof</code>; the header &lt;stdlib.h&gt; declares it.</p>
+<p>So far our examples of functions have returned either no value (<code>void</code>) or an <code>int</code>. What if a function must return some other type? Many numerical functions like <code>sqrt</code>, <code>sin</code>, and <code>cos</code> return <code>double</code>; other specialized functions return other types. To illustrate how to deal with this, let us write and use the function <code>atof(s)</code>, which converts the string s to its double precision floating-point equivalent. <code>atof</code> is an extension of <code>atoi</code>, which we showed versions of in <a href="Chapter4/../Chapter2/2-0.html">Chapters 2</a> and <a href="Chapter4/../Chapter3/3-0.html">Chapter 3</a>. It handles an optional sign and decimal point, and the presence or absence of either part or fractional part. Our version is <em>not</em> a high-quality input conversion routine; that would take more space than we care to use. The standard library includes an <code>atof</code>; the header &lt;stdlib.h&gt; declares it.</p>
 <p>First, <code>atof</code> itself must declare the type of value it returns, since it is not <code>int</code>. The type name precedes the function name:</p>
 <pre><code class="language-c">#include &lt;ctype.h&gt; 
 
@@ -1953,6 +1953,7 @@ double atof(char s[]) {
 
     double val, power; 
     int i, sign; 
+    
     for (i = 0; isspace(s[i]); i++) /* skip white space */ 
         ; 
     sign = (s[i] == '-') ? -1 : 1; 
@@ -1979,6 +1980,7 @@ main(){
     double sum, atof(char []);
     char line[MAXLINE];
     int getline(char line[], int max);
+
     sum = 0;
     while (getline(line, MAXLINE) &gt; 0)
         printf("\t%g\n", sum += atof(line));
@@ -1988,7 +1990,7 @@ main(){
 <p>The declaration:</p>
 <pre><code class="language-c">double sum, atof(char []);
 </code></pre>
-<p>says that <code>sum</code> is a double variable, and that <code>atof</code> is a function that takes one <code>char[]</code> argument and returns a <code>double</code>.</p>
+<p>says that <code>sum</code> is a <code>double</code> variable, and that <code>atof</code> is a function that takes one <code>char[]</code> argument and returns a <code>double</code>.</p>
 <p>The function <code>atof</code> must be declared and defined consistently. If <code>atof</code> itself and the call to it in <code>main</code> have inconsistent types in the same source file, the error will be detected by the compiler. But if (as is more likely) <code>atof</code> were compiled separately, the mismatch would not be detected, <code>atof</code> would return a <code>double</code> that <code>main</code> would treat as an <code>int</code>, and meaningless answers would result.</p>
 <p>In the light of what we have said about how declarations must match definitions, this might seem surprising. The reason a mismatch can happen is that if there is no function prototype, a function is implicitly declared by its first appearance in an expression, such as:</p>
 <pre><code class="language-c">sum += atof(line)
@@ -2006,12 +2008,212 @@ int atoi(char s[]) {
 } 
 </code></pre>
 <p>Notice the structure of the declarations and the return statement. The value of the expression in:</p>
-<pre><code class="language-c"> return expression;
+<pre><code class="language-c">return expression;
 </code></pre>
-<p>is converted to the type of the function before the return is taken. Therefore, the value of atof, a double, is converted automatically to int when it appears in this return, since the function atoi returns an int. This operation does potentionally discard information, however, so some compilers warn of it. The cast states explicitly that the operation is intended, and suppresses any warning.</p>
-<p><strong>Exercise 4-2.</strong> Extend atof to handle scientific notation of the form</p>
-<p>123.45e-6</p>
-<p>where a floating-point number may be followed by e or E and an optionally signed exponent.</p>
+<p>is converted to the type of the function before the <code>return</code> is taken. Therefore, the value of <code>atof</code>, a <code>double</code>, is converted automatically to <code>int</code> when it appears in this return, since the function <code>atoi</code> returns an <code>int</code>. This operation does potentially discard information, however, so some compilers warn of it. The cast states explicitly that the operation is intended, and suppresses any warning.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-2.html"><strong>Exercise 4-2.</strong></a> Extend <code>atof</code> to handle scientific notation of the form: "123.45e-6". Where a floating-point number may be followed by "e" or "E" and an optionally signed exponent.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="external-variables"><a class="header" href="#external-variables">External Variables</a></h1>
+<p>A C program consists of a set of external objects, which are either variables or functions. The adjective "external" is used in contrast to "internal", which describes the arguments and variables defined inside functions. External variables are defined outside of any function, and are thus potentially available to many functions. Functions themselves are always external, because C does not allow functions to be defined inside other functions. By default, external variables and functions have the property that all references to them by the same name, even from functions compiled separately, are references to the same thing. (The standard calls this property <em>external linkage</em>.) In this sense, external variables are analogous to Fortran COMMON blocks or variables in the outermost block in Pascal. We will see later how to define external variables and functions that are visible only within a single source file. Because external variables are globally accessible, they provide an alternative to function arguments and return values for communicating data between functions. Any function may access an external variable by referring to it by name, if the name has been declared somehow.</p>
+<p>If a large number of variables must be shared among functions, external variables are more convenient and efficient than long argument lists. As pointed out in <a href="Chapter4/../Chapter1/1-0.html">Chapter 1</a>, however, this reasoning should be applied with some caution, for it can have a bad effect on program structure, and lead to programs with too many data connections between functions.</p>
+<p>External variables are also useful because of their greater scope and lifetime. Automatic variables are internal to a function; they come into existence when the function is entered, and disappear when it is left. External variables, on the other hand, are permanent, so they can retain values from one function invocation to the next. Thus if two functions must share some data, yet neither calls the other, it is often most convenient if the shared data is kept in external variables rather than being passed in and out via arguments.</p>
+<p>Let us examine this issue with a larger example. The problem is to write a calculator program that provides the operators <code>+</code>, <code>-</code>, <code>*</code> and <code>/</code>. Because it is easier to implement, the calculator will use reverse Polish notation instead of infix. (Reverse Polish notation is used by some pocket calculators, and in languages like Forth and Postscript.)</p>
+<p>In reverse Polish notation, each operator follows its operands; an infix expression like:</p>
+<pre><code>(1 - 2) * (4 + 5)
+</code></pre>
+<p>is entered as:</p>
+<pre><code>1 2 - 4 5 + *
+</code></pre>
+<p>Parentheses are not needed; the notation is unambiguous as long as we know how many operands each operator expects.</p>
+<p>The implementation is simple. Each operand is pushed onto a stack; when an operator arrives, the proper number of operands (two for binary operators) is popped, the operator is applied to them, and the result is pushed back onto the stack. In the example above, for instance, 1 and 2 are pushed, then replaced by their difference, -1. Next, 4 and 5 are pushed and then replaced by their sum, 9. The product of -1 and 9, which is -9, replaces them on the stack. The value on the top of the stack is popped and printed when the end of the input line is encountered.</p>
+<p>The structure of the program is thus a loop that performs the proper operation on each operator and operand as it appears:</p>
+<pre><code class="language-c">while (next operator or operand is not end-of-file indicator) 
+    if (number) 
+        push it
+    else if (operator) 
+        pop operands
+        do operation
+        push result
+    else if (newline) 
+        pop and print top of stack
+    else 
+        error
+</code></pre>
+<p>The operation of pushing and popping a stack are trivial, but by the time error detection and recovery are added, they are long enough that it is better to put each in a separate function than to repeat the code throughout the whole program. And there should be a separate function for fetching the next input operator or operand.</p>
+<p>The main design decision that has not yet been discussed is <em>where</em> the stack is, that is, which routines access it directly. One possibility is to keep it in <code>main</code>, and pass the stack and the current stack position to the routines that push and pop it. But <code>main</code> doesn't need to know about the variables that control the stack; it only does <code>push</code> and <code>pop</code> operations. So we have decided to store the stack and its associated information in external variables accessible to the <code>push</code> and <code>pop</code> functions but not to <code>main</code>.</p>
+<p>Translating this outline into code is easy enough. If for now we think of the program as existing in one source file, it will look like this:</p>
+<pre><code>#includes 
+#defines 
+
+function declarations for *main* 
+
+main() { ... }
+
+external variables for *push* and *pop*
+
+void push( double f) { ... } 
+
+double pop(void) { ... } 
+
+int getop(char s[]) { ... } 
+    routines called by getop
+</code></pre>
+<p>Later we will discuss how this might be split into two or more source files.</p>
+<p>The function <code>main</code> is a loop containing a big switch on the type of operator or operand; this is a more typical use of switch than the one shown in <a href="Chapter4/../Chapter3/3-4.html">Section 3.4</a>.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt; /* for atof() */
+
+#define MAXOP 100 /* max size of operand or operator */
+#define NUMBER '0' /* signal that a number was found */
+
+int getop(char []);
+void push(double);
+double pop(void);
+
+/* reverse Polish calculator */
+int main() {
+
+    int type;
+    double op2;
+    char s[MAXOP];
+
+    while ((type = getop(s)) != EOF) {
+
+        switch (type) {
+            case NUMBER:
+                push(atof(s));
+                break;
+            case '+':
+                push(pop() + pop());
+                break;
+            case '*':
+                push(pop() * pop());
+                break;
+            case '-':
+                op2 = pop();
+                push(pop() - op2);
+                break;
+            case '/':
+                op2 = pop();
+                if (op2 != 0.0)
+                    push(pop() / op2);
+                else
+                    printf("error: zero divisor\n");
+                break;
+            case '\n':
+                printf("\t%.8g\n", pop());
+                break;
+            default:
+                printf("error: unknown command %s\n", s);
+                break;
+        }
+    }
+    return 0;
+}
+</code></pre>
+<p>Because <code>+</code> and <code>*</code> are commutative operators, the order in which the popped operands are combined is irrelevant, but for <code>-</code> and <code>/</code> the left and right operand must be distinguished. In:</p>
+<pre><code class="language-c">push(pop() - pop()); /* WRONG */ 
+</code></pre>
+<p>the order in which the two calls of pop are evaluated is not defined. To guarantee the right order, it is necessary to pop the first value into a temporary variable as we did in <code>main</code>.</p>
+<pre><code class="language-c">#define MAXVAL 100 /* maximum depth of val stack */ 
+
+int sp = 0; /* next free stack position */ 
+double val[MAXVAL]; /* value stack */ 
+
+/* push: push f onto value stack */ 
+void push(double f) { 
+    if (sp &lt; MAXVAL) 
+        val[sp++] = f; 
+    else 
+        printf("error: stack full, can't push %g\n", f); 
+} 
+
+/* pop: pop and return top value from stack */ 
+double pop(void) { 
+    if (sp &gt; 0) 
+        return val[--sp]; 
+    else { 
+        printf("error: stack empty\n"); 
+        return 0.0; 
+    } 
+}
+</code></pre>
+<p>A variable is external if it is defined outside of any function. Thus the stack and stack index that must be shared by <code>push</code> and <code>pop</code> are defined outside these functions. But <code>main</code> itself does not refer to the stack or stack position - the representation can be hidden.</p>
+<p>Let us now turn to the implementation of <code>getop</code>, the function that fetches the next operator or operand. The task is easy. Skip blanks and tabs. If the next character is not a digit or a hexadecimal point, return it. Otherwise, collect a string of digits (which might include a decimal point), and return NUMBER, the signal that a number has been collected.</p>
+<pre><code class="language-c">#include &lt;ctype.h&gt; 
+
+int getch(void); 
+void ungetch(int); 
+
+/* getop: get next character or numeric operand */ 
+int getop(char s[]) { 
+
+    int i, c; 
+
+    while ((s[0] = c = getch()) == ' ' || c == '\t') 
+        ; 
+
+    s[1] = '\0'; 
+
+    if (!isdigit(c) &amp;&amp; c != '.') 
+        return c; /* not a number */ 
+
+    i = 0; 
+
+    if (isdigit(c)) /* collect integer part */ 
+        while (isdigit(s[++i] = c = getch())) 
+            ; 
+    if (c == '.') /* collect fraction part */ 
+        while (isdigit(s[++i] = c = getch())) 
+            ; 
+
+    s[i] = '\0'; 
+
+    if (c != EOF) 
+        ungetch(c); 
+    return NUMBER; 
+}
+</code></pre>
+<p>What are <code>getch</code> and <code>ungetch</code>? It is often the case that a program cannot determine that it has read enough input until it has read too much. One instance is collecting characters that make up a number: until the first non-digit is seen, the number is not complete. But then the program has read one character too far, a character that it is not prepared for.</p>
+<p>The problem would be solved if it were possible to "un-read" the unwanted character. Then, every time the program reads one character too many, it could push it back on the input, so the rest of the code could behave as if it had never been read. Fortunately, it's easy to simulate un-getting a character, by writing a pair of cooperating functions. <code>getch</code> delivers the next input character to be considered; <code>ungetch</code> will return them before reading new input.</p>
+<p>How they work together is simple. <code>ungetch</code> puts the pushed-back characters into a shared buffer -- a character array. <code>getch</code> reads from the buffer if there is anything else, and calls <code>getchar</code> if the buffer is empty. There must also be an index variable that records the position of the current character in the buffer.</p>
+<p>Since the buffer and the index are shared by <code>getch</code> and <code>ungetch</code> and must retain their values between calls, they must be external to both routines. Thus we can write <code>getch</code>, <code>ungetch</code>, and their shared variables as:</p>
+<pre><code class="language-c">#define BUFSIZE 100 
+char buf[BUFSIZE]; /* buffer for ungetch */ 
+int bufp = 0; /* next free position in buf */ 
+
+int getch(void) {  /* get a (possibly pushed-back) character */ 
+
+    return (bufp &gt; 0) ? buf[--bufp] : getchar(); 
+} 
+
+void ungetch(int c) {  /* push character back on input */ 
+
+    if (bufp &gt;= BUFSIZE) 
+        printf("ungetch: too many characters\n"); 
+    else 
+        buf[bufp++] = c; 
+}
+</code></pre>
+<p>The standard library includes a function <code>ungetch</code> that provides one character of pushback; we will discuss it in <a href="Chapter4/../Chapter7/7-0.html">Chapter 7</a>. We have used an array for the pushback, rather than a single character, to illustrate a more general approach.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-3.html"><strong>Exercise 4-3.</strong></a> Given the basic framework, it's straightforward to extend the calculator. Add the modulus (%) operator and provisions for negative numbers.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-4.html"><strong>Exercise 4-4.</strong></a> Add the commands to print the top elements of the stack without popping, to duplicate it, and to swap the top two elements. Add a command to clear the stack.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-5.html"><strong>Exercise 4-5.</strong></a> Add access to library functions like <code>sin</code>, <code>exp</code>, and <code>pow</code>. See <code>&lt;math.h&gt;</code> in <a href="Chapter4/../AppendixB/B0.html">Appendix B, Section 4</a>.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-6.html"><strong>Exercise 4-6.</strong></a> Add commands for handling variables. (It's easy to provide twenty-six variables with single-letter names.) Add a variable for the most recently printed value.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-7.html"><strong>Exercise 4-7.</strong></a> Write a routine <code>ungets(s)</code> that will push back an entire string onto the input. Should <code>ungets</code> know about <code>buf</code> and <code>bufp</code>, or should it just use <code>ungetch</code>?</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-8.html"><strong>Exercise 4-8.</strong></a> Suppose that there will never be more than one character of pushback. Modify <code>getch</code> and <code>ungetch</code> accordingly.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-9.html"><strong>Exercise 4-9.</strong></a> Our <code>getch</code> and <code>ungetch</code> do not handle a pushed-back EOF correctly. Decide what their properties ought to be if an EOF is pushed back, then implement your design.</p>
+<p><a href="Chapter4/../Solutions/Chapter4/E4-10.html"><strong>Exercise 4-10.</strong></a> An alternate organization uses <code>getline</code> to read an entire input line; this makes <code>getch</code> and <code>ungetch</code> unnecessary. Revise the calculator to use this approach.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="scope-rules"><a class="header" href="#scope-rules">Scope Rules</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="header-files"><a class="header" href="#header-files">Header Files</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="static-variables"><a class="header" href="#static-variables">Static Variables</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="register-variables"><a class="header" href="#register-variables">Register Variables</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="block-structure"><a class="header" href="#block-structure">Block Structure</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="initialization"><a class="header" href="#initialization">Initialization</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="recursion"><a class="header" href="#recursion">Recursion</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="the-c-preprocessor"><a class="header" href="#the-c-preprocessor">The C Preprocessor</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="file-inclusion"><a class="header" href="#file-inclusion">File Inclusion</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="macro-substitution"><a class="header" href="#macro-substitution">Macro Substitution</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="conditional-inclusion"><a class="header" href="#conditional-inclusion">Conditional Inclusion</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-6---structures"><a class="header" href="#chapter-6---structures">Chapter 6 - Structures</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-7---input-and-output"><a class="header" href="#chapter-7---input-and-output">Chapter 7 - Input and Output</a></h1>
@@ -2062,6 +2264,15 @@ int atoi(char s[]) {
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-3-5"><a class="header" href="#exercise-3-5">Exercise 3-5</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-3-6"><a class="header" href="#exercise-3-6">Exercise 3-6</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-1"><a class="header" href="#exercise-4-1">Exercise 4-1</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-2"><a class="header" href="#exercise-4-2">Exercise 4-2</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-3"><a class="header" href="#exercise-4-3">Exercise 4-3</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-4"><a class="header" href="#exercise-4-4">Exercise 4-4</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-5"><a class="header" href="#exercise-4-5">Exercise 4-5</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-6"><a class="header" href="#exercise-4-6">Exercise 4-6</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-7"><a class="header" href="#exercise-4-7">Exercise 4-7</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-8"><a class="header" href="#exercise-4-8">Exercise 4-8</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-9"><a class="header" href="#exercise-4-9">Exercise 4-9</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-10"><a class="header" href="#exercise-4-10">Exercise 4-10</a></h1>
 
                     </main>
 
