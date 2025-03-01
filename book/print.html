@@ -2498,6 +2498,476 @@ int getchar(void) { ... }
 #endif
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
+<p>A pointer is a variable that contains the address of a variable. Pointers are much used in C, partly because they are sometimes the only way to express a computation, and partly because they usually lead to more compact and efficient code than can be obtained in other ways. Pointers and arrays are closely related; this chapter also explores this relationship and shows how to exploit it.</p>
+<p>Pointers have been lumped with the <code>goto</code> statement as a marvelous way to create impossible-to-understand programs. This is certainly true when they are used carelessly, and it is easy to create pointers that point somewhere unexpected. With discipline, however, pointers can also be used to achieve clarity and simplicity. This is the aspect that we will try to illustrate.</p>
+<p>The main change in ANSI C is to make explicit the rules about how pointers can be manipulated, in effect mandating what good programmers already practice and good compilers already enforce. In addition, the type <code>void *</code> (pointer to void) replaces <code>char *</code> as the proper type for a generic pointer.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pointers-and-addresses"><a class="header" href="#pointers-and-addresses">Pointers and Addresses</a></h1>
+<p>Let us begin with a simplified picture of how memory is organized. A typical machine has an array of consecutively numbered or addressed memory cells that may be manipulated individually or in contiguous groups. One common situation is that any byte can be a <code>char</code>, a pair of one-byte cells can be treated as a <code>short integer</code>, and four adjacent bytes form a <code>long</code>. A pointer is a group of cells (often two or four) that can hold an address. So if c is a <code>char</code> and p is a pointer that points to it, we could represent the situation this way:</p>
+<p><img src="Chapter5/../Images/5-1%20-%20Pointers%20And%20Addresses.png" alt="" /></p>
+<p>The unary operator <code>&amp;</code> gives the address of an object, so the statement:</p>
+<pre><code class="language-c">p = &amp;c;
+</code></pre>
+<p>assigns the address of c to the variable p, and p is said to "point to" c. The <code>&amp;</code> operator only applies to objects in memory: variables and array elements (and functions). It cannot be applied to expressions, constants, or register variables.</p>
+<p>The unary operator <code>*</code> is the <em>indirection</em> or <em>dereferencing</em> operator; when applied to a pointer, it accesses the object the pointer points to. Suppose that x and y are integers and ip is a <code>pointer</code> to <code>int</code>. This artificial sequence shows how to declare a pointer and how to use <code>&amp;</code> and <code>*</code>:</p>
+<pre><code class="language-c">int x = 1, y = 2, z[10]; int *ip; /* ip is a pointer to int */
+ip = &amp;x; /* ip now points to x */ 
+y = *ip; /* y is now 1 */ 
+*ip = 0; /* x is now 0 */ 
+ip = &amp;z[0]; /* ip now points to z[0] */
+</code></pre>
+<p>The declaration of x, y, and z are what we've seen all along. The declaration of the <code>pointer</code> ip,</p>
+<pre><code class="language-c">int *ip;
+</code></pre>
+<p>is intended as a mnemonic; it says that the expression <code>*ip</code> is an <code>int</code>. The syntax of the declaration for a variable mimics the syntax of expressions in which the variable might appear. This reasoning applies to function declarations as well. For example,</p>
+<pre><code class="language-c">double *dp, atof(char *); 
+</code></pre>
+<p>says that in an expression <code>*dp</code> and <code>atof(s)</code> have values of <code>double</code>, and that the argument of
+<code>atof</code> is a <code>pointer</code> to <code>char</code>.</p>
+<p>You should also note the implication that a pointer is constrained to point to a particular kind of object: every pointer points to a specific data type. (There is one exception: a "pointer to void" is used to hold any type of pointer but cannot be dereferenced itself. We'll come back to it in <a href="Chapter5/../Chapter5/5-11.html">Section 5.11</a>.)</p>
+<p>If <code>ip</code> points to the integer x, then <code>*ip</code> can occur in any context where x could, so:</p>
+<pre><code class="language-c">*ip = *ip + 10; 
+</code></pre>
+<p>increments *ip by 10.</p>
+<p>The unary operators <code>*</code> and <code>&amp;</code> bind more tightly than arithmetic operators, so the assignment</p>
+<pre><code class="language-c">y = *ip + 1;
+</code></pre>
+<p>takes whatever <code>ip</code> points at, adds 1, and assigns the result to y, while:</p>
+<pre><code class="language-c">*ip += 1 
+</code></pre>
+<p>increments what <code>ip</code> points to, as do:</p>
+<pre><code class="language-c">++*ip 
+</code></pre>
+<p>and:</p>
+<pre><code class="language-c">(*ip)++
+</code></pre>
+<p>The parentheses are necessary in this last example; without them, the expression would increment ip instead of what it points to, because unary operators like <code>*</code> and <code>++</code> associate right to left.</p>
+<p>Finally, since pointers are variables, they can be used without dereferencing. For example, if <code>iq</code> is another pointer to <code>int</code>,</p>
+<pre><code class="language-c">iq = ip 
+</code></pre>
+<p>copies the contents of ip into iq, thus making iq point to whatever ip pointed to.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pointers-and-function-arguments"><a class="header" href="#pointers-and-function-arguments">Pointers and Function Arguments</a></h1>
+<p>Since C passes arguments to functions by value, there is no direct way for the called function to alter a variable in the calling function. For instance, a sorting routine might exchange two out-of-order arguments with a function called <code>swap</code>. It is not enough to write:</p>
+<pre><code class="language-c">swap(a, b); 
+</code></pre>
+<p>where the swap function is defined as:</p>
+<pre><code class="language-c">void swap(int x, int y) {  /* WRONG */
+
+    int temp; 
+    temp = x; 
+    x = y; 
+    y = temp; 
+}
+</code></pre>
+<p>Because of call by value, <code>swap</code> can't affect the arguments a and b in the routine that called it. The function above swaps <em>copies</em> of a and b.</p>
+<p>The way to obtain the desired effect is for the calling program to pass <em>pointers</em> to the values to be changed:</p>
+<pre><code class="language-c">swap(&amp;a, &amp;b);
+</code></pre>
+<p>Since the operator <code>&amp;</code> produces the address of a variable, <code>&amp;a</code> is a pointer to a. In <code>swap</code> itself, the parameters are declared as pointers, and the operands are accessed indirectly through them.</p>
+<pre><code class="language-c">void swap(int *px, int *py) { /* interchange *px and *py */
+
+    int temp; 
+    temp = *px; 
+    *px = *py; 
+    *py = temp; 
+}
+</code></pre>
+<p>Pictorially:</p>
+<p><img src="Chapter5/../Images/5-2%20-%20Pointers%20and%20Function%20Arguments.png" alt="" /></p>
+<p>Pointer arguments enable a function to access and change objects in the function that called it. As an example, consider a function <code>getint</code> that performs free-format input conversion by breaking a stream of characters into integer values, one integer per call. <code>getint</code> has to return the value it found and also signal end of file when there is no more input. These values have to be passed back by separate paths, for no matter what value is used for EOF, that could also be the value of an input integer.</p>
+<p>One solution is to have <code>getint</code> return the end of file status as its function value, while using a pointer argument to store the converted integer back in the calling function. This is the scheme used by <code>scanf</code> as well; see <a href="Chapter5/../Chapter7/7-4.html">Section 7.4</a>.</p>
+<p>The following loop fills an array with integers by calls to <code>getint</code>:</p>
+<pre><code class="language-c">int n, array[SIZE], getint(int *); 
+
+for (n = 0; n &lt; SIZE &amp;&amp; getint(&amp;array[n]) != EOF; n++) 
+    ;
+</code></pre>
+<p>Each call sets array[n] to the next integer found in the input and increments n. Notice that it is essential to pass the address of array[n] to <code>getint</code>. Otherwise there is no way for <code>getint</code> to communicate the converted integer back to the caller.</p>
+<p>Our version of <code>getint</code> returns EOF for end of file, zero if the next input is not a number, and a positive value if the input contains a valid number.</p>
+<pre><code class="language-c">#include &lt;ctype.h&gt;
+
+int getch(void); 
+void ungetch(int); 
+
+/* getint: get next integer from input into *pn */ 
+int getint(int *pn) {
+
+    int c, sign;
+    while (isspace(c = getch())) /* skip white space */ 
+        ; 
+    if (!isdigit(c) &amp;&amp; c != EOF &amp;&amp; c != '+' &amp;&amp; c != '-') {
+        ungetch(c); /* it is not a number */
+        return 0;
+    } 
+
+    sign = (c == '-') ? -1 : 1;
+    if (c == '+' || c == '-')
+        c = getch();
+
+    for (*pn = 0; isdigit(c); c = getch())
+        *pn = 10 * *pn + (c - '0');
+
+    *pn *= sign;
+    if (c != EOF)
+        ungetch(c);
+    return c; 
+}
+</code></pre>
+<p>Throughout <code>getint</code>, <code>*pn</code> is used as an ordinary <code>int</code> variable. We have also used <code>getch</code> and <code>ungetch</code> (described in <a href="Chapter5/../Chapter4/4-3.html">Section 4.3</a>) so the one extra character that must be read can be pushed back onto the input.</p>
+<p><a href="Chapter5/../Solutions/Chapter5/E5-1.html"><strong>Exercise 5-1.</strong></a> As written, <code>getint</code> treats a <code>+</code> or <code>-</code> not followed by a digit as a valid representation of zero. Fix it to push such a character back on the input.</p>
+<p><a href="Chapter5/../Solutions/Chapter5/E5-2.html"><strong>Exercise 5-2.</strong></a> Write <code>getfloat</code>, the floating-point analog of <code>getint</code>. What type does <code>getfloat</code> return as its function value?</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pointers-and-arrays"><a class="header" href="#pointers-and-arrays">Pointers and Arrays</a></h1>
+<p>In C, there is a strong relationship between pointers and arrays, strong enough that pointers and arrays should be discussed simultaneously. Any operation that can be achieved by array subscripting can also be done with pointers. The pointer version will in general be faster but, at least to the uninitiated, somewhat harder to understand.</p>
+<p>The declaration:</p>
+<pre><code class="language-c">int a[10];
+</code></pre>
+<p>defines an array of size 10, that is, a block of 10 consecutive objects named <code>a[0]</code>, <code>a[1]</code>, ...,<code>a[9]</code>.</p>
+<p><img src="Chapter5/../Images/5-3%20Pointers%20and%20Arrays%2001.png" alt="" /></p>
+<p>The notation <code>a[i]</code> refers to the i-th element of the array. If <code>pa</code> is a pointer to an integer, declared as:</p>
+<pre><code class="language-c">int *pa;
+</code></pre>
+<p>then the assignment:</p>
+<pre><code class="language-c">pa = &amp;a[0];
+</code></pre>
+<p>sets <code>pa</code> to point to element zero of <code>a</code>; that is, <code>pa</code> contains the address of <code>a[0]</code>.</p>
+<p><img src="Chapter5/../Images/5-3%20Pointers%20and%20Arrays%2002.png" alt="" /></p>
+<p>Now the assignment:</p>
+<pre><code class="language-c">x = *pa;
+</code></pre>
+<p>will copy the contents of <code>a[0]</code> into <code>x</code>.</p>
+<p>If <code>pa</code> points to a particular element of an array, then by definition <code>pa+1</code> points to the next element, <code>pa+i</code> points <code>i</code> elements after <code>pa</code>, and <code>pa-i</code> points <code>i</code> elements before. Thus, if <code>pa</code> points to <code>a[0]</code>,</p>
+<pre><code class="language-c">*(pa+1)
+</code></pre>
+<p>refers to the contents of <code>a[1]</code>, <code>pa+i</code> is the address of <code>a[i]</code>, and <code>*(pa+i)</code> is the contents of <code>a[i]</code>.</p>
+<p><img src="Chapter5/../Images/5-3%20Pointers%20and%20Arrays%2003.png" alt="" /></p>
+<p>These remarks are true regardless of the type or size of the variables in the array <code>a</code>. The meaning of "adding 1 to a pointer", and by extension, all pointer arithmetic, is that <code>pa+1</code> points to the next object, and <code>pa+i</code> points to the i-th object beyond <code>pa</code>.</p>
+<p>The correspondence between indexing and pointer arithmetic is very close. By definition, the value of a variable or expression of type <code>array</code> is the address of element zero of the array. Thus after the assignment:</p>
+<pre><code class="language-c">pa = &amp;a[0];
+</code></pre>
+<p><code>pa</code> and <code>a</code> have identical values. Since the name of an array is a synonym for the location of the initial element, the assignment <code>pa=&amp;a[0]</code> can also be written as</p>
+<pre><code class="language-c">pa = a;
+</code></pre>
+<p>Rather more surprising, at first sight, is the fact that a reference to <code>a[i]</code> can also be written as <code>*(a+i)</code>. In evaluating <code>a[i]</code>, C converts it to <code>*(a+i)</code> immediately; the two forms are equivalent. Applying the operator <code>&amp;</code> to both parts of this equivalence, it follows that <code>&amp;a[i]</code> and <code>a+i</code> are also identical: <code>a+i</code> is the address of the i-th element beyond <code>a</code>. As the other side of this coin, if <code>pa</code> is a pointer, expressions might use it with a subscript; <code>pa[i]</code> is identical to <code>*(pa+i)</code>. In short, an array-and-index expression is equivalent to one written as a pointer and offset.</p>
+<p>There is one difference between an array name and a pointer that must be kept in mind. A pointer is a variable, so <code>pa=a</code> and <code>pa++</code> are legal. But an array name is <em>not</em> a variable; constructions like <code>a=pa</code> and <code>a++</code> are illegal.</p>
+<p>When an array name is passed to a function, what is passed is the location of the initial element. Within the called function, this argument is a local variable, and so an array name parameter is a pointer, that is, a variable containing an address. We can use this fact to write another version of <code>strlen</code>, which computes the length of a string.</p>
+<pre><code class="language-c">/* strlen: return length of string s */ 
+int strlen(char *s)
+{ 
+    int n;
+    for (n = 0; *s != '\0'; s++)
+        n++;
+    return n;
+}
+</code></pre>
+<p>Since <code>s</code> is a pointer, incrementing it is perfectly legal; <code>s++</code> has no effect on the character string in the function that called <code>strlen</code>, but merely increments strlen's private copy of the pointer. That means that calls like:</p>
+<pre><code class="language-c">strlen("hello, world"); /* string constant */ 
+strlen(array); /* char array[100]; */ 
+strlen(ptr); /* char *ptr; */
+</code></pre>
+<p>all work.</p>
+<p>As formal parameters in a function definition,</p>
+<pre><code class="language-c">char s[]; 
+</code></pre>
+<p>and:</p>
+<pre><code class="language-c">char *s;
+</code></pre>
+<p>are equivalent; we prefer the latter because it says more explicitly that the variable is a pointer. When an array name is passed to a function, the function can at its convenience believe that it has been handed either an array or a pointer, and manipulate it accordingly. It can even use both notations if it seems appropriate and clear.</p>
+<p>It is possible to pass part of an array to a function, by passing a pointer to the beginning of the sub-array. For example, if <code>a</code> is an array,</p>
+<pre><code class="language-c">f(&amp;a[2]) 
+</code></pre>
+<p>and:</p>
+<pre><code class="language-c">f(a+2)
+</code></pre>
+<p>both pass to the function <code>f</code> the address of the sub-array that starts at <code>a[2]</code>. Within <code>f</code>, the parameter declaration can read:</p>
+<pre><code class="language-c">f(int arr[]) { ... } 
+</code></pre>
+<p>or:</p>
+<pre><code class="language-c">f(int *arr) { ... }
+</code></pre>
+<p>So as far as <code>f</code> is concerned, the fact that the parameter refers to part of a larger array is of no consequence.</p>
+<p>If one is sure that the elements exist, it is also possible to index backwards in an array; <code>p[-1]</code>, <code>p[-2]</code>, and so on are syntactically legal, and refer to the elements that immediately precede <code>p[0]</code>. Of course, it is illegal to refer to objects that are not within the array bounds.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="address-arithmetic"><a class="header" href="#address-arithmetic">Address Arithmetic</a></h1>
+<p>If <code>p</code> is a pointer to some element of an array, then <code>p++</code> increments <code>p</code> to point to the next element, and <code>p+=i</code> increments it to point <code>i</code> elements beyond where it currently does. These and similar constructions are the simplest forms of pointer or address arithmetic.</p>
+<p>C is consistent and regular in its approach to address arithmetic; its integration of pointers, arrays, and address arithmetic is one of the strengths of the language. Let us illustrate by writing a rudimentary storage allocator. There are two routines. The first, <code>alloc(n)</code>, returns a pointer to <code>n</code> consecutive character positions, which can be used by the caller of <code>alloc</code> for storing characters. The second, <code>afree(p)</code>, releases the storage thus acquired so it can be reused later. The routines are "rudimentary" because the calls to <code>afree</code> must be made in the opposite order to the calls made on <code>alloc</code>. That is, the storage managed by <code>alloc</code> and <code>afree</code> is a stack, or last-in, first-out. The standard library provides analogous functions called <code>malloc</code> and <code>free</code> that have no such restrictions; in <a href="Chapter5/../Chapter8/8-0.html">Section 8.7</a> we will show how they can be implemented.</p>
+<p>The easiest implementation is to have <code>alloc</code> hand out pieces of a large character array that we will call <code>allocbuf</code>. This array is private to <code>alloc</code> and <code>afree</code>. Since they deal in pointers, not array indices, no other routine need know the name of the array, which can be declared <code>static</code> in the source file containing <code>alloc</code> and <code>afree</code>, and thus be invisible outside it. In practical implementations, the array may well not even have a name; it might instead be obtained by calling <code>malloc</code> or by asking the operating system for a pointer to some unnamed block of storage.</p>
+<p>The other information needed is how much of <code>allocbuf</code> has been used. We use a pointer, called <code>allocp</code>, that points to the next free element. When <code>alloc</code> is asked for <code>n</code> characters, it checks to see if there is enough room left in <code>allocbuf</code>. If so, <code>alloc</code> returns the current value of <code>allocp</code> (i.e., the beginning of the free block), then increments it by <code>n</code> to point to the next free area. If there is no room, <code>alloc</code> returns zero. <code>afree(p)</code> merely sets <code>allocp</code> to <code>p</code> if <code>p</code> is inside <code>allocbuf</code>.</p>
+<p><img src="Chapter5/../Images/5-4%20Address%20Arithmetic.png" alt="" /></p>
+<pre><code class="language-c">#define ALLOCSIZE 10000 /* size of available space */ 
+
+static char allocbuf[ALLOCSIZE]; /* storage for alloc */ 
+static char *allocp = allocbuf; /* next free position */ 
+
+char *alloc(int n) /* return pointer to n characters */ 
+{ 
+    if (allocbuf + ALLOCSIZE - allocp &gt;= n) { /* it fits */ 
+        allocp += n; 
+        return allocp - n; /* old p */ 
+    } else { /* not enough room */ 
+        return 0; 
+    }
+} 
+
+void afree(char *p) /* free storage pointed to by p */ 
+{ 
+    if (p &gt;= allocbuf &amp;&amp; p &lt; allocbuf + ALLOCSIZE) { 
+        allocp = p; 
+    }
+}
+</code></pre>
+<p>In general a pointer can be initialized just as any other variable can, though normally the only meaningful values are zero or an expression involving the address of previously defined data of appropriate type. The declaration:</p>
+<pre><code class="language-c">static char *allocp = allocbuf;
+</code></pre>
+<p>defines <code>allocp</code> to be a character pointer and initializes it to point to the beginning of allocbuf, which is the next free position when the program starts. This could also have been written</p>
+<pre><code class="language-c">static char *allocp = &amp;allocbuf[0];
+</code></pre>
+<p>since the array name <em>is</em> the address of the zeroth element.</p>
+<p>The test:</p>
+<pre><code class="language-c">if (allocbuf + ALLOCSIZE - allocp &gt;= n) {} /* it fits */
+</code></pre>
+<p>checks if there's enough room to satisfy a request for n characters. If there is, the new value of <code>allocp</code> would be at most one beyond the end of <code>allocbuf</code>. If the request can be satisfied, <code>alloc</code> returns a pointer to the beginning of a block of characters (notice the declaration of the function itself). If not, alloc must return some signal that there is no space left. C guarantees that zero is never a valid address for data, so a return value of zero can be used to signal an abnormal event, in this case no space.</p>
+<p>Pointers and integers are not interchangeable. Zero is the sole exception: the constant zero may be assigned to a pointer, and a pointer may be compared with the constant zero. The symbolic constant <code>NULL</code> is often used in place of zero, as a mnemonic to indicate more clearly that this is a special value for a pointer. <code>NULL</code> is defined in <code>&lt;stdio.h&gt;</code>. We will use <code>NULL</code> henceforth.</p>
+<p>Tests like:</p>
+<pre><code class="language-c">if (allocbuf + ALLOCSIZE - allocp &gt;= n) {} /* it fits */
+</code></pre>
+<p>and:</p>
+<pre><code class="language-c">if (p &gt;= allocbuf &amp;&amp; p &lt; allocbuf + ALLOCSIZE)
+</code></pre>
+<p>show several important facets of pointer arithmetic. First, pointers may be compared under certain circumstances. If <code>p</code> and <code>q</code> point to members of the same array, then relations like <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;=</code>, etc., work properly. For example,</p>
+<pre><code class="language-c">p &lt; q
+</code></pre>
+<p>is true if <code>p</code> points to an earlier element of the array than <code>q</code> does. Any pointer can be meaningfully compared for equality or inequality with zero. But the behavior is undefined for arithmetic or comparisons with pointers that do not point to members of the same array. (There is one exception: the address of the first element past the end of an array can be used in pointer arithmetic.)</p>
+<p>Second, we have already observed that a pointer and an integer may be added or subtracted. The construction:</p>
+<pre><code class="language-c">p + n
+</code></pre>
+<p>means the address of the n-th object beyond the one <code>p</code> currently points to. This is true regardless of the kind of object <code>p</code> points to; <code>n</code> is scaled according to the size of the objects <code>p</code> points to, which is determined by the declaration of <code>p</code>. If an <code>int</code> is four bytes, for example, the int will be scaled by four.</p>
+<p>Pointer subtraction is also valid: if <code>p</code> and <code>q</code> point to elements of the same array, and <code>p&lt;q</code>, then <code>q-p+1</code> is the number of elements from <code>p</code> to <code>q</code> inclusive. This fact can be used to write yet another version of <code>strlen</code>:</p>
+<pre><code class="language-c">/* strlen: return length of string s */ 
+int strlen(char *s) 
+{ 
+    char *p = s; 
+    while (*p != '\0') 
+        p++; 
+    return p - s; 
+}
+</code></pre>
+<p>In its declaration, <code>p</code> is initialized to <code>s</code>, that is, to point to the first character of the string. In the <code>while</code> loop, each character in turn is examined until the <code>'\0'</code> at the end is seen. Because <code>p</code> points to characters, <code>p++</code> advances p to the next character each time, and <code>p-s</code> gives the number of characters advanced over, that is, the string length. (The number of characters in the string could be too large to store in an <code>int</code>). The header <code>&lt;stddef.h&gt;</code> defines a type <code>ptrdiff_t</code> that is large enough to hold the signed difference of two pointer values. If we were being cautious, however, we would use <code>size_t</code> for the return value of <code>strlen</code>, to match the standard library version. <code>size_t</code> is the unsigned integer type returned by the <code>sizeof</code> operator.</p>
+<p>Pointer arithmetic is consistent: if we had been dealing with floats, which occupy more storage that chars, and if <code>p</code> were a pointer to <code>float</code>, <code>p++</code> would advance to the next <code>float</code>. Thus we could write another version of <code>alloc</code> that maintains floats instead of chars, merely by changing <code>char</code> to <code>float</code> throughout <code>alloc</code> and <code>afree</code>. All the pointer manipulations automatically take into account the size of the objects pointed to.</p>
+<p>The valid pointer operations are assignment of pointers of the same type, adding or subtracting a pointer and an integer, subtracting or comparing two pointers to members of the same array, and assigning or comparing to zero. <em>All other pointer arithmetic is illegal</em>. It is not legal to add two pointers, or to multiply or divide or shift or mask them, or to add <code>float</code> or <code>double</code> to them, or even, except for <code>void *</code>, to assign a pointer of one type to a pointer of another type without a cast.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="character-pointers-and-functions"><a class="header" href="#character-pointers-and-functions">Character Pointers and Functions</a></h1>
+<p>A <em>string constant</em>, written as:</p>
+<pre><code class="language-c">"I am a string"
+</code></pre>
+<p>is an array of characters. In the internal representation, the array is terminated with the null character <code>'\0'</code> so that programs can find the end. The length in storage is thus one more than the number of characters between the double quotes.</p>
+<p>Perhaps the most common occurrence of string constants is as arguments to functions, as in:</p>
+<pre><code class="language-c">printf("hello, world\n");
+</code></pre>
+<p>When a character string like this appears in a program, access to it is through a character pointer; <code>printf</code> receives a pointer to the beginning of the character array. That is, a string constant is accessed by a pointer to its first element.</p>
+<p>String constants need not be function arguments. If <code>pmessage</code> is declared as:</p>
+<pre><code class="language-c">char *pmessage; 
+</code></pre>
+<p>then the statement:</p>
+<pre><code class="language-c">pmessage = "now is the time";
+</code></pre>
+<p>assigns to <code>pmessage</code> a pointer to the character array. This is <em>not</em> a string copy; only pointers are involved. C does not provide any operators for processing an entire string of characters as a unit.</p>
+<p>There is an important difference between these definitions:</p>
+<pre><code class="language-c">char amessage[] = "now is the time"; /* an array */ 
+char *pmessage = "now is the time"; /* a pointer */
+</code></pre>
+<p><code>amessage</code> is an <code>array</code>, just big enough to hold the sequence of characters and <code>'\0'</code> that terminates it. Individual characters within the array may be changed but <code>amessage</code> will always refer to the same storage. On the other hand, <code>pmessage</code> is a <code>pointer</code>, initialized to point to a string constant; the pointer may subsequently be modified to point elsewhere, but the result is undefined if you try to modify the string contents.</p>
+<p><img src="Chapter5/../Images/5-5%20Character%20Pointers%20and%20Functions.png" alt="" /></p>
+<p>We will illustrate more aspects of pointers and arrays by studying versions of two useful functions adapted from the standard library. The first function is <code>strcpy(s,t)</code>, which copies the string <code>t</code> to the string <code>s</code>. It would be nice just to say <code>s=t</code> but this copies the pointer, not the characters. To copy the characters, we need a loop. The array version first:</p>
+<pre><code class="language-c">/* strcpy: copy t to s; array subscript version */ 
+void strcpy(char *s, char *t) 
+{ 
+   int i; 
+   i = 0; 
+   while ((s[i] = t[i]) != '\0') 
+       i++; 
+}
+</code></pre>
+<p>For contrast, here is a version of <code>strcpy</code> with pointers:</p>
+<pre><code class="language-c">/* strcpy: copy t to s; pointer version */ 
+void strcpy(char *s, char *t) 
+{ 
+   int i; 
+   i = 0; 
+   while ((*s = *t) != '\0') { 
+       s++; 
+       t++; 
+   } 
+}
+</code></pre>
+<p>Because arguments are passed by value, <code>strcpy</code> can use the parameters <code>s</code> and <code>t</code> in any way it pleases. Here they are conveniently initialized pointers, which are marched along the arrays a character at a time, until the <code>'\0'</code> that terminates <code>t</code> has been copied into <code>s</code>.</p>
+<p>In practice, <code>strcpy</code> would not be written as we showed it above. Experienced C programmers would prefer:</p>
+<pre><code class="language-c">/* strcpy: copy t to s; pointer version 2 */ 
+void strcpy(char *s, char *t) 
+{ 
+   while ((*s++ = *t++) != '\0') 
+       ;
+}
+</code></pre>
+<p>This moves the increment of <code>s</code> and <code>t</code> into the test part of the loop. The value of <code>*t++</code> is the character that <code>t</code> pointed to before <code>t</code> was incremented; the postfix <code>++</code> doesn't change <code>t</code> until after this character has been fetched. In the same way, the character is stored into the old <code>s</code> position before <code>s</code> is incremented. This character is also the value that is compared against <code>'\0'</code> to control the loop. The net effect is that characters are copied from <code>t</code> to <code>s</code>, up to and including the terminating <code>'\0'</code>.</p>
+<p>As the final abbreviation, observe that a comparison against <code>'\0'</code> is redundant, since the question is merely whether the expression is zero. So the function would likely be written as</p>
+<pre><code class="language-c">/* strcpy: copy t to s; pointer version 3 */ 
+void strcpy(char *s, char *t) 
+{ 
+    while (*s++ = *t++) 
+        ;
+}
+</code></pre>
+<p>Although this may seem cryptic at first sight, the notational convenience is considerable, and the idiom should be mastered, because you will see it frequently in C programs.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>A bit of nuance regarding the abbreviation of notation as described above.<br />
+One of the most important parts of writing code, is writing <em>readable</em> code.
+And sure, the above notation is definitely readable, but performance-wise there is no gain compared to the earlier (and much easier to understand) versions that used a more verbose notation.</p>
+<p>As stated before, compilers are <em>incredibly</em> advanced, and can optimize your code immensely. There is no reason to manually optimize what the compiler can handle just as well or better. Write code <em>you</em> and anyone else who has to read your code can understand.</p>
+<p>Of course, optimizations can be made, and you definitely <em>should</em> make them. But only if they truly matter.</p>
+</blockquote>
+<p>The <code>strcpy</code> in the standard library (<code>&lt;string.h&gt;</code>) returns the target string as its function value.</p>
+<p>The second routine that we will examine is <code>strcmp(s,t)</code>, which compares the character strings <code>s</code> and <code>t</code>, and returns negative, zero or positive if <code>s</code> is lexicographically less than, equal to, or greater than <code>t</code>. The value is obtained by subtracting the characters at the first position where <code>s</code> and <code>t</code> disagree.</p>
+<pre><code class="language-c">/* strcmp: return &lt;0 if s&lt;t, 0 if s==t, &gt;0 if s&gt;t */ 
+int strcmp(char *s, char *t) 
+{ 
+    int i; 
+    for (i = 0; s[i] == t[i]; i++) 
+        if (s[i] == '\0') 
+            return 0; 
+    return s[i] - t[i]; 
+}
+</code></pre>
+<p>The pointer version of <code>strcmp</code>:</p>
+<pre><code class="language-c">/* strcmp: return &lt;0 if s&lt;t, 0 if s==t, &gt;0 if s&gt;t */ 
+int strcmp(char *s, char *t) 
+{ 
+    for ( ; *s == *t; s++, t++) 
+        if (*s == '\0') 
+            return 0; 
+    return *s - *t; 
+}
+</code></pre>
+<p>Since <code>++</code> and <code>--</code> are either prefix or postfix operators, other combinations of <code>*</code> and <code>++</code> and <code>--</code>
+occur, although less frequently. For example,</p>
+<pre><code class="language-c">*--p 
+</code></pre>
+<p>decrements <code>p</code> before fetching the character that <code>p</code> points to. In fact, the pair of expressions</p>
+<pre><code class="language-c">*p++ = val; /* push val onto stack */ 
+val = *--p; /* pop top of stack into val */ 
+</code></pre>
+<p>are the standard idiom for pushing and popping a stack; see <a href="Chapter5/../Chapter4/4-3.html">Section 4.3</a>.</p>
+<p>The header <code>&lt;string.h&gt;</code> contains declarations for the functions mentioned in this section, plus a variety of other string-handling functions from the standard library.</p>
+<p><a href="Chapter5/../Solutions/Chapter5/E5-3.html"><strong>Exercise 5-3.</strong></a> Write a pointer version of the function <code>strcat</code> that we showed in <a href="Chapter5/../Chapter2/2-0.html">Chapter 2</a>: <code>strcat(s,t)</code> copies the string <code>t</code> to the end of <code>s</code>.</p>
+<p><a href="Chapter5/../Solutions/Chapter5/E5-4.html"><strong>Exercise 5-4.</strong></a> Write the function <code>strend(s,t)</code>, which returns 1 if the string <code>t</code> occurs at the end of the string <code>s</code>, and zero otherwise.</p>
+<p><a href="Chapter5/../Solutions/Chapter5/E5-5.html"><strong>Exercise 5-5.</strong></a> Write versions of the library functions <code>strncpy</code>, <code>strncat</code>, and <code>strncmp</code>, which operate on at most the first n characters of their argument strings. For example, <code>strncpy(s,t,n)</code> copies at most n characters of <code>t</code> to <code>s</code>. Full descriptions are in <a href="Chapter5/../AppendixB/B0.html">Appendix B</a>.</p>
+<p><a href="Chapter5/../Solutions/Chapter5/E5-6.html"><strong>Exercise 5-6.</strong></a> Rewrite appropriate programs from earlier chapters and exercises with pointers instead of array indexing. Good possibilities include <code>getline</code> (<a href="Chapter5/../Chapter1/1-0.html">Chapters 1</a> and <a href="Chapter5/../Chapter4/4-0.html">4</a>), <code>atoi</code>, <code>itoa</code>, and their variants (<a href="Chapter5/../Chapter2/2-0.html">Chapters 2</a>, <a href="Chapter5/../Chapter3/3-0.html">3</a>, and <a href="Chapter5/../Chapter4/4-0.html">4</a>), <code>reverse</code> (<a href="Chapter5/../Chapter3/3-0.html">Chapter 3</a>), and <code>strindex</code> and <code>getop</code> (<a href="Chapter5/../Chapter4/4-0.html">Chapter 4</a>).</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pointer-arrays-pointers-to-pointers"><a class="header" href="#pointer-arrays-pointers-to-pointers">Pointer Arrays; Pointers to Pointers</a></h1>
+<p>Since pointers are variables themselves, they can be stored in arrays just as other variables can. Let us illustrate by writing a program that will sort a set of text lines into alphabetic order, a stripped-down version of the UNIX program sort.</p>
+<p>In Chapter 3, we presented a Shell sort function that would sort an array of integers, and in Chapter 4 we improved on it with a quicksort. The same algorithms will work, except that now we have to deal with lines of text, which are of different lengths, and which, unlike integers, can't be compared or moved in a single operation. We need a data representation that will cope efficiently and conveniently with variable-length text lines.</p>
+<p>This is where the array of pointers enters. If the lines to be sorted are stored end-to-end in one long character array, then each line can be accessed by a pointer to its first character. The pointers themselves can bee stored in an array. Two lines can be compared by passing their pointers to strcmp. When two out-of-order lines have to be exchanged, the pointers in the pointer array are exchanged, not the text lines themselves.</p>
+<p><img src="Chapter5/../Images/5-6%20Pointer%20Arrays;%20Pointers%20to%20Pointers.png" alt="" /></p>
+<p>This eliminates the twin problems of complicated storage management and high overhead that would go with moving the lines themselves.</p>
+<p>The sorting process has three steps:</p>
+<p><em>read all the lines of input sort them print them in order</em></p>
+<p>As usual, it's best to divide the program into functions that match this natural division, with the main routine controlling the other functions. Let us defer the sorting step for a moment, and concentrate on the data structure and the input and output.</p>
+<p>The input routine has to collect and save the characters of each line, and build an array of pointers to the lines. It will also have to count the number of input lines, since that information is needed for sorting and printing. Since the input function can only cope with a finite number of input lines, it can return some illegal count like -1 if too much input is presented.</p>
+<p>The output routine only has to print the lines in the order in which they appear in the array of pointers.</p>
+<pre><code> #include &lt;stdio.h&gt; 
+ #include &lt;string.h&gt; 
+ #define MAXLINES 5000 /* max #lines to be sorted */ 
+ char *lineptr[MAXLINES]; /* pointers to text lines */ 
+ int readlines(char *lineptr[], int nlines); 
+ void writelines(char *lineptr[], int nlines); 
+ void qsort(char *lineptr[], int left, int right); 
+ /* sort input lines */ 
+ main() 
+ { 
+ int nlines; /* number of input lines read */ 
+ if ((nlines = readlines(lineptr, MAXLINES)) &gt;= 0) { 
+ qsort(lineptr, 0, nlines-1); 
+ writelines(lineptr, nlines); 
+ return 0; 
+ } else { 
+ printf("error: input too big to sort\n"); 
+ return 1; 
+ } 
+ } 
+ #define MAXLEN 1000 /* max length of any input line */ 
+ int getline(char *, int); 
+ char *alloc(int); 
+ /* readlines: read input lines */ 
+ int readlines(char *lineptr[], int maxlines) 
+ { 
+ int len, nlines; 
+ char *p, line[MAXLEN]; 
+ nlines = 0; 
+ while ((len = getline(line, MAXLEN)) &gt; 0) 
+ if (nlines &gt;= maxlines || p = alloc(len) == NULL) 
+ return -1; 
+ else {
+</code></pre>
+<pre><code> line[len-1] = '\0'; /* delete newline */ 
+ strcpy(p, line); 
+ lineptr[nlines++] = p; 
+ } 
+ return nlines; 
+ } 
+ /* writelines: write output lines */ 
+ void writelines(char *lineptr[], int nlines) 
+ { 
+ int i; 
+ for (i = 0; i &lt; nlines; i++) 
+ printf("%s\n", lineptr[i]); 
+ }
+</code></pre>
+<p>The function getline is from Section 1.9.</p>
+<p>The main new thing is the declaration for lineptr:</p>
+<pre><code> char *lineptr[MAXLINES]
+</code></pre>
+<p>says that lineptr is an array of MAXLINES elements, each element of which is a pointer to a char. That is, lineptr[i] is a character pointer, and *lineptr[i] is the character it points to, the first character of the i-th saved text line.</p>
+<p>Since lineptr is itself the name of an array, it can be treated as a pointer in the same manner as in our earlier examples, and writelines can be written instead as</p>
+<pre><code> /* writelines: write output lines */ 
+ void writelines(char *lineptr[], int nlines) 
+ { 
+ while (nlines-- &gt; 0) 
+ printf("%s\n", *lineptr++); 
+ }
+</code></pre>
+<p>Initially, *lineptr points to the first line; each element advances it to the next line pointer while nlines is counted down.</p>
+<p>With input and output under control, we can proceed to sorting. The quicksort from Chapter 4 needs minor changes: the declarations have to be modified, and the comparison operation must be done by calling strcmp. The algorithm remains the same, which gives us some confidence that it will still work.</p>
+<pre><code> /* qsort: sort v[left]...v[right] into increasing order */ 
+ void qsort(char *v[], int left, int right) 
+ { 
+ int i, last; 
+ void swap(char *v[], int i, int j); 
+ if (left &gt;= right) /* do nothing if array contains */ 
+ return; /* fewer than two elements */ 
+ swap(v, left, (left + right)/2); 
+ last = left; 
+ for (i = left+1; i &lt;= right; i++) 
+ if (strcmp(v[i], v[left]) &lt; 0) 
+ swap(v, ++last, i); 
+ swap(v, left, last); 
+ qsort(v, left, last-1);
+</code></pre>
+<p>qsort(v, last+1, right);</p>
+<p>}</p>
+<p>Similarly, the swap routine needs only trivial changes:</p>
+<pre><code> /* swap: interchange v[i] and v[j] */ 
+ void swap(char *v[], int i, int j) 
+ { 
+ char *temp; 
+ temp = v[i]; 
+ v[i] = v[j]; 
+ v[j] = temp; 
+ }
+</code></pre>
+<p>Since any individual element of v (alias lineptr) is a character pointer, temp must be also, so one can be copied to the other.</p>
+<p><strong>Exercise 5-7.</strong> Rewrite readlines to store lines in an array supplied by main, rather than calling alloc to maintain storage. How much faster is the program?</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="multi-dimensional-arrays"><a class="header" href="#multi-dimensional-arrays">Multi-dimensional Arrays</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="initialization-of-pointer-arrays"><a class="header" href="#initialization-of-pointer-arrays">Initialization of Pointer Arrays</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pointers-vs-multi-dimensional-arrays"><a class="header" href="#pointers-vs-multi-dimensional-arrays">Pointers vs. Multi-dimensional Arrays</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="command-line-arguments"><a class="header" href="#command-line-arguments">Command-line Arguments</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pointers-to-functions"><a class="header" href="#pointers-to-functions">Pointers to Functions</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="complicated-declarations"><a class="header" href="#complicated-declarations">Complicated Declarations</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-6---structures"><a class="header" href="#chapter-6---structures">Chapter 6 - Structures</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-7---input-and-output"><a class="header" href="#chapter-7---input-and-output">Chapter 7 - Input and Output</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="formatted-input---scanf"><a class="header" href="#formatted-input---scanf">Formatted Input - Scanf</a></h1>
@@ -2561,6 +3031,12 @@ int getchar(void) { ... }
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-12"><a class="header" href="#exercise-4-12">Exercise 4-12</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-13"><a class="header" href="#exercise-4-13">Exercise 4-13</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-4-14"><a class="header" href="#exercise-4-14">Exercise 4-14</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-1"><a class="header" href="#exercise-5-1">Exercise 5-1</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-2"><a class="header" href="#exercise-5-2">Exercise 5-2</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-3"><a class="header" href="#exercise-5-3">Exercise 5-3</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-4"><a class="header" href="#exercise-5-4">Exercise 5-4</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-5"><a class="header" href="#exercise-5-5">Exercise 5-5</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-6"><a class="header" href="#exercise-5-6">Exercise 5-6</a></h1>
 
                     </main>
 

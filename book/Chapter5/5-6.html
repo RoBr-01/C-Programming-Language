@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 5 - Pointers and Arrays - The C Programming Language</title>
+        <title>Pointer Arrays; Pointers to Pointers - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,20 +152,119 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
-<p>A pointer is a variable that contains the address of a variable. Pointers are much used in C, partly because they are sometimes the only way to express a computation, and partly because they usually lead to more compact and efficient code than can be obtained in other ways. Pointers and arrays are closely related; this chapter also explores this relationship and shows how to exploit it.</p>
-<p>Pointers have been lumped with the <code>goto</code> statement as a marvelous way to create impossible-to-understand programs. This is certainly true when they are used carelessly, and it is easy to create pointers that point somewhere unexpected. With discipline, however, pointers can also be used to achieve clarity and simplicity. This is the aspect that we will try to illustrate.</p>
-<p>The main change in ANSI C is to make explicit the rules about how pointers can be manipulated, in effect mandating what good programmers already practice and good compilers already enforce. In addition, the type <code>void *</code> (pointer to void) replaces <code>char *</code> as the proper type for a generic pointer.</p>
+                        <h1 id="pointer-arrays-pointers-to-pointers"><a class="header" href="#pointer-arrays-pointers-to-pointers">Pointer Arrays; Pointers to Pointers</a></h1>
+<p>Since pointers are variables themselves, they can be stored in arrays just as other variables can. Let us illustrate by writing a program that will sort a set of text lines into alphabetic order, a stripped-down version of the UNIX program sort.</p>
+<p>In Chapter 3, we presented a Shell sort function that would sort an array of integers, and in Chapter 4 we improved on it with a quicksort. The same algorithms will work, except that now we have to deal with lines of text, which are of different lengths, and which, unlike integers, can't be compared or moved in a single operation. We need a data representation that will cope efficiently and conveniently with variable-length text lines.</p>
+<p>This is where the array of pointers enters. If the lines to be sorted are stored end-to-end in one long character array, then each line can be accessed by a pointer to its first character. The pointers themselves can bee stored in an array. Two lines can be compared by passing their pointers to strcmp. When two out-of-order lines have to be exchanged, the pointers in the pointer array are exchanged, not the text lines themselves.</p>
+<p><img src="../Images/5-6%20Pointer%20Arrays;%20Pointers%20to%20Pointers.png" alt="" /></p>
+<p>This eliminates the twin problems of complicated storage management and high overhead that would go with moving the lines themselves.</p>
+<p>The sorting process has three steps:</p>
+<p><em>read all the lines of input sort them print them in order</em></p>
+<p>As usual, it's best to divide the program into functions that match this natural division, with the main routine controlling the other functions. Let us defer the sorting step for a moment, and concentrate on the data structure and the input and output.</p>
+<p>The input routine has to collect and save the characters of each line, and build an array of pointers to the lines. It will also have to count the number of input lines, since that information is needed for sorting and printing. Since the input function can only cope with a finite number of input lines, it can return some illegal count like -1 if too much input is presented.</p>
+<p>The output routine only has to print the lines in the order in which they appear in the array of pointers.</p>
+<pre><code> #include &lt;stdio.h&gt; 
+ #include &lt;string.h&gt; 
+ #define MAXLINES 5000 /* max #lines to be sorted */ 
+ char *lineptr[MAXLINES]; /* pointers to text lines */ 
+ int readlines(char *lineptr[], int nlines); 
+ void writelines(char *lineptr[], int nlines); 
+ void qsort(char *lineptr[], int left, int right); 
+ /* sort input lines */ 
+ main() 
+ { 
+ int nlines; /* number of input lines read */ 
+ if ((nlines = readlines(lineptr, MAXLINES)) &gt;= 0) { 
+ qsort(lineptr, 0, nlines-1); 
+ writelines(lineptr, nlines); 
+ return 0; 
+ } else { 
+ printf("error: input too big to sort\n"); 
+ return 1; 
+ } 
+ } 
+ #define MAXLEN 1000 /* max length of any input line */ 
+ int getline(char *, int); 
+ char *alloc(int); 
+ /* readlines: read input lines */ 
+ int readlines(char *lineptr[], int maxlines) 
+ { 
+ int len, nlines; 
+ char *p, line[MAXLEN]; 
+ nlines = 0; 
+ while ((len = getline(line, MAXLEN)) &gt; 0) 
+ if (nlines &gt;= maxlines || p = alloc(len) == NULL) 
+ return -1; 
+ else {
+</code></pre>
+<pre><code> line[len-1] = '\0'; /* delete newline */ 
+ strcpy(p, line); 
+ lineptr[nlines++] = p; 
+ } 
+ return nlines; 
+ } 
+ /* writelines: write output lines */ 
+ void writelines(char *lineptr[], int nlines) 
+ { 
+ int i; 
+ for (i = 0; i &lt; nlines; i++) 
+ printf("%s\n", lineptr[i]); 
+ }
+</code></pre>
+<p>The function getline is from Section 1.9.</p>
+<p>The main new thing is the declaration for lineptr:</p>
+<pre><code> char *lineptr[MAXLINES]
+</code></pre>
+<p>says that lineptr is an array of MAXLINES elements, each element of which is a pointer to a char. That is, lineptr[i] is a character pointer, and *lineptr[i] is the character it points to, the first character of the i-th saved text line.</p>
+<p>Since lineptr is itself the name of an array, it can be treated as a pointer in the same manner as in our earlier examples, and writelines can be written instead as</p>
+<pre><code> /* writelines: write output lines */ 
+ void writelines(char *lineptr[], int nlines) 
+ { 
+ while (nlines-- &gt; 0) 
+ printf("%s\n", *lineptr++); 
+ }
+</code></pre>
+<p>Initially, *lineptr points to the first line; each element advances it to the next line pointer while nlines is counted down.</p>
+<p>With input and output under control, we can proceed to sorting. The quicksort from Chapter 4 needs minor changes: the declarations have to be modified, and the comparison operation must be done by calling strcmp. The algorithm remains the same, which gives us some confidence that it will still work.</p>
+<pre><code> /* qsort: sort v[left]...v[right] into increasing order */ 
+ void qsort(char *v[], int left, int right) 
+ { 
+ int i, last; 
+ void swap(char *v[], int i, int j); 
+ if (left &gt;= right) /* do nothing if array contains */ 
+ return; /* fewer than two elements */ 
+ swap(v, left, (left + right)/2); 
+ last = left; 
+ for (i = left+1; i &lt;= right; i++) 
+ if (strcmp(v[i], v[left]) &lt; 0) 
+ swap(v, ++last, i); 
+ swap(v, left, last); 
+ qsort(v, left, last-1);
+</code></pre>
+<p>qsort(v, last+1, right);</p>
+<p>}</p>
+<p>Similarly, the swap routine needs only trivial changes:</p>
+<pre><code> /* swap: interchange v[i] and v[j] */ 
+ void swap(char *v[], int i, int j) 
+ { 
+ char *temp; 
+ temp = v[i]; 
+ v[i] = v[j]; 
+ v[j] = temp; 
+ }
+</code></pre>
+<p>Since any individual element of v (alias lineptr) is a character pointer, temp must be also, so one can be copied to the other.</p>
+<p><strong>Exercise 5-7.</strong> Rewrite readlines to store lines in an array supplied by main, rather than calling alloc to maintain storage. How much faster is the program?</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter4/4-11-3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter5/5-5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter5/5-1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter5/5-7.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -175,11 +274,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter4/4-11-3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter5/5-5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter5/5-1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter5/5-7.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

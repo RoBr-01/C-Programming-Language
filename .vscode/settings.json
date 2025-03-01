@@ -15,6 +15,8 @@
         "setjmp",
         "stdarg",
         "stdlib",
+        "subarray",
         "Ungetc"
-    ]
+    ],
+    "markdown.validate.enabled": false
 }

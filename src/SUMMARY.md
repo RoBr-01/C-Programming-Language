@@ -61,19 +61,19 @@
         - [Macro Substitution](Chapter4/4-11-2.md)                          Done
         - [Conditional Inclusion](Chapter4/4-11-3.md)                       Done
 
-- [Chapter 5 - Pointers and Arrays](Chapter5/5-0.md)
-    - [Pointers and Addresses]()
-    - [Pointers and Function Arguments]()
-    - [Pointers and Arrays]()
-    - [Address Arithmetic]()
-    - [Character Pointers and Functions]()
-    - [Pointer Arrays; Pointers to Pointers]()
-    - [Multi-dimensional Arrays]()
-    - [Initialization of Pointer Arrays]()
-    - [Pointers vs. Multi-dimensional Arrays]()
-    - [Command-line Arguments]()
-    - [Pointers to Functions]()
-    - [Complicated Declarations]()
+- [Chapter 5 - Pointers and Arrays](Chapter5/5-0.md)                        Done
+    - [Pointers and Addresses](Chapter5/5-1.md)                             Done
+    - [Pointers and Function Arguments](Chapter5/5-2.md)                    Done
+    - [Pointers and Arrays](Chapter5/5-3.md)                                Done
+    - [Address Arithmetic](Chapter5/5-4.md)                                 Done
+    - [Character Pointers and Functions](Chapter5/5-5.md)                   Done
+    - [Pointer Arrays; Pointers to Pointers](Chapter5/5-6.md)
+    - [Multi-dimensional Arrays](Chapter5/5-7.md)
+    - [Initialization of Pointer Arrays](Chapter5/5-8.md)
+    - [Pointers vs. Multi-dimensional Arrays](Chapter5/5-9.md)
+    - [Command-line Arguments](Chapter5/5-10.md)
+    - [Pointers to Functions](Chapter5/5-11.md)
+    - [Complicated Declarations](Chapter5/5-12.md)
 
 - [Chapter 6 - Structures](Chapter6/6-0.md)
     - [Basics of Structures]()
@@ -242,6 +242,7 @@
         - [Exercise 1-22](Solutions/Chapter1/E1-22.md)
         - [Exercise 1-23](Solutions/Chapter1/E1-23.md)
         - [Exercise 1-24](Solutions/Chapter1/E1-24.md)
+
     - [Chapter 2]()
         - [Exercise 2-1](Solutions/Chapter2/E2-1.md)
         - [Exercise 2-2](Solutions/Chapter2/E2-2.md)
@@ -253,6 +254,7 @@
         - [Exercise 2-8](Solutions/Chapter2/E2-8.md)
         - [Exercise 2-9](Solutions/Chapter2/E2-9.md)
         - [Exercise 2-10](Solutions/Chapter2/E2-10.md)
+
     - [Chapter 3]()
         - [Exercise 3-1](Solutions/Chapter3/E3-1.md)
         - [Exercise 3-2](Solutions/Chapter3/E3-2.md)
@@ -276,8 +278,14 @@
         - [Exercise 4-12](Solutions/Chapter4/E4-12.md)
         - [Exercise 4-13](Solutions/Chapter4/E4-13.md)
         - [Exercise 4-14](Solutions/Chapter4/E4-14.md)
-    - [Chapter 4]()
+
     - [Chapter 5]()
+        - [Exercise 5-1](Solutions/Chapter5/E5-1.md)
+        - [Exercise 5-2](Solutions/Chapter5/E5-2.md)
+        - [Exercise 5-3](Solutions/Chapter5/E5-3.md)
+        - [Exercise 5-4](Solutions/Chapter5/E5-4.md)
+        - [Exercise 5-5](Solutions/Chapter5/E5-5.md)
+        - [Exercise 5-6](Solutions/Chapter5/E5-6.md)
     - [Chapter 6]()
     - [Chapter 7]()
     - [Chapter 8]()

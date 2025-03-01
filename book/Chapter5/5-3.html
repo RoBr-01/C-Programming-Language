@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 5 - Pointers and Arrays - The C Programming Language</title>
+        <title>Pointers and Arrays - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,20 +152,86 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-5---pointers-and-arrays"><a class="header" href="#chapter-5---pointers-and-arrays">Chapter 5 - Pointers and Arrays</a></h1>
-<p>A pointer is a variable that contains the address of a variable. Pointers are much used in C, partly because they are sometimes the only way to express a computation, and partly because they usually lead to more compact and efficient code than can be obtained in other ways. Pointers and arrays are closely related; this chapter also explores this relationship and shows how to exploit it.</p>
-<p>Pointers have been lumped with the <code>goto</code> statement as a marvelous way to create impossible-to-understand programs. This is certainly true when they are used carelessly, and it is easy to create pointers that point somewhere unexpected. With discipline, however, pointers can also be used to achieve clarity and simplicity. This is the aspect that we will try to illustrate.</p>
-<p>The main change in ANSI C is to make explicit the rules about how pointers can be manipulated, in effect mandating what good programmers already practice and good compilers already enforce. In addition, the type <code>void *</code> (pointer to void) replaces <code>char *</code> as the proper type for a generic pointer.</p>
+                        <h1 id="pointers-and-arrays"><a class="header" href="#pointers-and-arrays">Pointers and Arrays</a></h1>
+<p>In C, there is a strong relationship between pointers and arrays, strong enough that pointers and arrays should be discussed simultaneously. Any operation that can be achieved by array subscripting can also be done with pointers. The pointer version will in general be faster but, at least to the uninitiated, somewhat harder to understand.</p>
+<p>The declaration:</p>
+<pre><code class="language-c">int a[10];
+</code></pre>
+<p>defines an array of size 10, that is, a block of 10 consecutive objects named <code>a[0]</code>, <code>a[1]</code>, ...,<code>a[9]</code>.</p>
+<p><img src="../Images/5-3%20Pointers%20and%20Arrays%2001.png" alt="" /></p>
+<p>The notation <code>a[i]</code> refers to the i-th element of the array. If <code>pa</code> is a pointer to an integer, declared as:</p>
+<pre><code class="language-c">int *pa;
+</code></pre>
+<p>then the assignment:</p>
+<pre><code class="language-c">pa = &amp;a[0];
+</code></pre>
+<p>sets <code>pa</code> to point to element zero of <code>a</code>; that is, <code>pa</code> contains the address of <code>a[0]</code>.</p>
+<p><img src="../Images/5-3%20Pointers%20and%20Arrays%2002.png" alt="" /></p>
+<p>Now the assignment:</p>
+<pre><code class="language-c">x = *pa;
+</code></pre>
+<p>will copy the contents of <code>a[0]</code> into <code>x</code>.</p>
+<p>If <code>pa</code> points to a particular element of an array, then by definition <code>pa+1</code> points to the next element, <code>pa+i</code> points <code>i</code> elements after <code>pa</code>, and <code>pa-i</code> points <code>i</code> elements before. Thus, if <code>pa</code> points to <code>a[0]</code>,</p>
+<pre><code class="language-c">*(pa+1)
+</code></pre>
+<p>refers to the contents of <code>a[1]</code>, <code>pa+i</code> is the address of <code>a[i]</code>, and <code>*(pa+i)</code> is the contents of <code>a[i]</code>.</p>
+<p><img src="../Images/5-3%20Pointers%20and%20Arrays%2003.png" alt="" /></p>
+<p>These remarks are true regardless of the type or size of the variables in the array <code>a</code>. The meaning of "adding 1 to a pointer", and by extension, all pointer arithmetic, is that <code>pa+1</code> points to the next object, and <code>pa+i</code> points to the i-th object beyond <code>pa</code>.</p>
+<p>The correspondence between indexing and pointer arithmetic is very close. By definition, the value of a variable or expression of type <code>array</code> is the address of element zero of the array. Thus after the assignment:</p>
+<pre><code class="language-c">pa = &amp;a[0];
+</code></pre>
+<p><code>pa</code> and <code>a</code> have identical values. Since the name of an array is a synonym for the location of the initial element, the assignment <code>pa=&amp;a[0]</code> can also be written as</p>
+<pre><code class="language-c">pa = a;
+</code></pre>
+<p>Rather more surprising, at first sight, is the fact that a reference to <code>a[i]</code> can also be written as <code>*(a+i)</code>. In evaluating <code>a[i]</code>, C converts it to <code>*(a+i)</code> immediately; the two forms are equivalent. Applying the operator <code>&amp;</code> to both parts of this equivalence, it follows that <code>&amp;a[i]</code> and <code>a+i</code> are also identical: <code>a+i</code> is the address of the i-th element beyond <code>a</code>. As the other side of this coin, if <code>pa</code> is a pointer, expressions might use it with a subscript; <code>pa[i]</code> is identical to <code>*(pa+i)</code>. In short, an array-and-index expression is equivalent to one written as a pointer and offset.</p>
+<p>There is one difference between an array name and a pointer that must be kept in mind. A pointer is a variable, so <code>pa=a</code> and <code>pa++</code> are legal. But an array name is <em>not</em> a variable; constructions like <code>a=pa</code> and <code>a++</code> are illegal.</p>
+<p>When an array name is passed to a function, what is passed is the location of the initial element. Within the called function, this argument is a local variable, and so an array name parameter is a pointer, that is, a variable containing an address. We can use this fact to write another version of <code>strlen</code>, which computes the length of a string.</p>
+<pre><code class="language-c">/* strlen: return length of string s */ 
+int strlen(char *s)
+{ 
+    int n;
+    for (n = 0; *s != '\0'; s++)
+        n++;
+    return n;
+}
+</code></pre>
+<p>Since <code>s</code> is a pointer, incrementing it is perfectly legal; <code>s++</code> has no effect on the character string in the function that called <code>strlen</code>, but merely increments strlen's private copy of the pointer. That means that calls like:</p>
+<pre><code class="language-c">strlen("hello, world"); /* string constant */ 
+strlen(array); /* char array[100]; */ 
+strlen(ptr); /* char *ptr; */
+</code></pre>
+<p>all work.</p>
+<p>As formal parameters in a function definition,</p>
+<pre><code class="language-c">char s[]; 
+</code></pre>
+<p>and:</p>
+<pre><code class="language-c">char *s;
+</code></pre>
+<p>are equivalent; we prefer the latter because it says more explicitly that the variable is a pointer. When an array name is passed to a function, the function can at its convenience believe that it has been handed either an array or a pointer, and manipulate it accordingly. It can even use both notations if it seems appropriate and clear.</p>
+<p>It is possible to pass part of an array to a function, by passing a pointer to the beginning of the sub-array. For example, if <code>a</code> is an array,</p>
+<pre><code class="language-c">f(&amp;a[2]) 
+</code></pre>
+<p>and:</p>
+<pre><code class="language-c">f(a+2)
+</code></pre>
+<p>both pass to the function <code>f</code> the address of the sub-array that starts at <code>a[2]</code>. Within <code>f</code>, the parameter declaration can read:</p>
+<pre><code class="language-c">f(int arr[]) { ... } 
+</code></pre>
+<p>or:</p>
+<pre><code class="language-c">f(int *arr) { ... }
+</code></pre>
+<p>So as far as <code>f</code> is concerned, the fact that the parameter refers to part of a larger array is of no consequence.</p>
+<p>If one is sure that the elements exist, it is also possible to index backwards in an array; <code>p[-1]</code>, <code>p[-2]</code>, and so on are syntactically legal, and refer to the elements that immediately precede <code>p[0]</code>. Of course, it is illegal to refer to objects that are not within the array bounds.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter4/4-11-3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter5/5-2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter5/5-1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter5/5-4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -175,11 +241,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter4/4-11-3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter5/5-2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter5/5-1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter5/5-4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
