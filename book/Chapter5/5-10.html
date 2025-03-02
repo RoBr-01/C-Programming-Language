@@ -153,6 +153,120 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="command-line-arguments"><a class="header" href="#command-line-arguments">Command-line Arguments</a></h1>
+<p>In environments that support C, there is a way to pass command-line arguments or parameters to a program when it begins executing. When <code>main</code> is called, it is called with two arguments. The first (conventionally called <code>argc</code>, for argument count) is the number of command-line arguments the program was invoked with; the second (<code>argv</code>, for argument vector) is a pointer to an array of character strings that contain the arguments, one per string. We customarily use multiple levels of pointers to manipulate these character strings.</p>
+<p>The simplest illustration is the program <code>echo</code>, which echoes its command-line arguments on a single line, separated by blanks. That is, the command:</p>
+<pre><code class="language-sh">echo hello, world
+</code></pre>
+<p>prints the output:</p>
+<pre><code class="language-sh">hello, world
+</code></pre>
+<p>By convention, <code>argv[0]</code> is the name by which the program was invoked, so <code>argc</code> is at least 1. If <code>argc</code> is 1, there are no command-line arguments after the program name. In the example above, <code>argc</code> is 3, and <code>argv[0]</code>, <code>argv[1]</code>, and <code>argv[2]</code> are "echo", "hello,", and "world" respectively. The first optional argument is <code>argv[1]</code> and the last is <code>argv[argc-1]</code>; additionally, the standard requires that <code>argv[argc]</code> be a null pointer.</p>
+<p><img src="../Images/5-10%20Command-line%20Arguments.png" alt="" /></p>
+<p>The first version of <code>echo</code> treats <code>argv</code> as an array of character pointers:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+/* echo command-line arguments; 1st version */
+main(int argc, char *argv[])
+{
+    int i;
+    for (i = 1; i &lt; argc; i++)
+        printf("%s%s", argv[i], (i &lt; argc-1) ? " " : "");
+    printf("\n");
+    return 0;
+}
+</code></pre>
+<p>Since <code>argv</code> is a pointer to an array of pointers, we can manipulate the pointer rather than index the array. This next variant is based on incrementing <code>argv</code>, which is a pointer to pointer to char, while <code>argc</code> is counted down:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+/* echo command-line arguments; 2nd version */
+main(int argc, char *argv[])
+{
+    while (--argc &gt; 0)
+        printf("%s%s", *++argv, (argc &gt; 1) ? " " : "");
+    printf("\n");
+    return 0;
+}
+</code></pre>
+<p>Since <code>argv</code> is a pointer to the beginning of the array of argument strings, incrementing it by 1 (<code>++argv</code>) makes it point at the original <code>argv[1]</code> instead of <code>argv[0]</code>. Each successive increment moves it along to the next argument; <code>*argv</code> is then the pointer to that argument. At the same time, <code>argc</code> is decremented; when it becomes zero, there are no arguments left to print.</p>
+<p>Alternatively, we could write the <code>printf</code> statement as:</p>
+<pre><code class="language-c">printf((argc &gt; 1) ? "%s " : "%s", *++argv);
+</code></pre>
+<p>This shows that the format argument of <code>printf</code> can be an expression too.
+As a second example, let us make some enhancements to the pattern-finding program from <a href="../Chapter4/4-1.html">Section 4.1</a>. If you recall, we wired the search pattern deep into the program, an obviously unsatisfactory arrangement. Following the lead of the UNIX program <code>grep</code>, let us enhance the program so the pattern to be matched is specified by the first argument on the command line.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#define MAXLINE 1000
+int getline(char *line, int max);
+/* find: print lines that match pattern from 1st arg */
+main(int argc, char *argv[])
+{
+    char line[MAXLINE];
+    int found = 0;
+    if (argc != 2)
+        printf("Usage: find pattern\n");
+    else
+        while (getline(line, MAXLINE) &gt; 0)
+            if (strstr(line, argv[1]) != NULL) {
+                printf("%s", line);
+                found++;
+            }
+    return found;
+}
+</code></pre>
+<p>The standard library function <code>strstr(s,t)</code> returns a pointer to the first occurrence of the string <code>t</code> in the string <code>s</code>, or NULL if there is none. It is declared in <code>&lt;string.h&gt;</code>.</p>
+<p>The model can now be elaborated to illustrate further pointer constructions. Suppose we want to allow two optional arguments. One says "print all the lines <em>except</em> those that match the pattern;" the second says "precede each printed line by its line number."</p>
+<p>A common convention for C programs on UNIX systems is that an argument that begins with a minus sign introduces an optional flag or parameter. If we choose <code>-x</code> (for "except") to signal the inversion, and <code>-n</code> ("number") to request line numbering, then the command:</p>
+<pre><code class="language-sh">find -x -n*pattern*
+</code></pre>
+<p>will print each line that doesn't match the pattern, preceded by its line number.</p>
+<p>Optional arguments should be permitted in any order, and the rest of the program should be independent of the number of arguments that we present. Furthermore, it is convenient for users if option arguments can be combined, as in:</p>
+<pre><code class="language-sh">find -nx pattern
+</code></pre>
+<p>Here is the program:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#define MAXLINE 1000
+int getline(char *line, int max);
+/* find: print lines that match pattern from 1st arg */
+main(int argc, char *argv[])
+{
+    char line[MAXLINE];
+    long lineno = 0;
+    int c, except = 0, number = 0, found = 0;
+    while (--argc &gt; 0 &amp;&amp; (*++argv)[0] == '-')
+        while (c = *++argv[0])
+            switch (c) {
+                case 'x':
+                    except = 1;
+                    break;
+                case 'n':
+                    number = 1;
+                    break;
+                default:
+                    printf("find: illegal option %c\n", c);
+                    argc = 0;
+                    found = -1;
+                    break;
+            }
+    if (argc != 1)
+        printf("Usage: find -x -n pattern\n");
+    else
+        while (getline(line, MAXLINE) &gt; 0) {
+            lineno++;
+            if ((strstr(line, *argv) != NULL) != except) {
+                if (number)
+                    printf("%ld:", lineno);
+                printf("%s", line);
+                found++;
+            }
+        }
+    return found;
+}
+</code></pre>
+<p><code>argc</code> is decremented and <code>argv</code> is incremented before each optional argument. At the end of the loop, if there are no errors, <code>argc</code> tells how many arguments remain unprocessed and <code>argv</code> points to the first of these. Thus <code>argc</code> should be 1 and <code>*argv</code> should point at the pattern. Notice that <code>*++argv</code> is a pointer to an argument string, so <code>(*++argv)[0]</code> is its first character. (An alternate valid form would be <code>**++argv</code>.) Because <code>[]</code> binds tighter than <code>*</code> and <code>++</code>, the parentheses are necessary; without them the expression would be taken as <code>*++(argv[0])</code>. In fact, that is what we have used in the inner loop, where the task is to walk along a specific argument string. In the inner loop, the expression <code>*++argv[0]</code> increments the pointer <code>argv[0]</code>!</p>
+<p>It is rare that one uses pointer expressions more complicated than these; in such cases, breaking them into two or three steps will be more intuitive.</p>
+<p><strong>Exercise 5-10.</strong> Write the program <code>expr</code>, which evaluates a reverse Polish expression from the command line, where each operator or operand is a separate argument. For example, <code>expr 2 3 4 + *</code> evaluates 2 * (3+4).</p>
+<p><strong>Exercise 5-11.</strong> Modify the program <code>entab</code> and <code>detab</code> (written as exercises in <a href="../Chapter1/1-0.html">Chapter 1</a>) to accept a list of tab stops as arguments. Use the default tab settings if there are no arguments.</p>
+<p><strong>Exercise 5-12.</strong> Extend <code>entab</code> and <code>detab</code> to accept the shorthand <code>entab -m +n</code> to mean tab stops every <em>n</em> columns, starting at column <em>m</em>. Choose convenient (for the user) default behavior.</p>
+<p><strong>Exercise 5-13.</strong> Write the program <code>tail</code>, which prints the last <em>n</em> lines of its input. By default, <em>n</em> is set to 10, let us say, but it can be changed by an optional argument so that <code>tail *-n*</code> prints the last <em>n</em> lines. The program should behave rationally no matter how unreasonable the input or the value of <em>n</em>. Write the program so it makes the best use of available storage; lines should be stored as in the sorting program of <a href="../Chapter5/5-6.html">Section 5.6</a>, not in a two-dimensional array of fixed size.</p>
 
                     </main>
 

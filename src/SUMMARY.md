@@ -69,9 +69,9 @@
     - [Character Pointers and Functions](Chapter5/5-5.md)                   Done
     - [Pointer Arrays; Pointers to Pointers](Chapter5/5-6.md)               Done
     - [Multi-dimensional Arrays](Chapter5/5-7.md)                           Done
-    - [Initialization of Pointer Arrays](Chapter5/5-8.md)
-    - [Pointers vs. Multi-dimensional Arrays](Chapter5/5-9.md)
-    - [Command-line Arguments](Chapter5/5-10.md)
+    - [Initialization of Pointer Arrays](Chapter5/5-8.md)                   Done
+    - [Pointers vs. Multi-dimensional Arrays](Chapter5/5-9.md)              Done
+    - [Command-line Arguments](Chapter5/5-10.md)                            Done
     - [Pointers to Functions](Chapter5/5-11.md)
     - [Complicated Declarations](Chapter5/5-12.md)
 
@@ -288,6 +288,7 @@
         - [Exercise 5-6](Solutions/Chapter5/E5-6.md)
         - [Exercise 5-7](Solutions/Chapter5/E5-7.md)
         - [Exercise 5-8](Solutions/Chapter5/E5-8.md)
+        - [Exercise 5-9](Solutions/Chapter5/E5-9.md)
     - [Chapter 6]()
     - [Chapter 7]()
     - [Chapter 8]()

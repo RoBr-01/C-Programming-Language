@@ -153,6 +153,22 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="initialization-of-pointer-arrays"><a class="header" href="#initialization-of-pointer-arrays">Initialization of Pointer Arrays</a></h1>
+<p>Consider the problem of writing a function <code>month_name(n)</code>, which returns a pointer to a character string containing the name of the n-th month. This is an ideal application for an internal static array. <code>month_name</code> contains a private array of character strings, and returns a pointer to the proper one when called. This section shows how that array of names is initialized.</p>
+<p>The syntax is similar to previous initializations:</p>
+<pre><code class="language-c">/* month_name: return name of n-th month */
+char *month_name(int n)
+{
+    static char *name[] = {
+        "Illegal month",
+        "January", "February", "March",
+        "April", "May", "June",
+        "July", "August", "September",
+        "October", "November", "December"
+    };
+    return (n &lt; 1 || n &gt; 12) ? name[0] : name[n];
+}
+</code></pre>
+<p>The declaration of name, which is an array of character pointers, is the same as <code>lineptr</code> in the sorting example. The initializer is a list of character strings; each is assigned to the corresponding position in the array. The characters of the i-th string are placed somewhere, and a pointer to them is stored in <code>name[i]</code>. Since the size of the array name is not specified, the compiler counts the initializers and fills in the correct number.</p>
 
                     </main>
 

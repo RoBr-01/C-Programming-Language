@@ -153,6 +153,94 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="pointers-to-functions"><a class="header" href="#pointers-to-functions">Pointers to Functions</a></h1>
+<p>In C, a function itself is not a variable, but it is possible to define pointers to functions, which can be assigned, placed in arrays, passed to functions, returned by functions, and so on. We will illustrate this by modifying the sorting procedure written earlier in this chapter so that if the optional argument -n is given, it will sort the input lines numerically instead of lexicographically.</p>
+<p>A sort often consists of three parts - a comparison that determines the ordering of any pair of objects, an exchange that reverses their order, and a sorting algorithm that makes comparisons and exchanges until the objects are in order. The sorting algorithm is independent of the comparison and exchange operations, so by passing different comparison and exchange functions to it, we can arrange to sort by different criteria. This is the approach taken in our new sort.</p>
+<p>Lexicographic comparison of two lines is done by strcmp, as before; we will also need a routine numcmp that compares two lines on the basis of numeric value and returns the same kind of condition indication as strcmp does. These functions are declared ahead of main and a pointer to the appropriate one is passed to qsort. We have skimped on error processing for arguments, so as to concentrate on the main issues.</p>
+<pre><code> #include &lt;stdio.h&gt; 
+ #include &lt;string.h&gt; 
+ #define MAXLINES 5000 /* max #lines to be sorted */ 
+ char *lineptr[MAXLINES]; /* pointers to text lines */ 
+ int readlines(char *lineptr[], int nlines); 
+ void writelines(char *lineptr[], int nlines); 
+ void qsort(void *lineptr[], int left, int right, 
+ int (*comp)(void *, void *)); 
+ int numcmp(char *, char *); 
+ /* sort input lines */ 
+ main(int argc, char *argv[]) 
+ { 
+ int nlines; /* number of input lines read */ 
+ int numeric = 0; /* 1 if numeric sort */ 
+ if (argc &gt; 1 &amp;&amp; strcmp(argv[1], "-n") == 0) 
+ numeric = 1; 
+ if ((nlines = readlines(lineptr, MAXLINES)) &gt;= 0) { 
+ qsort((void**) lineptr, 0, nlines-1, 
+ (int (*)(void*,void*))(numeric ? numcmp : strcmp)); 
+ writelines(lineptr, nlines);
+</code></pre>
+<pre><code> return 0; 
+ } else { 
+ printf("input too big to sort\n"); 
+ return 1; 
+ }
+</code></pre>
+<p>}</p>
+<p>In the call to qsort, strcmp and numcmp are addresses of functions. Since they are known to be functions, the &amp; is not necessary, in the same way that it is not needed before an array name.</p>
+<p>We have written qsort so it can process any data type, not just character strings. As indicated by the function prototype, qsort expects an array of pointers, two integers, and a function with two pointer arguments. The generic pointer type void * is used for the pointer arguments. Any pointer can be cast to void * and back again without loss of information, so we can call qsort by casting arguments to void *. The elaborate cast of the function argument casts the arguments of the comparison function. These will generally have no effect on actual representation, but assure the compiler that all is well.</p>
+<pre><code> /* qsort: sort v[left]...v[right] into increasing order */ 
+ void qsort(void *v[], int left, int right, 
+ int (*comp)(void *, void *)) 
+ { 
+ int i, last; 
+ void swap(void *v[], int, int); 
+ if (left &gt;= right) /* do nothing if array contains */ 
+ return; /* fewer than two elements */ 
+ swap(v, left, (left + right)/2); 
+ last = left; 
+ for (i = left+1; i &lt;= right; i++) 
+ if ((*comp)(v[i], v[left]) &lt; 0) 
+ swap(v, ++last, i); 
+ swap(v, left, last); 
+ qsort(v, left, last-1, comp); 
+ qsort(v, last+1, right, comp); 
+ }
+</code></pre>
+<p>The declarations should be studied with some care. The fourth parameter of qsort is</p>
+<p>int (*comp)(void *, void *) which says that comp is a pointer to a function that has two void * arguments and returns an int.</p>
+<p>The use of comp in the line</p>
+<p>if ((*comp)(v[i], v[left]) &lt; 0) is consistent with the declaration: comp is a pointer to a function, *comp is the function, and</p>
+<pre><code> (*comp)(v[i], v[left])
+</code></pre>
+<p>is the call to it. The parentheses are needed so the components are correctly associated; without them,</p>
+<p>int *comp(void *, void <em>) /</em> WRONG */ says that comp is a function returning a pointer to an int, which is very different. We have already shown strcmp, which compares two strings. Here is numcmp, which compares two strings on a leading numeric value, computed by calling atof:</p>
+<pre><code> #include &lt;stdlib.h&gt; 
+ /* numcmp: compare s1 and s2 numerically */ 
+ int numcmp(char *s1, char *s2) 
+ { 
+ double v1, v2; 
+ v1 = atof(s1); 
+ v2 = atof(s2); 
+ if (v1 &lt; v2) 
+ return -1; 
+ else if (v1 &gt; v2) 
+ return 1; 
+ else 
+ return 0; 
+ }
+</code></pre>
+<p>The swap function, which exchanges two pointers, is identical to what we presented earlier in the chapter, except that the declarations are changed to void *.</p>
+<pre><code> void swap(void *v[], int i, int j;) 
+ { 
+ void *temp; 
+ temp = v[i]; 
+ v[i] = v[j]; 
+ v[j] = temp; 
+ }
+</code></pre>
+<p>A variety of other options can be added to the sorting program; some make challenging exercises.</p>
+<p><strong>Exercise 5-14.</strong> Modify the sort program to handle a -r flag, which indicates sorting in reverse (decreasing) order. Be sure that -r works with -n.</p>
+<p><strong>Exercise 5-15.</strong> Add the option -f to fold upper and lower case together, so that case distinctions are not made during sorting; for example, a and A compare equal.</p>
+<p><strong>Exercise 5-16.</strong> Add the -d (``directory order'') option, which makes comparisons only on letters, numbers and blanks. Make sure it works in conjunction with -f.</p>
+<p><strong>Exercise 5-17.</strong> Add a field-searching capability, so sorting may bee done on fields within lines, each field sorted according to an independent set of options. (The index for this book was sorted with -df for the index category and -n for the page numbers.)</p>
 
                     </main>
 

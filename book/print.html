@@ -3025,9 +3025,241 @@ void month_day(int year, int yearday, int *pmonth, int *pday)
 <p><a href="Chapter5/../Chapter5/5-12.html">Section 5.12</a> has a further discussion of complicated declarations.</p>
 <p><a href="Chapter5/../Solutions/Chapter5/E5-8.html"><strong>Exercise 5-8.</strong></a> There is no error checking in <code>day_of_year</code> or <code>month_day</code>. Remedy this defect.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="initialization-of-pointer-arrays"><a class="header" href="#initialization-of-pointer-arrays">Initialization of Pointer Arrays</a></h1>
+<p>Consider the problem of writing a function <code>month_name(n)</code>, which returns a pointer to a character string containing the name of the n-th month. This is an ideal application for an internal static array. <code>month_name</code> contains a private array of character strings, and returns a pointer to the proper one when called. This section shows how that array of names is initialized.</p>
+<p>The syntax is similar to previous initializations:</p>
+<pre><code class="language-c">/* month_name: return name of n-th month */
+char *month_name(int n)
+{
+    static char *name[] = {
+        "Illegal month",
+        "January", "February", "March",
+        "April", "May", "June",
+        "July", "August", "September",
+        "October", "November", "December"
+    };
+    return (n &lt; 1 || n &gt; 12) ? name[0] : name[n];
+}
+</code></pre>
+<p>The declaration of name, which is an array of character pointers, is the same as <code>lineptr</code> in the sorting example. The initializer is a list of character strings; each is assigned to the corresponding position in the array. The characters of the i-th string are placed somewhere, and a pointer to them is stored in <code>name[i]</code>. Since the size of the array name is not specified, the compiler counts the initializers and fills in the correct number.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pointers-vs-multi-dimensional-arrays"><a class="header" href="#pointers-vs-multi-dimensional-arrays">Pointers vs. Multi-dimensional Arrays</a></h1>
+<p>Newcomers to C are sometimes confused about the difference between a two-dimensional array and an array of pointers, such as name in the example above. Given the definitions:</p>
+<pre><code class="language-c">int a[10][20];
+int *b[10];
+</code></pre>
+<p>then <code>a[3][4]</code> and <code>b[3][4]</code> are both syntactically legal references to a single <code>int</code>. But <code>a</code> is a true two-dimensional array: 200 int-sized locations have been set aside, and the conventional rectangular subscript calculation <code>20 * row + col</code> is used to find the element <code>a[row,col]</code>. For <code>b</code>, however, the definition only allocates 10 pointers and does not initialize them; initialization must be done explicitly, either statically or with code. Assuming that each element of <code>b</code> does point to a twenty-element array, then there will be 200 ints set aside, plus ten cells for the pointers. The important advantage of the pointer array is that the rows of the array may be of different lengths. That is, each element of <code>b</code> need not point to a twenty-element vector; some may point to two elements, some to fifty, and some to none at all.</p>
+<p>Although we have phrased this discussion in terms of integers, by far the most frequent use of arrays of pointers is to store character strings of diverse lengths, as in the function <code>month_name</code>. Compare the declaration and picture for an array of pointers:</p>
+<pre><code class="language-c">char *name[] = { "Illegal month", "Jan", "Feb", "Mar" };
+</code></pre>
+<p><img src="Chapter5/../Images/5-9%20Pointers%20vs%20Multidimensional%20Arrays%2001.png" alt="" /></p>
+<p>with those for a two-dimensional array:</p>
+<pre><code class="language-c">char aname[][15] = { "Illegal month", "Jan", "Feb", "Mar" };
+</code></pre>
+<p><img src="Chapter5/../Images/5-9%20Pointers%20vs%20Multidimensional%20Arrays%2002.png" alt="" /></p>
+<p><a href="Chapter5/../Solutions/Chapter5/E5-9.html"><strong>Exercise 5-9.</strong></a> Rewrite the routines day_of_year and month_day with pointers instead of indexing.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-line-arguments"><a class="header" href="#command-line-arguments">Command-line Arguments</a></h1>
+<p>In environments that support C, there is a way to pass command-line arguments or parameters to a program when it begins executing. When <code>main</code> is called, it is called with two arguments. The first (conventionally called <code>argc</code>, for argument count) is the number of command-line arguments the program was invoked with; the second (<code>argv</code>, for argument vector) is a pointer to an array of character strings that contain the arguments, one per string. We customarily use multiple levels of pointers to manipulate these character strings.</p>
+<p>The simplest illustration is the program <code>echo</code>, which echoes its command-line arguments on a single line, separated by blanks. That is, the command:</p>
+<pre><code class="language-sh">echo hello, world
+</code></pre>
+<p>prints the output:</p>
+<pre><code class="language-sh">hello, world
+</code></pre>
+<p>By convention, <code>argv[0]</code> is the name by which the program was invoked, so <code>argc</code> is at least 1. If <code>argc</code> is 1, there are no command-line arguments after the program name. In the example above, <code>argc</code> is 3, and <code>argv[0]</code>, <code>argv[1]</code>, and <code>argv[2]</code> are "echo", "hello,", and "world" respectively. The first optional argument is <code>argv[1]</code> and the last is <code>argv[argc-1]</code>; additionally, the standard requires that <code>argv[argc]</code> be a null pointer.</p>
+<p><img src="Chapter5/../Images/5-10%20Command-line%20Arguments.png" alt="" /></p>
+<p>The first version of <code>echo</code> treats <code>argv</code> as an array of character pointers:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+/* echo command-line arguments; 1st version */
+main(int argc, char *argv[])
+{
+    int i;
+    for (i = 1; i &lt; argc; i++)
+        printf("%s%s", argv[i], (i &lt; argc-1) ? " " : "");
+    printf("\n");
+    return 0;
+}
+</code></pre>
+<p>Since <code>argv</code> is a pointer to an array of pointers, we can manipulate the pointer rather than index the array. This next variant is based on incrementing <code>argv</code>, which is a pointer to pointer to char, while <code>argc</code> is counted down:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+/* echo command-line arguments; 2nd version */
+main(int argc, char *argv[])
+{
+    while (--argc &gt; 0)
+        printf("%s%s", *++argv, (argc &gt; 1) ? " " : "");
+    printf("\n");
+    return 0;
+}
+</code></pre>
+<p>Since <code>argv</code> is a pointer to the beginning of the array of argument strings, incrementing it by 1 (<code>++argv</code>) makes it point at the original <code>argv[1]</code> instead of <code>argv[0]</code>. Each successive increment moves it along to the next argument; <code>*argv</code> is then the pointer to that argument. At the same time, <code>argc</code> is decremented; when it becomes zero, there are no arguments left to print.</p>
+<p>Alternatively, we could write the <code>printf</code> statement as:</p>
+<pre><code class="language-c">printf((argc &gt; 1) ? "%s " : "%s", *++argv);
+</code></pre>
+<p>This shows that the format argument of <code>printf</code> can be an expression too.
+As a second example, let us make some enhancements to the pattern-finding program from <a href="Chapter5/../Chapter4/4-1.html">Section 4.1</a>. If you recall, we wired the search pattern deep into the program, an obviously unsatisfactory arrangement. Following the lead of the UNIX program <code>grep</code>, let us enhance the program so the pattern to be matched is specified by the first argument on the command line.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#define MAXLINE 1000
+int getline(char *line, int max);
+/* find: print lines that match pattern from 1st arg */
+main(int argc, char *argv[])
+{
+    char line[MAXLINE];
+    int found = 0;
+    if (argc != 2)
+        printf("Usage: find pattern\n");
+    else
+        while (getline(line, MAXLINE) &gt; 0)
+            if (strstr(line, argv[1]) != NULL) {
+                printf("%s", line);
+                found++;
+            }
+    return found;
+}
+</code></pre>
+<p>The standard library function <code>strstr(s,t)</code> returns a pointer to the first occurrence of the string <code>t</code> in the string <code>s</code>, or NULL if there is none. It is declared in <code>&lt;string.h&gt;</code>.</p>
+<p>The model can now be elaborated to illustrate further pointer constructions. Suppose we want to allow two optional arguments. One says "print all the lines <em>except</em> those that match the pattern;" the second says "precede each printed line by its line number."</p>
+<p>A common convention for C programs on UNIX systems is that an argument that begins with a minus sign introduces an optional flag or parameter. If we choose <code>-x</code> (for "except") to signal the inversion, and <code>-n</code> ("number") to request line numbering, then the command:</p>
+<pre><code class="language-sh">find -x -n*pattern*
+</code></pre>
+<p>will print each line that doesn't match the pattern, preceded by its line number.</p>
+<p>Optional arguments should be permitted in any order, and the rest of the program should be independent of the number of arguments that we present. Furthermore, it is convenient for users if option arguments can be combined, as in:</p>
+<pre><code class="language-sh">find -nx pattern
+</code></pre>
+<p>Here is the program:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#define MAXLINE 1000
+int getline(char *line, int max);
+/* find: print lines that match pattern from 1st arg */
+main(int argc, char *argv[])
+{
+    char line[MAXLINE];
+    long lineno = 0;
+    int c, except = 0, number = 0, found = 0;
+    while (--argc &gt; 0 &amp;&amp; (*++argv)[0] == '-')
+        while (c = *++argv[0])
+            switch (c) {
+                case 'x':
+                    except = 1;
+                    break;
+                case 'n':
+                    number = 1;
+                    break;
+                default:
+                    printf("find: illegal option %c\n", c);
+                    argc = 0;
+                    found = -1;
+                    break;
+            }
+    if (argc != 1)
+        printf("Usage: find -x -n pattern\n");
+    else
+        while (getline(line, MAXLINE) &gt; 0) {
+            lineno++;
+            if ((strstr(line, *argv) != NULL) != except) {
+                if (number)
+                    printf("%ld:", lineno);
+                printf("%s", line);
+                found++;
+            }
+        }
+    return found;
+}
+</code></pre>
+<p><code>argc</code> is decremented and <code>argv</code> is incremented before each optional argument. At the end of the loop, if there are no errors, <code>argc</code> tells how many arguments remain unprocessed and <code>argv</code> points to the first of these. Thus <code>argc</code> should be 1 and <code>*argv</code> should point at the pattern. Notice that <code>*++argv</code> is a pointer to an argument string, so <code>(*++argv)[0]</code> is its first character. (An alternate valid form would be <code>**++argv</code>.) Because <code>[]</code> binds tighter than <code>*</code> and <code>++</code>, the parentheses are necessary; without them the expression would be taken as <code>*++(argv[0])</code>. In fact, that is what we have used in the inner loop, where the task is to walk along a specific argument string. In the inner loop, the expression <code>*++argv[0]</code> increments the pointer <code>argv[0]</code>!</p>
+<p>It is rare that one uses pointer expressions more complicated than these; in such cases, breaking them into two or three steps will be more intuitive.</p>
+<p><strong>Exercise 5-10.</strong> Write the program <code>expr</code>, which evaluates a reverse Polish expression from the command line, where each operator or operand is a separate argument. For example, <code>expr 2 3 4 + *</code> evaluates 2 * (3+4).</p>
+<p><strong>Exercise 5-11.</strong> Modify the program <code>entab</code> and <code>detab</code> (written as exercises in <a href="Chapter5/../Chapter1/1-0.html">Chapter 1</a>) to accept a list of tab stops as arguments. Use the default tab settings if there are no arguments.</p>
+<p><strong>Exercise 5-12.</strong> Extend <code>entab</code> and <code>detab</code> to accept the shorthand <code>entab -m +n</code> to mean tab stops every <em>n</em> columns, starting at column <em>m</em>. Choose convenient (for the user) default behavior.</p>
+<p><strong>Exercise 5-13.</strong> Write the program <code>tail</code>, which prints the last <em>n</em> lines of its input. By default, <em>n</em> is set to 10, let us say, but it can be changed by an optional argument so that <code>tail *-n*</code> prints the last <em>n</em> lines. The program should behave rationally no matter how unreasonable the input or the value of <em>n</em>. Write the program so it makes the best use of available storage; lines should be stored as in the sorting program of <a href="Chapter5/../Chapter5/5-6.html">Section 5.6</a>, not in a two-dimensional array of fixed size.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pointers-to-functions"><a class="header" href="#pointers-to-functions">Pointers to Functions</a></h1>
+<p>In C, a function itself is not a variable, but it is possible to define pointers to functions, which can be assigned, placed in arrays, passed to functions, returned by functions, and so on. We will illustrate this by modifying the sorting procedure written earlier in this chapter so that if the optional argument -n is given, it will sort the input lines numerically instead of lexicographically.</p>
+<p>A sort often consists of three parts - a comparison that determines the ordering of any pair of objects, an exchange that reverses their order, and a sorting algorithm that makes comparisons and exchanges until the objects are in order. The sorting algorithm is independent of the comparison and exchange operations, so by passing different comparison and exchange functions to it, we can arrange to sort by different criteria. This is the approach taken in our new sort.</p>
+<p>Lexicographic comparison of two lines is done by strcmp, as before; we will also need a routine numcmp that compares two lines on the basis of numeric value and returns the same kind of condition indication as strcmp does. These functions are declared ahead of main and a pointer to the appropriate one is passed to qsort. We have skimped on error processing for arguments, so as to concentrate on the main issues.</p>
+<pre><code> #include &lt;stdio.h&gt; 
+ #include &lt;string.h&gt; 
+ #define MAXLINES 5000 /* max #lines to be sorted */ 
+ char *lineptr[MAXLINES]; /* pointers to text lines */ 
+ int readlines(char *lineptr[], int nlines); 
+ void writelines(char *lineptr[], int nlines); 
+ void qsort(void *lineptr[], int left, int right, 
+ int (*comp)(void *, void *)); 
+ int numcmp(char *, char *); 
+ /* sort input lines */ 
+ main(int argc, char *argv[]) 
+ { 
+ int nlines; /* number of input lines read */ 
+ int numeric = 0; /* 1 if numeric sort */ 
+ if (argc &gt; 1 &amp;&amp; strcmp(argv[1], "-n") == 0) 
+ numeric = 1; 
+ if ((nlines = readlines(lineptr, MAXLINES)) &gt;= 0) { 
+ qsort((void**) lineptr, 0, nlines-1, 
+ (int (*)(void*,void*))(numeric ? numcmp : strcmp)); 
+ writelines(lineptr, nlines);
+</code></pre>
+<pre><code> return 0; 
+ } else { 
+ printf("input too big to sort\n"); 
+ return 1; 
+ }
+</code></pre>
+<p>}</p>
+<p>In the call to qsort, strcmp and numcmp are addresses of functions. Since they are known to be functions, the &amp; is not necessary, in the same way that it is not needed before an array name.</p>
+<p>We have written qsort so it can process any data type, not just character strings. As indicated by the function prototype, qsort expects an array of pointers, two integers, and a function with two pointer arguments. The generic pointer type void * is used for the pointer arguments. Any pointer can be cast to void * and back again without loss of information, so we can call qsort by casting arguments to void *. The elaborate cast of the function argument casts the arguments of the comparison function. These will generally have no effect on actual representation, but assure the compiler that all is well.</p>
+<pre><code> /* qsort: sort v[left]...v[right] into increasing order */ 
+ void qsort(void *v[], int left, int right, 
+ int (*comp)(void *, void *)) 
+ { 
+ int i, last; 
+ void swap(void *v[], int, int); 
+ if (left &gt;= right) /* do nothing if array contains */ 
+ return; /* fewer than two elements */ 
+ swap(v, left, (left + right)/2); 
+ last = left; 
+ for (i = left+1; i &lt;= right; i++) 
+ if ((*comp)(v[i], v[left]) &lt; 0) 
+ swap(v, ++last, i); 
+ swap(v, left, last); 
+ qsort(v, left, last-1, comp); 
+ qsort(v, last+1, right, comp); 
+ }
+</code></pre>
+<p>The declarations should be studied with some care. The fourth parameter of qsort is</p>
+<p>int (*comp)(void *, void *) which says that comp is a pointer to a function that has two void * arguments and returns an int.</p>
+<p>The use of comp in the line</p>
+<p>if ((*comp)(v[i], v[left]) &lt; 0) is consistent with the declaration: comp is a pointer to a function, *comp is the function, and</p>
+<pre><code> (*comp)(v[i], v[left])
+</code></pre>
+<p>is the call to it. The parentheses are needed so the components are correctly associated; without them,</p>
+<p>int *comp(void *, void <em>) /</em> WRONG */ says that comp is a function returning a pointer to an int, which is very different. We have already shown strcmp, which compares two strings. Here is numcmp, which compares two strings on a leading numeric value, computed by calling atof:</p>
+<pre><code> #include &lt;stdlib.h&gt; 
+ /* numcmp: compare s1 and s2 numerically */ 
+ int numcmp(char *s1, char *s2) 
+ { 
+ double v1, v2; 
+ v1 = atof(s1); 
+ v2 = atof(s2); 
+ if (v1 &lt; v2) 
+ return -1; 
+ else if (v1 &gt; v2) 
+ return 1; 
+ else 
+ return 0; 
+ }
+</code></pre>
+<p>The swap function, which exchanges two pointers, is identical to what we presented earlier in the chapter, except that the declarations are changed to void *.</p>
+<pre><code> void swap(void *v[], int i, int j;) 
+ { 
+ void *temp; 
+ temp = v[i]; 
+ v[i] = v[j]; 
+ v[j] = temp; 
+ }
+</code></pre>
+<p>A variety of other options can be added to the sorting program; some make challenging exercises.</p>
+<p><strong>Exercise 5-14.</strong> Modify the sort program to handle a -r flag, which indicates sorting in reverse (decreasing) order. Be sure that -r works with -n.</p>
+<p><strong>Exercise 5-15.</strong> Add the option -f to fold upper and lower case together, so that case distinctions are not made during sorting; for example, a and A compare equal.</p>
+<p><strong>Exercise 5-16.</strong> Add the -d (``directory order'') option, which makes comparisons only on letters, numbers and blanks. Make sure it works in conjunction with -f.</p>
+<p><strong>Exercise 5-17.</strong> Add a field-searching capability, so sorting may bee done on fields within lines, each field sorted according to an independent set of options. (The index for this book was sorted with -df for the index category and -n for the page numbers.)</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="complicated-declarations"><a class="header" href="#complicated-declarations">Complicated Declarations</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-6---structures"><a class="header" href="#chapter-6---structures">Chapter 6 - Structures</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-7---input-and-output"><a class="header" href="#chapter-7---input-and-output">Chapter 7 - Input and Output</a></h1>
@@ -3100,6 +3332,7 @@ void month_day(int year, int yearday, int *pmonth, int *pday)
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-6"><a class="header" href="#exercise-5-6">Exercise 5-6</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-7"><a class="header" href="#exercise-5-7">Exercise 5-7</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-8"><a class="header" href="#exercise-5-8">Exercise 5-8</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-5-9"><a class="header" href="#exercise-5-9">Exercise 5-9</a></h1>
 
                     </main>
 
