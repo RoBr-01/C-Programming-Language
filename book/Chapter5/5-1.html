@@ -161,39 +161,39 @@
 <p>assigns the address of c to the variable p, and p is said to "point to" c. The <code>&amp;</code> operator only applies to objects in memory: variables and array elements (and functions). It cannot be applied to expressions, constants, or register variables.</p>
 <p>The unary operator <code>*</code> is the <em>indirection</em> or <em>dereferencing</em> operator; when applied to a pointer, it accesses the object the pointer points to. Suppose that x and y are integers and ip is a <code>pointer</code> to <code>int</code>. This artificial sequence shows how to declare a pointer and how to use <code>&amp;</code> and <code>*</code>:</p>
 <pre><code class="language-c">int x = 1, y = 2, z[10]; int *ip; /* ip is a pointer to int */
-ip = &amp;x; /* ip now points to x */ 
-y = *ip; /* y is now 1 */ 
-*ip = 0; /* x is now 0 */ 
+ip = &amp;x; /* ip now points to x */
+y = *ip; /* y is now 1 */
+*ip = 0; /* x is now 0 */
 ip = &amp;z[0]; /* ip now points to z[0] */
 </code></pre>
 <p>The declaration of x, y, and z are what we've seen all along. The declaration of the <code>pointer</code> ip,</p>
 <pre><code class="language-c">int *ip;
 </code></pre>
 <p>is intended as a mnemonic; it says that the expression <code>*ip</code> is an <code>int</code>. The syntax of the declaration for a variable mimics the syntax of expressions in which the variable might appear. This reasoning applies to function declarations as well. For example,</p>
-<pre><code class="language-c">double *dp, atof(char *); 
+<pre><code class="language-c">double *dp, atof(char *);
 </code></pre>
 <p>says that in an expression <code>*dp</code> and <code>atof(s)</code> have values of <code>double</code>, and that the argument of
 <code>atof</code> is a <code>pointer</code> to <code>char</code>.</p>
 <p>You should also note the implication that a pointer is constrained to point to a particular kind of object: every pointer points to a specific data type. (There is one exception: a "pointer to void" is used to hold any type of pointer but cannot be dereferenced itself. We'll come back to it in <a href="../Chapter5/5-11.html">Section 5.11</a>.)</p>
 <p>If <code>ip</code> points to the integer x, then <code>*ip</code> can occur in any context where x could, so:</p>
-<pre><code class="language-c">*ip = *ip + 10; 
+<pre><code class="language-c">*ip = *ip + 10;
 </code></pre>
 <p>increments *ip by 10.</p>
 <p>The unary operators <code>*</code> and <code>&amp;</code> bind more tightly than arithmetic operators, so the assignment</p>
 <pre><code class="language-c">y = *ip + 1;
 </code></pre>
 <p>takes whatever <code>ip</code> points at, adds 1, and assigns the result to y, while:</p>
-<pre><code class="language-c">*ip += 1 
+<pre><code class="language-c">*ip += 1
 </code></pre>
 <p>increments what <code>ip</code> points to, as do:</p>
-<pre><code class="language-c">++*ip 
+<pre><code class="language-c">++*ip
 </code></pre>
 <p>and:</p>
 <pre><code class="language-c">(*ip)++
 </code></pre>
 <p>The parentheses are necessary in this last example; without them, the expression would increment ip instead of what it points to, because unary operators like <code>*</code> and <code>++</code> associate right to left.</p>
 <p>Finally, since pointers are variables, they can be used without dereferencing. For example, if <code>iq</code> is another pointer to <code>int</code>,</p>
-<pre><code class="language-c">iq = ip 
+<pre><code class="language-c">iq = ip
 </code></pre>
 <p>copies the contents of ip into iq, thus making iq point to whatever ip pointed to.</p>
 

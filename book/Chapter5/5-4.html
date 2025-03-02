@@ -158,25 +158,25 @@
 <p>The easiest implementation is to have <code>alloc</code> hand out pieces of a large character array that we will call <code>allocbuf</code>. This array is private to <code>alloc</code> and <code>afree</code>. Since they deal in pointers, not array indices, no other routine need know the name of the array, which can be declared <code>static</code> in the source file containing <code>alloc</code> and <code>afree</code>, and thus be invisible outside it. In practical implementations, the array may well not even have a name; it might instead be obtained by calling <code>malloc</code> or by asking the operating system for a pointer to some unnamed block of storage.</p>
 <p>The other information needed is how much of <code>allocbuf</code> has been used. We use a pointer, called <code>allocp</code>, that points to the next free element. When <code>alloc</code> is asked for <code>n</code> characters, it checks to see if there is enough room left in <code>allocbuf</code>. If so, <code>alloc</code> returns the current value of <code>allocp</code> (i.e., the beginning of the free block), then increments it by <code>n</code> to point to the next free area. If there is no room, <code>alloc</code> returns zero. <code>afree(p)</code> merely sets <code>allocp</code> to <code>p</code> if <code>p</code> is inside <code>allocbuf</code>.</p>
 <p><img src="../Images/5-4%20Address%20Arithmetic.png" alt="" /></p>
-<pre><code class="language-c">#define ALLOCSIZE 10000 /* size of available space */ 
+<pre><code class="language-c">#define ALLOCSIZE 10000 /* size of available space */
 
-static char allocbuf[ALLOCSIZE]; /* storage for alloc */ 
-static char *allocp = allocbuf; /* next free position */ 
+static char allocbuf[ALLOCSIZE]; /* storage for alloc */
+static char *allocp = allocbuf; /* next free position */
 
-char *alloc(int n) /* return pointer to n characters */ 
-{ 
-    if (allocbuf + ALLOCSIZE - allocp &gt;= n) { /* it fits */ 
-        allocp += n; 
-        return allocp - n; /* old p */ 
-    } else { /* not enough room */ 
-        return 0; 
+char *alloc(int n) /* return pointer to n characters */
+{
+    if (allocbuf + ALLOCSIZE - allocp &gt;= n) { /* it fits */
+        allocp += n;
+        return allocp - n; /* old p */
+    } else { /* not enough room */
+        return 0;
     }
-} 
+}
 
-void afree(char *p) /* free storage pointed to by p */ 
-{ 
-    if (p &gt;= allocbuf &amp;&amp; p &lt; allocbuf + ALLOCSIZE) { 
-        allocp = p; 
+void afree(char *p) /* free storage pointed to by p */
+{
+    if (p &gt;= allocbuf &amp;&amp; p &lt; allocbuf + ALLOCSIZE) {
+        allocp = p;
     }
 }
 </code></pre>
@@ -207,13 +207,13 @@ void afree(char *p) /* free storage pointed to by p */
 </code></pre>
 <p>means the address of the n-th object beyond the one <code>p</code> currently points to. This is true regardless of the kind of object <code>p</code> points to; <code>n</code> is scaled according to the size of the objects <code>p</code> points to, which is determined by the declaration of <code>p</code>. If an <code>int</code> is four bytes, for example, the int will be scaled by four.</p>
 <p>Pointer subtraction is also valid: if <code>p</code> and <code>q</code> point to elements of the same array, and <code>p&lt;q</code>, then <code>q-p+1</code> is the number of elements from <code>p</code> to <code>q</code> inclusive. This fact can be used to write yet another version of <code>strlen</code>:</p>
-<pre><code class="language-c">/* strlen: return length of string s */ 
-int strlen(char *s) 
-{ 
-    char *p = s; 
-    while (*p != '\0') 
-        p++; 
-    return p - s; 
+<pre><code class="language-c">/* strlen: return length of string s */
+int strlen(char *s)
+{
+    char *p = s;
+    while (*p != '\0')
+        p++;
+    return p - s;
 }
 </code></pre>
 <p>In its declaration, <code>p</code> is initialized to <code>s</code>, that is, to point to the first character of the string. In the <code>while</code> loop, each character in turn is examined until the <code>'\0'</code> at the end is seen. Because <code>p</code> points to characters, <code>p++</code> advances p to the next character each time, and <code>p-s</code> gives the number of characters advanced over, that is, the string length. (The number of characters in the string could be too large to store in an <code>int</code>). The header <code>&lt;stddef.h&gt;</code> defines a type <code>ptrdiff_t</code> that is large enough to hold the signed difference of two pointer values. If we were being cautious, however, we would use <code>size_t</code> for the return value of <code>strlen</code>, to match the standard library version. <code>size_t</code> is the unsigned integer type returned by the <code>sizeof</code> operator.</p>

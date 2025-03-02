@@ -162,62 +162,62 @@
 </code></pre>
 <p>When a character string like this appears in a program, access to it is through a character pointer; <code>printf</code> receives a pointer to the beginning of the character array. That is, a string constant is accessed by a pointer to its first element.</p>
 <p>String constants need not be function arguments. If <code>pmessage</code> is declared as:</p>
-<pre><code class="language-c">char *pmessage; 
+<pre><code class="language-c">char *pmessage;
 </code></pre>
 <p>then the statement:</p>
 <pre><code class="language-c">pmessage = "now is the time";
 </code></pre>
 <p>assigns to <code>pmessage</code> a pointer to the character array. This is <em>not</em> a string copy; only pointers are involved. C does not provide any operators for processing an entire string of characters as a unit.</p>
 <p>There is an important difference between these definitions:</p>
-<pre><code class="language-c">char amessage[] = "now is the time"; /* an array */ 
+<pre><code class="language-c">char amessage[] = "now is the time"; /* an array */
 char *pmessage = "now is the time"; /* a pointer */
 </code></pre>
 <p><code>amessage</code> is an <code>array</code>, just big enough to hold the sequence of characters and <code>'\0'</code> that terminates it. Individual characters within the array may be changed but <code>amessage</code> will always refer to the same storage. On the other hand, <code>pmessage</code> is a <code>pointer</code>, initialized to point to a string constant; the pointer may subsequently be modified to point elsewhere, but the result is undefined if you try to modify the string contents.</p>
 <p><img src="../Images/5-5%20Character%20Pointers%20and%20Functions.png" alt="" /></p>
 <p>We will illustrate more aspects of pointers and arrays by studying versions of two useful functions adapted from the standard library. The first function is <code>strcpy(s,t)</code>, which copies the string <code>t</code> to the string <code>s</code>. It would be nice just to say <code>s=t</code> but this copies the pointer, not the characters. To copy the characters, we need a loop. The array version first:</p>
-<pre><code class="language-c">/* strcpy: copy t to s; array subscript version */ 
-void strcpy(char *s, char *t) 
-{ 
-   int i; 
-   i = 0; 
-   while ((s[i] = t[i]) != '\0') 
-       i++; 
+<pre><code class="language-c">/* strcpy: copy t to s; array subscript version */
+void strcpy(char *s, char *t)
+{
+   int i;
+   i = 0;
+   while ((s[i] = t[i]) != '\0')
+       i++;
 }
 </code></pre>
 <p>For contrast, here is a version of <code>strcpy</code> with pointers:</p>
-<pre><code class="language-c">/* strcpy: copy t to s; pointer version */ 
-void strcpy(char *s, char *t) 
-{ 
-   int i; 
-   i = 0; 
-   while ((*s = *t) != '\0') { 
-       s++; 
-       t++; 
-   } 
+<pre><code class="language-c">/* strcpy: copy t to s; pointer version */
+void strcpy(char *s, char *t)
+{
+   int i;
+   i = 0;
+   while ((*s = *t) != '\0') {
+       s++;
+       t++;
+   }
 }
 </code></pre>
 <p>Because arguments are passed by value, <code>strcpy</code> can use the parameters <code>s</code> and <code>t</code> in any way it pleases. Here they are conveniently initialized pointers, which are marched along the arrays a character at a time, until the <code>'\0'</code> that terminates <code>t</code> has been copied into <code>s</code>.</p>
 <p>In practice, <code>strcpy</code> would not be written as we showed it above. Experienced C programmers would prefer:</p>
-<pre><code class="language-c">/* strcpy: copy t to s; pointer version 2 */ 
-void strcpy(char *s, char *t) 
-{ 
-   while ((*s++ = *t++) != '\0') 
+<pre><code class="language-c">/* strcpy: copy t to s; pointer version 2 */
+void strcpy(char *s, char *t)
+{
+   while ((*s++ = *t++) != '\0')
        ;
 }
 </code></pre>
 <p>This moves the increment of <code>s</code> and <code>t</code> into the test part of the loop. The value of <code>*t++</code> is the character that <code>t</code> pointed to before <code>t</code> was incremented; the postfix <code>++</code> doesn't change <code>t</code> until after this character has been fetched. In the same way, the character is stored into the old <code>s</code> position before <code>s</code> is incremented. This character is also the value that is compared against <code>'\0'</code> to control the loop. The net effect is that characters are copied from <code>t</code> to <code>s</code>, up to and including the terminating <code>'\0'</code>.</p>
 <p>As the final abbreviation, observe that a comparison against <code>'\0'</code> is redundant, since the question is merely whether the expression is zero. So the function would likely be written as</p>
-<pre><code class="language-c">/* strcpy: copy t to s; pointer version 3 */ 
-void strcpy(char *s, char *t) 
-{ 
-    while (*s++ = *t++) 
+<pre><code class="language-c">/* strcpy: copy t to s; pointer version 3 */
+void strcpy(char *s, char *t)
+{
+    while (*s++ = *t++)
         ;
 }
 </code></pre>
 <p>Although this may seem cryptic at first sight, the notational convenience is considerable, and the idiom should be mastered, because you will see it frequently in C programs.</p>
 <blockquote>
 <p><em><strong>Note</strong></em></p>
-<p>A bit of nuance regarding the abbreviation of notation as described above.<br />
+<p>A bit of nuance regarding the abbreviation of notation as described above.
 One of the most important parts of writing code, is writing <em>readable</em> code.
 And sure, the above notation is definitely readable, but performance-wise there is no gain compared to the earlier (and much easier to understand) versions that used a more verbose notation.</p>
 <p>As stated before, compilers are <em>incredibly</em> advanced, and can optimize your code immensely. There is no reason to manually optimize what the compiler can handle just as well or better. Write code <em>you</em> and anyone else who has to read your code can understand.</p>
@@ -225,33 +225,33 @@ And sure, the above notation is definitely readable, but performance-wise there 
 </blockquote>
 <p>The <code>strcpy</code> in the standard library (<code>&lt;string.h&gt;</code>) returns the target string as its function value.</p>
 <p>The second routine that we will examine is <code>strcmp(s,t)</code>, which compares the character strings <code>s</code> and <code>t</code>, and returns negative, zero or positive if <code>s</code> is lexicographically less than, equal to, or greater than <code>t</code>. The value is obtained by subtracting the characters at the first position where <code>s</code> and <code>t</code> disagree.</p>
-<pre><code class="language-c">/* strcmp: return &lt;0 if s&lt;t, 0 if s==t, &gt;0 if s&gt;t */ 
-int strcmp(char *s, char *t) 
-{ 
-    int i; 
-    for (i = 0; s[i] == t[i]; i++) 
-        if (s[i] == '\0') 
-            return 0; 
-    return s[i] - t[i]; 
+<pre><code class="language-c">/* strcmp: return &lt;0 if s&lt;t, 0 if s==t, &gt;0 if s&gt;t */
+int strcmp(char *s, char *t)
+{
+    int i;
+    for (i = 0; s[i] == t[i]; i++)
+        if (s[i] == '\0')
+            return 0;
+    return s[i] - t[i];
 }
 </code></pre>
 <p>The pointer version of <code>strcmp</code>:</p>
-<pre><code class="language-c">/* strcmp: return &lt;0 if s&lt;t, 0 if s==t, &gt;0 if s&gt;t */ 
-int strcmp(char *s, char *t) 
-{ 
-    for ( ; *s == *t; s++, t++) 
-        if (*s == '\0') 
-            return 0; 
-    return *s - *t; 
+<pre><code class="language-c">/* strcmp: return &lt;0 if s&lt;t, 0 if s==t, &gt;0 if s&gt;t */
+int strcmp(char *s, char *t)
+{
+    for ( ; *s == *t; s++, t++)
+        if (*s == '\0')
+            return 0;
+    return *s - *t;
 }
 </code></pre>
 <p>Since <code>++</code> and <code>--</code> are either prefix or postfix operators, other combinations of <code>*</code> and <code>++</code> and <code>--</code>
 occur, although less frequently. For example,</p>
-<pre><code class="language-c">*--p 
+<pre><code class="language-c">*--p
 </code></pre>
 <p>decrements <code>p</code> before fetching the character that <code>p</code> points to. In fact, the pair of expressions</p>
-<pre><code class="language-c">*p++ = val; /* push val onto stack */ 
-val = *--p; /* pop top of stack into val */ 
+<pre><code class="language-c">*p++ = val; /* push val onto stack */
+val = *--p; /* pop top of stack into val */
 </code></pre>
 <p>are the standard idiom for pushing and popping a stack; see <a href="../Chapter4/4-3.html">Section 4.3</a>.</p>
 <p>The header <code>&lt;string.h&gt;</code> contains declarations for the functions mentioned in this section, plus a variety of other string-handling functions from the standard library.</p>

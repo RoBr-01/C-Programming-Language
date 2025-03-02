@@ -186,9 +186,9 @@
 <p>Rather more surprising, at first sight, is the fact that a reference to <code>a[i]</code> can also be written as <code>*(a+i)</code>. In evaluating <code>a[i]</code>, C converts it to <code>*(a+i)</code> immediately; the two forms are equivalent. Applying the operator <code>&amp;</code> to both parts of this equivalence, it follows that <code>&amp;a[i]</code> and <code>a+i</code> are also identical: <code>a+i</code> is the address of the i-th element beyond <code>a</code>. As the other side of this coin, if <code>pa</code> is a pointer, expressions might use it with a subscript; <code>pa[i]</code> is identical to <code>*(pa+i)</code>. In short, an array-and-index expression is equivalent to one written as a pointer and offset.</p>
 <p>There is one difference between an array name and a pointer that must be kept in mind. A pointer is a variable, so <code>pa=a</code> and <code>pa++</code> are legal. But an array name is <em>not</em> a variable; constructions like <code>a=pa</code> and <code>a++</code> are illegal.</p>
 <p>When an array name is passed to a function, what is passed is the location of the initial element. Within the called function, this argument is a local variable, and so an array name parameter is a pointer, that is, a variable containing an address. We can use this fact to write another version of <code>strlen</code>, which computes the length of a string.</p>
-<pre><code class="language-c">/* strlen: return length of string s */ 
+<pre><code class="language-c">/* strlen: return length of string s */
 int strlen(char *s)
-{ 
+{
     int n;
     for (n = 0; *s != '\0'; s++)
         n++;
@@ -196,26 +196,26 @@ int strlen(char *s)
 }
 </code></pre>
 <p>Since <code>s</code> is a pointer, incrementing it is perfectly legal; <code>s++</code> has no effect on the character string in the function that called <code>strlen</code>, but merely increments strlen's private copy of the pointer. That means that calls like:</p>
-<pre><code class="language-c">strlen("hello, world"); /* string constant */ 
-strlen(array); /* char array[100]; */ 
+<pre><code class="language-c">strlen("hello, world"); /* string constant */
+strlen(array); /* char array[100]; */
 strlen(ptr); /* char *ptr; */
 </code></pre>
 <p>all work.</p>
 <p>As formal parameters in a function definition,</p>
-<pre><code class="language-c">char s[]; 
+<pre><code class="language-c">char s[];
 </code></pre>
 <p>and:</p>
 <pre><code class="language-c">char *s;
 </code></pre>
 <p>are equivalent; we prefer the latter because it says more explicitly that the variable is a pointer. When an array name is passed to a function, the function can at its convenience believe that it has been handed either an array or a pointer, and manipulate it accordingly. It can even use both notations if it seems appropriate and clear.</p>
 <p>It is possible to pass part of an array to a function, by passing a pointer to the beginning of the sub-array. For example, if <code>a</code> is an array,</p>
-<pre><code class="language-c">f(&amp;a[2]) 
+<pre><code class="language-c">f(&amp;a[2])
 </code></pre>
 <p>and:</p>
 <pre><code class="language-c">f(a+2)
 </code></pre>
 <p>both pass to the function <code>f</code> the address of the sub-array that starts at <code>a[2]</code>. Within <code>f</code>, the parameter declaration can read:</p>
-<pre><code class="language-c">f(int arr[]) { ... } 
+<pre><code class="language-c">f(int arr[]) { ... }
 </code></pre>
 <p>or:</p>
 <pre><code class="language-c">f(int *arr) { ... }
