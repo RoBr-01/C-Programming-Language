@@ -72,8 +72,8 @@
     - [Initialization of Pointer Arrays](Chapter5/5-8.md)                   Done
     - [Pointers vs. Multi-dimensional Arrays](Chapter5/5-9.md)              Done
     - [Command-line Arguments](Chapter5/5-10.md)                            Done
-    - [Pointers to Functions](Chapter5/5-11.md)
-    - [Complicated Declarations](Chapter5/5-12.md)
+    - [Pointers to Functions](Chapter5/5-11.md)                             Done
+    - [Complicated Declarations](Chapter5/5-12.md)                          Done
 
 - [Chapter 6 - Structures](Chapter6/6-0.md)
     - [Basics of Structures]()
@@ -82,7 +82,7 @@
     - [Pointers to Structures]()
     - [Self-referential Structures]()
     - [Table Lookup]()
-    - [Typedef]()
+    - [Typedef](Chapter6/6-7.md)
     - [Unions]()
     - [Bit-fields]()
 
@@ -157,12 +157,12 @@
         - [Assignment Expressions]()
         - [Comma Operator]()
         - [Constant Expressions]()
-    - [Declarations]()
+    - [Declarations](AppendixA/A8-0.md)
         - [Storage Class Specifiers]()
         - [Type Specifiers]()
         - [Structure and Union Declarations]()
         - [Enumerations]()
-        - [Declarators]()
+        - [Declarators](AppendixA/A8-5.md)
         - [Meaning of Declarators]()
         - [Initialization]()
         - [Type Names]()
@@ -289,6 +289,17 @@
         - [Exercise 5-7](Solutions/Chapter5/E5-7.md)
         - [Exercise 5-8](Solutions/Chapter5/E5-8.md)
         - [Exercise 5-9](Solutions/Chapter5/E5-9.md)
+        - [Exercise 5-10](Solutions/Chapter5/E5-10.md)
+        - [Exercise 5-11](Solutions/Chapter5/E5-11.md)
+        - [Exercise 5-12](Solutions/Chapter5/E5-12.md)
+        - [Exercise 5-13](Solutions/Chapter5/E5-13.md)
+        - [Exercise 5-14](Solutions/Chapter5/E5-14.md)
+        - [Exercise 5-15](Solutions/Chapter5/E5-15.md)
+        - [Exercise 5-16](Solutions/Chapter5/E5-16.md)
+        - [Exercise 5-17](Solutions/Chapter5/E5-17.md)
+        - [Exercise 5-18](Solutions/Chapter5/E5-18.md)
+        - [Exercise 5-19](Solutions/Chapter5/E5-19.md)
+        - [Exercise 5-20](Solutions/Chapter5/E5-20.md)
     - [Chapter 6]()
     - [Chapter 7]()
     - [Chapter 8]()

@@ -153,6 +153,172 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="complicated-declarations"><a class="header" href="#complicated-declarations">Complicated Declarations</a></h1>
+<p>C is sometimes castigated for the syntax of its declarations, particularly ones that involve pointers to functions. The syntax is an attempt to make the declaration and the use agree; it works well for simple cases, but it can be confusing for the harder ones, because declarations cannot be read left to right, and because parentheses are over-used. The difference between:</p>
+<pre><code class="language-c">int *f(); /* f: function returning pointer to int */
+</code></pre>
+<p>and:</p>
+<pre><code class="language-c">int (*pf)(); /* pf: pointer to function returning int */
+</code></pre>
+<p>illustrates the problem: <code>*</code> is a prefix operator and it has lower precedence than <code>()</code>, so parentheses are necessary to force the proper association.</p>
+<p>Although truly complicated declarations rarely arise in practice, it is important to know how to understand them, and, if necessary, how to create them. One good way to synthesize declarations is in small steps with <code>typedef</code>, which is discussed in <a href="../Chapter6/6-7.html">Section 6.7</a>. As an alternative, in this section we will present a pair of programs that convert from valid C to a word description and back again. The word description reads left to right.</p>
+<p>The first, <code>dcl</code>, is the more complex. It converts a C declaration into a word description, as in these examples:</p>
+<pre><code class="language-c">char **argv
+    argv: pointer to char
+int (*daytab)[13]
+    daytab: pointer to array[13] of int
+int *daytab[13]
+    daytab: array[13] of pointer to int
+void *comp()
+    comp: function returning pointer to void
+void (*comp)()
+    comp: pointer to function returning void
+char (*(*x())[])()
+    x: function returning pointer to array[] of pointer to function returning char
+char (*(*x[3])())[5]
+    x: array[3] of pointer to function returning pointer to array[5] of char
+</code></pre>
+<p><code>dcl</code> is based on the grammar that specifies a declarator, which is spelled out precisely in <a href="../AppendixA/A8-5.html">Appendix A, Section 8.5</a>; this is a simplified form:</p>
+<pre><code>dcl: optional *'s direct-dcl
+direct-dcl name
+        (dcl)
+        direct-dcl()
+        direct-dcl[optional size]
+</code></pre>
+<p>In words, a <em>dcl</em> is a <em>direct-dcl</em>, perhaps preceded by *'s. A <em>direct-dcl</em> is a name, or a parenthesized <em>dcl</em>, or a <em>direct-dcl</em> followed by parentheses, or a <em>direct-dcl</em> followed by brackets with an optional size.</p>
+<p>This grammar can be used to parse functions. For instance, consider this declarator:</p>
+<pre><code class="language-c">(*pfa[])()
+</code></pre>
+<p><em>pfa</em> will be identified as a <em>name</em> and thus as a <em>direct-dcl</em>. Then <code>pfa[]</code> is also a <em>direct-dcl</em>. Then <code>*pfa[]</code> is recognized as a <em>dcl</em>, so <code>(*pfa[])</code> is a <em>direct-dcl</em>. Then <code>(*pfa[])()</code> is a <em>direct-dcl</em> and thus a <em>dcl</em>. We can also illustrate the parse with a tree like this (where <em>direct-dcl</em> has been abbreviated to <em>dir-dcl</em>):</p>
+<p><img src="../Images/5-12%20Complicated%20Declarations.png" alt="" /></p>
+<p>The heart of the <code>dcl</code> program is a pair of functions, <code>dcl</code> and <code>dirdcl</code>, that parse a declaration according to this grammar. Because the grammar is recursively defined, the functions call each other recursively as they recognize pieces of a declaration; the program is called a recursive-descent parser.</p>
+<pre><code class="language-c">/* dcl: parse a declarator */
+void dcl(void)
+{
+    int ns;
+    for (ns = 0; gettoken() == '*'; ) /* count *'s */
+        ns++;
+    dirdcl();
+    while (ns-- &gt; 0)
+        strcat(out, " pointer to");
+}
+
+/* dirdcl: parse a direct declarator */
+void dirdcl(void)
+{
+    int type;
+    if (tokentype == '(') { /* ( dcl ) */
+        dcl();
+        if (tokentype != ')')
+            printf("error: missing )\n");
+    } else if (tokentype == NAME) /* variable name */
+        strcpy(name, token);
+    else
+        printf("error: expected name or (dcl)\n");
+    while ((type = gettoken()) == PARENS || type == BRACKETS)
+        if (type == PARENS)
+            strcat(out, " function returning");
+        else {
+            strcat(out, " array");
+            strcat(out, token);
+            strcat(out, " of");
+        }
+}
+</code></pre>
+<p>Since the programs are intended to be illustrative, not bullet-proof, there are significant restrictions on <code>dcl</code>. It can only handle a simple data type line char or int. It does not handle argument types in functions, or qualifiers like const. Spurious blanks confuse it. It doesn't do much error recovery, so invalid declarations will also confuse it. These improvements are left as exercises.</p>
+<p>Here are the global variables and the main routine:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;ctype.h&gt;
+#define MAXTOKEN 100
+enum { NAME, PARENS, BRACKETS };
+
+void dcl(void);
+void dirdcl(void);
+int gettoken(void);
+
+int tokentype;            /* type of last token */
+char token[MAXTOKEN];     /* last token string */
+char name[MAXTOKEN];      /* identifier name */
+char datatype[MAXTOKEN];  /* data type = char, int, etc. */
+char out[1000];
+
+int main() /* convert declaration to words */
+{
+    while (gettoken() != EOF) { /* 1st token on line */
+        strcpy(datatype, token); /* is the datatype */
+        out[0] = '\0';
+        dcl(); /* parse rest of line */
+        if (tokentype != '\n')
+            printf("syntax error\n");
+        printf("%s: %s %s\n", name, out, datatype);
+    }
+    return 0;
+}
+</code></pre>
+<p>The function <code>gettoken</code> skips blanks and tabs, then finds the next token in the input; a "token" is a name, a pair of parentheses, a pair of brackets perhaps including a number, or any other single character.</p>
+<pre><code class="language-c">int gettoken(void) /* return next token */
+{
+    int c, getch(void);
+    void ungetch(int);
+    char *p = token;
+    while ((c = getch()) == ' ' || c == '\t')
+        ;
+    if (c == '(') {
+        if ((c = getch()) == ')') {
+            strcpy(token, "()");
+            return tokentype = PARENS;
+        } else {
+            ungetch(c);
+            return tokentype = '(';
+        }
+    } else if (c == '[') {
+        for (*p++ = c; (*p++ = getch()) != ']'; )
+            ;
+        *p = '\0';
+        return tokentype = BRACKETS;
+    } else if (isalpha(c)) {
+        for (*p++ = c; isalnum(c = getch()); )
+            *p++ = c;
+        *p = '\0';
+        ungetch(c);
+        return tokentype = NAME;
+    } else
+        return tokentype = c;
+}
+</code></pre>
+<p><code>getch</code> and <code>ungetch</code> are discussed in <a href="../Chapter4/4-0.html">Chapter 4</a>.</p>
+<p>Going in the other direction is easier, especially if we do not worry about generating redundant parentheses. The program <code>undcl</code> converts a word description like "x is a function returning a pointer to an array of pointers to functions returning char", which we will express as</p>
+<pre><code class="language-c">x () * [] * () char 
+</code></pre>
+<p>to</p>
+<pre><code class="language-c">char (*(*x())[])()
+</code></pre>
+<p>The abbreviated input syntax lets us reuse the <code>gettoken</code> function. <code>undcl</code> also uses the same external variables as <code>dcl</code> does.</p>
+<pre><code class="language-c">/* undcl: convert word descriptions to declarations */
+main()
+{
+    int type;
+    char temp[MAXTOKEN];
+    while (gettoken() != EOF) {
+        strcpy(out, token);
+        while ((type = gettoken()) != '\n')
+            if (type == PARENS || type == BRACKETS)
+                strcat(out, token);
+            else if (type == '*') {
+                sprintf(temp, "(*%s)", out);
+                strcpy(out, temp);
+            } else if (type == NAME) {
+                sprintf(temp, "%s %s", token, out);
+                strcpy(out, temp);
+            } else
+                printf("invalid input at %s\n", token);
+    }
+    return 0;
+}
+</code></pre>
+<p><a href="../Solutions/Chapter5/E5-18.html"><strong>Exercise 5-18.</strong></a> Make <code>dcl</code> recover from input errors.</p>
+<p><a href="../Solutions/Chapter5/E5-19.html"><strong>Exercise 5-19.</strong></a> Modify <code>undcl</code> so that it does not add redundant parentheses to declarations.</p>
+<p><a href="../Solutions/Chapter5/E5-20.html"><strong>Exercise 5-20.</strong></a> Expand <code>dcl</code> to handle declarations with function argument types, qualifiers like const, and so on.</p>
 
                     </main>
 
