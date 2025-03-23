@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - The C Programming Language</title>
+        <title>Standard Input and Output - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,58 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+                        <h1 id="standard-input-and-output"><a class="header" href="#standard-input-and-output">Standard Input and Output</a></h1>
+<p>As we said in <a href="../Chapter1/1-0.html">Chapter 1</a>, the library implements a simple model of text input and output. A text stream consists of a sequence of lines; each line ends with a newline character. If the system doesn't operate that way, the library does whatever necessary to make it appear as if it does. For instance, the library might convert carriage return and linefeed to newline on input and back again on output.</p>
+<p>The simplest input mechanism is to read one character at a time from the <em>standard input</em>, normally the keyboard, with <code>getchar</code>:</p>
+<pre><code class="language-c">int getchar(void)
+</code></pre>
+<p>getchar returns the next input character each time it is called, or EOF when it encounters end of file. The symbolic constant EOF is defined in <code>&lt;stdio.h&gt;</code>. The value is typically -1, but tests should be written in terms of EOF so as to be independent of the specific value.</p>
+<p>In many environments, a file may be substituted for the keyboard by using the <code>&lt;</code> convention for input redirection: if a program prog uses <code>getchar</code>, then the command line:</p>
+<pre><code class="language-sh">prog &lt;infile
+</code></pre>
+<p>causes prog to read characters from <code>infile</code> instead. The switching of the input is done in such a way that <code>prog</code> itself is oblivious to the change; in particular, the string "&lt;infile" is not included in the command-line arguments in argv. Input switching is also invisible if the input comes from another program via a pipe mechanism: on some systems, the command line:</p>
+<pre><code class="language-sh">otherprog | prog
+</code></pre>
+<p>runs the two programs <code>otherprog</code> and <code>prog</code>, and pipes the standard output of <code>otherprog</code> into the standard input for <code>prog</code>.</p>
+<p>The function:</p>
+<pre><code class="language-c">int putchar(int)
+</code></pre>
+<p>is used for output: <code>putchar(c)</code> puts the character c on the standard output, which is by default the screen. <code>putchar</code> returns the character written, or EOF is an error occurs. Again, output can usually be directed to a file with &gt;<em>filename</em>: if <code>prog</code> uses <code>putchar</code>,</p>
+<pre><code class="language-sh">prog &gt;outfile
+</code></pre>
+<p>will write the standard output to outfile instead. If pipes are supported,</p>
+<pre><code class="language-sh">prog | anotherprog
+</code></pre>
+<p>puts the standard output of <code>prog</code> into the standard input of <code>anotherprog</code>.</p>
+<p>Output produced by <code>printf</code> also finds its way to the standard output. Calls to <code>putchar</code> and <code>printf</code> may be interleaved - output happens in the order in which the calls are made.</p>
+<p>Each source file that refers to an input/output library function must contain the line:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+</code></pre>
+<p>before the first reference. When the name is bracketed by <code>&lt;</code> and <code>&gt;</code> a search is made for the header in a standard set of places (for example, on UNIX systems, typically in the directory <code>/usr/include</code>).</p>
+<p>Many programs read only one input stream and write only one output stream; for such programs, input and output with <code>getchar</code>, <code>putchar</code>, and <code>printf</code> may be entirely adequate, and is certainly enough to get started. This is particularly true if redirection is used to connect the output of one program to the input of the next. For example, consider the program <code>lower</code>, which converts its input to lower case:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;ctype.h&gt;
+
+int main() /* lower: convert input to lower case */
+{
+    int c;
+    while ((c = getchar()) != EOF)
+        putchar(tolower(c));
+    return 0;
+}
+</code></pre>
+<p>The function <code>tolower</code> is defined in <code>&lt;ctype.h&gt;</code>; it converts an upper case letter to lower case, and returns other characters untouched. As we mentioned earlier, "functions" like <code>getchar</code> and <code>putchar</code> in <code>&lt;stdio.h&gt;</code> and <code>tolower</code> in <code>&lt;ctype.h&gt;</code> are often macros, thus avoiding the overhead of a function call per character. We will show how this is done in <a href="../Chapter8/8-5.html">Section 8.5</a>. Regardless of how the <code>&lt;ctype.h&gt;</code> functions are implemented on a given machine, programs that use them are shielded from knowledge of the character set.</p>
+<p><a href="../Solutions/Chapter7/E7-1.html"><strong>Exercise 7-1.</strong></a> Write a program that converts upper case to lower or lower case to upper, depending on the name it is invoked with, as found in argv[0].</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter8/8-5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter7/7-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../AppendixA/A6-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter7/7-2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +213,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter8/8-5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter7/7-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../AppendixA/A6-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter7/7-2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

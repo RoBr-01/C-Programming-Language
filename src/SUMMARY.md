@@ -86,29 +86,29 @@
     - [Unions](Chapter6/6-8.md)                                             Done
     - [Bit-fields](Chapter6/6-9.md)                                         Done
 
-- [Chapter 7 - Input and Output](Chapter7/7-0.md)
-    - [Standard Input and Output]()
-    - [Formatted Output - printf]()
-    - [Variable-length Argument Lists]()
-    - [Formatted Input - Scanf](Chapter7/7-4.md)
-    - [File Access]()
-    - [Error Handling - Stderr and Exit]()
-    - [Line Input and Output]()
-    - [Miscellaneous Functions]()
-        - [String Operations]()
-        - [Character Class Testing and Conversion]()
-        - [Ungetc]()
-        - [Command Execution]()
-        - [Storage Management]()
-        - [Mathematical Functions]()
-        - [Random Number Generation]()
+- [Chapter 7 - Input and Output](Chapter7/7-0.md)                           Done
+    - [Standard Input and Output](Chapter7/7-1.md)                          Done
+    - [Formatted Output - printf](Chapter7/7-2.md)                          Done
+    - [Variable-length Argument Lists](Chapter7/7-3.md)                     Done
+    - [Formatted Input - Scanf](Chapter7/7-4.md)                            Done
+    - [File Access](Chapter7/7-5.md)
+    - [Error Handling - Stderr and Exit](Chapter7/7-6.md)
+    - [Line Input and Output](Chapter7/7-7.md)
+    - [Miscellaneous Functions](Chapter7/7-8.md)
+        - [String Operations](Chapter7/7-8-1.md)
+        - [Character Class Testing and Conversion](Chapter7/7-8-2.md)
+        - [Ungetc](Chapter7/7-8-3.md)
+        - [Command Execution](Chapter7/7-8-4.md)
+        - [Storage Management](Chapter7/7-8-5.md)
+        - [Mathematical Functions](Chapter7/7-8-6.md)
+        - [Random Number Generation](Chapter7/7-8-7.md)
 
 - [Chapter 8 - The UNIX System Interface](Chapter8/8-0.md)
     - [File Descriptors]()
     - [Low Level I/O - Read and Write]()
     - [Open, Creat, Close, Unlink]()
     - [Random Access - Lseek]()
-    - [Example - An implementation of Fopen and Getc]()
+    - [Example - An implementation of Fopen and Getc](Chapter8/8-5.md)
     - [Example - Listing Directories]()
     - [Example - A Storage Allocator]()
 
@@ -300,6 +300,7 @@
         - [Exercise 5-18](Solutions/Chapter5/E5-18.md)
         - [Exercise 5-19](Solutions/Chapter5/E5-19.md)
         - [Exercise 5-20](Solutions/Chapter5/E5-20.md)
+
     - [Chapter 6]()
         - [Exercise 6-1](Solutions/Chapter6/E6-1.md)
         - [Exercise 6-2](Solutions/Chapter6/E6-2.md)
@@ -307,5 +308,16 @@
         - [Exercise 6-4](Solutions/Chapter6/E6-4.md)
         - [Exercise 6-5](Solutions/Chapter6/E6-5.md)
         - [Exercise 6-6](Solutions/Chapter6/E6-6.md)
+
+    - [Chapter 7]()
+        - [Exercise 7-1](Solutions/Chapter7/E7-1.md)
+        - [Exercise 7-2](Solutions/Chapter7/E7-2.md)
+        - [Exercise 7-3](Solutions/Chapter7/E7-3.md)
+        - [Exercise 7-4](Solutions/Chapter7/E7-4.md)
+        - [Exercise 7-5](Solutions/Chapter7/E7-5.md)
+        - [Exercise 7-6](Solutions/Chapter7/E7-6.md)
+        - [Exercise 7-7](Solutions/Chapter7/E7-7.md)
+        - [Exercise 7-8](Solutions/Chapter7/E7-8.md)
+        - [Exercise 7-9](Solutions/Chapter7/E7-9.md)
     - [Chapter 7]()
     - [Chapter 8]()

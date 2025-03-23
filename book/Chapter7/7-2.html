@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - The C Programming Language</title>
+        <title>Formatted Output - printf - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,59 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+                        <h1 id="formatted-output---printf"><a class="header" href="#formatted-output---printf">Formatted Output - printf</a></h1>
+<p>The output function <code>printf</code> translates internal values to characters. We have used <code>printf</code> informally in previous chapters. The description here covers most typical uses but is not complete; for the full story, see <a href="../AppendixB/B0.html">Appendix B</a>.</p>
+<pre><code class="language-c">int printf(char *format, arg1, arg2, ...);
+</code></pre>
+<p><code>printf</code> converts, formats, and prints its arguments on the standard output under control of the format. It returns the number of characters printed.</p>
+<p>The format string contains two types of objects: ordinary characters, which are copied to the output stream, and conversion specifications, each of which causes conversion and printing of the next successive argument to <code>printf</code>. Each conversion specification begins with a <code>%</code> and ends with a conversion character. Between the <code>%</code> and the conversion character there may be, in order:</p>
+<ul>
+<li>A minus sign, which specifies left adjustment of the converted argument.</li>
+<li>A number that specifies the minimum field width. The converted argument will be printed in a field at least this wide. If necessary it will be padded on the left (or right, if left adjustment is called for) to make up the field width.</li>
+<li>A period, which separates the field width from the precision.</li>
+<li>A number, the precision, that specifies the maximum number of characters to be printed from a string, or the number of digits after the decimal point of a floating-point value, or the minimum number of digits for an integer.</li>
+<li>An h if the integer is to be printed as a short, or l (letter ell) if as a long.</li>
+</ul>
+<p>Conversion characters are shown in Table 7.1. If the character after the <code>%</code> is not a conversion specification, the behavior is undefined.</p>
+<div class="table-wrapper"><table><thead><tr><th>Character</th><th>Argument type; Printed As</th></tr></thead><tbody>
+<tr><td>d, i</td><td>int; decimal number</td></tr>
+<tr><td>o</td><td>int; unsigned octal number (without a leading zero)</td></tr>
+<tr><td>x, X</td><td>int; unsigned hexadecimal number (without a leading 0x or 0X), using abcdef or ABCDEF for 10, ...,15.</td></tr>
+<tr><td>u</td><td>int; unsigned decimal number</td></tr>
+<tr><td>c</td><td>int; single character</td></tr>
+<tr><td>s</td><td>char *; print characters from the string until a '\0' or the number of characters given by the precision.</td></tr>
+<tr><td>f</td><td>double; [-]m.dddddd, where the number of d's is given by the precision (default 6).</td></tr>
+<tr><td>e, E</td><td>double; [-]m.dddddde+/-xx or [-]m.ddddddE+/-xx, where the number of d's is given by the precision (default 6).</td></tr>
+<tr><td>g, G</td><td>double; use %e or %E if the exponent is less than -4 or greater than or equal to the precision; otherwise use %f. Trailing zeros and a trailing decimal point are not printed.</td></tr>
+<tr><td>p</td><td>void *; pointer (implementation-dependent representation).</td></tr>
+<tr><td>%</td><td>no argument is converted; print a %</td></tr>
+</tbody></table>
+</div>
+<p><em>Table 7.1 Basic Printf Conversions</em></p>
+<p>A width or precision may be specified as <code>*</code>, in which case the value is computed by converting the next argument (which must be an int). For example, to print at most "max" characters from a string s,</p>
+<pre><code class="language-c">printf("%.*s", max, s);
+</code></pre>
+<p>Most of the format conversions have been illustrated in earlier chapters. One exception is the precision as it relates to strings. The following table shows the effect of a variety of specifications in printing "hello, world" (12 characters). We have put colons around each field so you can see its extent.</p>
+<p><img src="../Images/7-2%20Formatted%20Output%20-%20printf.png" alt="" /></p>
+<p>A warning: <code>printf</code> uses its first argument to decide how many arguments follow and what their type is. It will get confused, and you will get wrong answers, if there are not enough arguments of if they are the wrong type. You should also be aware of the difference between these two calls:</p>
+<pre><code class="language-c">printf(s); /* FAILS if s contains % */
+printf("%s", s); /* SAFE */
+</code></pre>
+<p>The function <code>sprintf</code> does the same conversions as <code>printf</code> does, but stores the output in a string:</p>
+<pre><code class="language-c">int sprintf(char *string, char *format, arg1, arg2, ...);
+</code></pre>
+<p><code>sprintf</code> formats the arguments in arg1, arg2, etc., according to format as before, but places the result in string instead of the standard output; string must be big enough to receive the result.</p>
+<p><a href="../Solutions/Chapter7/E7-2.html"><strong>Exercise 7-2.</strong></a> Write a program that will print arbitrary input in a sensible way. As a minimum, it should print non-graphic characters in octal or hexadecimal according to local custom, and break long text lines.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter8/8-5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter7/7-1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../AppendixA/A6-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter7/7-3.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +214,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter8/8-5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter7/7-1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../AppendixA/A6-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter7/7-3.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

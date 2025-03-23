@@ -4139,8 +4139,235 @@ symtab[i].u.sval[0]
 <p>Almost everything about fields is implementation-dependent. Whether a field may overlap a word boundary is implementation-defined. Fields need not be names; unnamed fields (a colon and width only) are used for padding. The special width 0 may be used to force alignment at the next word boundary.</p>
 <p>Fields are assigned left to right on some machines and right to left on others. This means that although fields are useful for maintaining internally-defined data structures, the question of which end comes first has to be carefully considered when picking apart externally-defined data; programs that depend on such things are not portable. Fields may be declared only as ints; for portability, specify signed or unsigned explicitly. <ins>They are not arrays and they do not have addresses, so the <code>&amp;</code> operator cannot be applied on them.</ins></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-7---input-and-output"><a class="header" href="#chapter-7---input-and-output">Chapter 7 - Input and Output</a></h1>
+<p>Input and output are not part of the C language itself, so we have not emphasized them in our presentation thus far. Nonetheless, programs interact with their environment in much more complicated ways than those we have shown before. In this chapter we will describe the standard library, a set of functions that provide input and output, string handling, storage management, mathematical routines, and a variety of other services for C programs. We will concentrate on input and output</p>
+<p>The ANSI standard defines these library functions precisely, so that they can exist in compatible form on any system where C exists. Programs that confine their system interactions to facilities provided by the standard library can be moved from one system to another without change.</p>
+<p>The properties of library functions are specified in more than a dozen headers; we have already seen several of these, including <code>&lt;stdio.h&gt;</code>, <code>&lt;string.h&gt;</code>, and <code>&lt;ctype.h&gt;</code>. We will not present the entire library here, since we are more interested in writing C programs that use it. The library is described in detail in <a href="Chapter7/../AppendixB/B0.html">Appendix B</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="standard-input-and-output"><a class="header" href="#standard-input-and-output">Standard Input and Output</a></h1>
+<p>As we said in <a href="Chapter7/../Chapter1/1-0.html">Chapter 1</a>, the library implements a simple model of text input and output. A text stream consists of a sequence of lines; each line ends with a newline character. If the system doesn't operate that way, the library does whatever necessary to make it appear as if it does. For instance, the library might convert carriage return and linefeed to newline on input and back again on output.</p>
+<p>The simplest input mechanism is to read one character at a time from the <em>standard input</em>, normally the keyboard, with <code>getchar</code>:</p>
+<pre><code class="language-c">int getchar(void)
+</code></pre>
+<p>getchar returns the next input character each time it is called, or EOF when it encounters end of file. The symbolic constant EOF is defined in <code>&lt;stdio.h&gt;</code>. The value is typically -1, but tests should be written in terms of EOF so as to be independent of the specific value.</p>
+<p>In many environments, a file may be substituted for the keyboard by using the <code>&lt;</code> convention for input redirection: if a program prog uses <code>getchar</code>, then the command line:</p>
+<pre><code class="language-sh">prog &lt;infile
+</code></pre>
+<p>causes prog to read characters from <code>infile</code> instead. The switching of the input is done in such a way that <code>prog</code> itself is oblivious to the change; in particular, the string "&lt;infile" is not included in the command-line arguments in argv. Input switching is also invisible if the input comes from another program via a pipe mechanism: on some systems, the command line:</p>
+<pre><code class="language-sh">otherprog | prog
+</code></pre>
+<p>runs the two programs <code>otherprog</code> and <code>prog</code>, and pipes the standard output of <code>otherprog</code> into the standard input for <code>prog</code>.</p>
+<p>The function:</p>
+<pre><code class="language-c">int putchar(int)
+</code></pre>
+<p>is used for output: <code>putchar(c)</code> puts the character c on the standard output, which is by default the screen. <code>putchar</code> returns the character written, or EOF is an error occurs. Again, output can usually be directed to a file with &gt;<em>filename</em>: if <code>prog</code> uses <code>putchar</code>,</p>
+<pre><code class="language-sh">prog &gt;outfile
+</code></pre>
+<p>will write the standard output to outfile instead. If pipes are supported,</p>
+<pre><code class="language-sh">prog | anotherprog
+</code></pre>
+<p>puts the standard output of <code>prog</code> into the standard input of <code>anotherprog</code>.</p>
+<p>Output produced by <code>printf</code> also finds its way to the standard output. Calls to <code>putchar</code> and <code>printf</code> may be interleaved - output happens in the order in which the calls are made.</p>
+<p>Each source file that refers to an input/output library function must contain the line:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+</code></pre>
+<p>before the first reference. When the name is bracketed by <code>&lt;</code> and <code>&gt;</code> a search is made for the header in a standard set of places (for example, on UNIX systems, typically in the directory <code>/usr/include</code>).</p>
+<p>Many programs read only one input stream and write only one output stream; for such programs, input and output with <code>getchar</code>, <code>putchar</code>, and <code>printf</code> may be entirely adequate, and is certainly enough to get started. This is particularly true if redirection is used to connect the output of one program to the input of the next. For example, consider the program <code>lower</code>, which converts its input to lower case:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;ctype.h&gt;
+
+int main() /* lower: convert input to lower case */
+{
+    int c;
+    while ((c = getchar()) != EOF)
+        putchar(tolower(c));
+    return 0;
+}
+</code></pre>
+<p>The function <code>tolower</code> is defined in <code>&lt;ctype.h&gt;</code>; it converts an upper case letter to lower case, and returns other characters untouched. As we mentioned earlier, "functions" like <code>getchar</code> and <code>putchar</code> in <code>&lt;stdio.h&gt;</code> and <code>tolower</code> in <code>&lt;ctype.h&gt;</code> are often macros, thus avoiding the overhead of a function call per character. We will show how this is done in <a href="Chapter7/../Chapter8/8-5.html">Section 8.5</a>. Regardless of how the <code>&lt;ctype.h&gt;</code> functions are implemented on a given machine, programs that use them are shielded from knowledge of the character set.</p>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-1.html"><strong>Exercise 7-1.</strong></a> Write a program that converts upper case to lower or lower case to upper, depending on the name it is invoked with, as found in argv[0].</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="formatted-output---printf"><a class="header" href="#formatted-output---printf">Formatted Output - printf</a></h1>
+<p>The output function <code>printf</code> translates internal values to characters. We have used <code>printf</code> informally in previous chapters. The description here covers most typical uses but is not complete; for the full story, see <a href="Chapter7/../AppendixB/B0.html">Appendix B</a>.</p>
+<pre><code class="language-c">int printf(char *format, arg1, arg2, ...);
+</code></pre>
+<p><code>printf</code> converts, formats, and prints its arguments on the standard output under control of the format. It returns the number of characters printed.</p>
+<p>The format string contains two types of objects: ordinary characters, which are copied to the output stream, and conversion specifications, each of which causes conversion and printing of the next successive argument to <code>printf</code>. Each conversion specification begins with a <code>%</code> and ends with a conversion character. Between the <code>%</code> and the conversion character there may be, in order:</p>
+<ul>
+<li>A minus sign, which specifies left adjustment of the converted argument.</li>
+<li>A number that specifies the minimum field width. The converted argument will be printed in a field at least this wide. If necessary it will be padded on the left (or right, if left adjustment is called for) to make up the field width.</li>
+<li>A period, which separates the field width from the precision.</li>
+<li>A number, the precision, that specifies the maximum number of characters to be printed from a string, or the number of digits after the decimal point of a floating-point value, or the minimum number of digits for an integer.</li>
+<li>An h if the integer is to be printed as a short, or l (letter ell) if as a long.</li>
+</ul>
+<p>Conversion characters are shown in Table 7.1. If the character after the <code>%</code> is not a conversion specification, the behavior is undefined.</p>
+<div class="table-wrapper"><table><thead><tr><th>Character</th><th>Argument type; Printed As</th></tr></thead><tbody>
+<tr><td>d, i</td><td>int; decimal number</td></tr>
+<tr><td>o</td><td>int; unsigned octal number (without a leading zero)</td></tr>
+<tr><td>x, X</td><td>int; unsigned hexadecimal number (without a leading 0x or 0X), using abcdef or ABCDEF for 10, ...,15.</td></tr>
+<tr><td>u</td><td>int; unsigned decimal number</td></tr>
+<tr><td>c</td><td>int; single character</td></tr>
+<tr><td>s</td><td>char *; print characters from the string until a '\0' or the number of characters given by the precision.</td></tr>
+<tr><td>f</td><td>double; [-]m.dddddd, where the number of d's is given by the precision (default 6).</td></tr>
+<tr><td>e, E</td><td>double; [-]m.dddddde+/-xx or [-]m.ddddddE+/-xx, where the number of d's is given by the precision (default 6).</td></tr>
+<tr><td>g, G</td><td>double; use %e or %E if the exponent is less than -4 or greater than or equal to the precision; otherwise use %f. Trailing zeros and a trailing decimal point are not printed.</td></tr>
+<tr><td>p</td><td>void *; pointer (implementation-dependent representation).</td></tr>
+<tr><td>%</td><td>no argument is converted; print a %</td></tr>
+</tbody></table>
+</div>
+<p><em>Table 7.1 Basic Printf Conversions</em></p>
+<p>A width or precision may be specified as <code>*</code>, in which case the value is computed by converting the next argument (which must be an int). For example, to print at most "max" characters from a string s,</p>
+<pre><code class="language-c">printf("%.*s", max, s);
+</code></pre>
+<p>Most of the format conversions have been illustrated in earlier chapters. One exception is the precision as it relates to strings. The following table shows the effect of a variety of specifications in printing "hello, world" (12 characters). We have put colons around each field so you can see its extent.</p>
+<p><img src="Chapter7/../Images/7-2%20Formatted%20Output%20-%20printf.png" alt="" /></p>
+<p>A warning: <code>printf</code> uses its first argument to decide how many arguments follow and what their type is. It will get confused, and you will get wrong answers, if there are not enough arguments of if they are the wrong type. You should also be aware of the difference between these two calls:</p>
+<pre><code class="language-c">printf(s); /* FAILS if s contains % */
+printf("%s", s); /* SAFE */
+</code></pre>
+<p>The function <code>sprintf</code> does the same conversions as <code>printf</code> does, but stores the output in a string:</p>
+<pre><code class="language-c">int sprintf(char *string, char *format, arg1, arg2, ...);
+</code></pre>
+<p><code>sprintf</code> formats the arguments in arg1, arg2, etc., according to format as before, but places the result in string instead of the standard output; string must be big enough to receive the result.</p>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-2.html"><strong>Exercise 7-2.</strong></a> Write a program that will print arbitrary input in a sensible way. As a minimum, it should print non-graphic characters in octal or hexadecimal according to local custom, and break long text lines.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="variable-length-argument-lists"><a class="header" href="#variable-length-argument-lists">Variable-length Argument Lists</a></h1>
+<p>This section contains an implementation of a minimal version of <code>printf</code>, to show how to write a function that processes a variable-length argument list in a portable way. Since we are mainly interested in the argument processing, <code>minprintf</code> will process the format string and arguments but will call the real <code>printf</code> to do the format conversions.</p>
+<p>The proper declaration for <code>printf</code> is:</p>
+<pre><code class="language-c">int printf(char *fmt, ...)
+</code></pre>
+<p>where the declaration <code>...</code> means that the number and types of these arguments may vary. The declaration <code>...</code> can only appear at the end of an argument list. Our <code>minprintf</code> is declared as</p>
+<pre><code class="language-c">void minprintf(char *fmt, ...)
+</code></pre>
+<p>since we will not return the character count that <code>printf</code> does.</p>
+<p>The tricky bit is how <code>minprintf</code> walks along the argument list when the list doesn't even have a name. The standard header <code>&lt;stdarg.h&gt;</code> contains a set of macro definitions that define how to step through an argument list. The implementation of this header will vary from machine to machine, but the interface it presents is uniform.</p>
+<p>The type <code>va_list</code> is used to declare a variable that will refer to each argument in turn; in <code>minprintf</code>, this variable is called <code>ap</code>, for "argument pointer". The macro <code>va_start</code> initializes <code>ap</code> to point to the first unnamed argument. It must be called once before <code>ap</code> is used. There must be at least one named argument; the final named argument is used by <code>va_start </code> to get started.</p>
+<p>Each call of <code>va_arg</code> returns one argument and steps <code>ap</code> to the next; <code>va_arg</code> uses a type name to determine what type to return and how big a step to take. Finally, <code>va_end</code> does whatever cleanup is necessary. It must be called before the program returns.</p>
+<p>These properties form the basis of our simplified printf:</p>
+<pre><code class="language-c">#include &lt;stdarg.h&gt;
+
+/* minprintf: minimal printf with variable argument list */
+void minprintf(char *fmt, ...)
+{
+    va_list ap; /* points to each unnamed arg in turn */
+    char *p, *sval;
+    int ival;
+    double dval;
+
+    va_start(ap, fmt); /* make ap point to 1st unnamed arg */
+    for (p = fmt; *p; p++) {
+        if (*p != '%') {
+            putchar(*p);
+            continue;
+        }
+        switch (*++p) {
+            case 'd':
+                ival = va_arg(ap, int);
+                printf("%d", ival);
+                break;
+            case 'f':
+                dval = va_arg(ap, double);
+                printf("%f", dval);
+                break;
+            case 's':
+                for (sval = va_arg(ap, char *); *sval; sval++)
+                    putchar(*sval);
+                break;
+            default:
+                putchar(*p);
+                break;
+        }
+    }
+    va_end(ap); /* clean up when done */
+}
+</code></pre>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-3.html"><strong>Exercise 7-3.</strong></a> Revise <code>minprintf</code> to handle more of the other facilities of <code>printf</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="formatted-input---scanf"><a class="header" href="#formatted-input---scanf">Formatted Input - Scanf</a></h1>
+<p>The function <code>scanf</code> is the input analog of <code>printf</code>, providing many of the same conversion facilities in the opposite direction.</p>
+<pre><code class="language-c">int scanf(char *format, ...)
+</code></pre>
+<p><code>scanf</code> reads characters from the standard input, interprets them according to the specification in format, and stores the results through the remaining arguments. The format argument is described below; the other arguments, <em>each of which must be a pointer</em>, indicate where the corresponding converted input should be stored. As with <code>printf</code>, this section is a summary of the most useful features, not an exhaustive list.</p>
+<p><code>scanf</code> stops when it exhausts its format string, or when some input fails to match the control specification. It returns as its value the number of successfully matched and assigned input items. This can be used to decide how many items were found. On the end of file, EOF is returned; note that this is different from <code>0</code>, which means that the next input character does not match the first specification in the format string. The next call to <code>scanf</code> resumes searching immediately after the last character already converted.</p>
+<p>There is also a function <code>sscanf</code> that reads from a string instead of the standard input:</p>
+<pre><code class="language-c">int sscanf(char *string, char *format, arg1, arg2, ...)
+</code></pre>
+<p>It scans the string according to the format in format and stores the resulting values through arg1, arg2, etc. These arguments must be pointers.</p>
+<p>The format string usually contains conversion specifications, which are used to control conversion of input. The format string may contain:</p>
+<ul>
+<li>Blanks or tabs, which are not ignored.</li>
+<li>Ordinary characters (not %), which are expected to match the next non-white space character of the input stream.</li>
+<li>Conversion specifications, consisting of the character %, an optional assignment suppression character *, an optional number specifying a maximum field width, an optional h, l or L indicating the width of the target, and a conversion character.</li>
+</ul>
+<p>A conversion specification directs the conversion of the next input field. Normally the result is places in the variable pointed to by the corresponding argument. If assignment suppression is indicated by the <code>*</code> character, however, the input field is skipped; no assignment is made. An input field is defined as a string of non-white space characters; it extends either to the next white space character or until the field width, if specified, is exhausted. This implies that <code>scanf</code> will read across boundaries to find its input, since newlines are white space. (White space characters are blank, tab, newline, carriage return, vertical tab, and formfeed.)</p>
+<p>The conversion character indicates the interpretation of the input field. The corresponding argument must be a pointer, as required by the call-by-value semantics of C. Conversion characters are shown in Table 7.2.</p>
+<div class="table-wrapper"><table><thead><tr><th>Character</th><th>Input Data; Argument type</th></tr></thead><tbody>
+<tr><td>d</td><td>decimal integer; <code>int *</code></td></tr>
+<tr><td>i</td><td>integer; <code>int *</code>. The integer may be in octal (leading 0) or hexadecimal (leading 0x or 0X).</td></tr>
+<tr><td>o</td><td>octal integer (with or without leading zero); <code>int *</code></td></tr>
+<tr><td>u</td><td>unsigned decimal integer; <code>unsigned int *</code></td></tr>
+<tr><td>x</td><td>hexadecimal integer (with or without leading 0x or 0X); <code>int *</code></td></tr>
+<tr><td>c</td><td>characters; <code>char *</code>. The next input characters (default 1) are placed at the indicated spot. The normal skip-over white space is suppressed; to read the next non-white space character, use <code>%1s</code></td></tr>
+<tr><td>s</td><td>character string (not quoted); <code>char *</code>, pointing to an array of characters long enough for the string and a terminating <code>'\0'</code> that will be added.</td></tr>
+<tr><td>e, f, g</td><td>floating-point number with optional sign, optional decimal point and optional exponent; <code>float *</code></td></tr>
+<tr><td>%</td><td>literal <code>%</code>; no assignment is made.</td></tr>
+</tbody></table>
+</div>
+<p><em>Table 7.2: Basic Scanf Conversions</em></p>
+<p>The conversion characters d, i, o, u, and x may be preceded by h to indicate that a pointer to short rather than int appears in the argument list, or by l (letter ell) to indicate that a pointer to long appears in the argument list.</p>
+<p>As a first example, the rudimentary calculator of <a href="Chapter7/../Chapter4/4-0.html">Chapter 4</a> can be written with <code>scanf</code> to do the input conversion:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+main() /* rudimentary calculator */
+{
+    double sum, v;
+    sum = 0;
+    while (scanf("%lf", &amp;v) == 1)
+        printf("\t%.2f\n", sum += v);
+    return 0;
+}
+</code></pre>
+<p>Suppose we want to read input lines that contain dates of the form</p>
+<pre><code>25 Dec 1988
+</code></pre>
+<p>The <code>scanf</code> statement is</p>
+<pre><code class="language-c">int day, year;
+char monthname[20];
+scanf("%d %s %d", &amp;day, monthname, &amp;year);
+</code></pre>
+<p>No <code>&amp;</code> is used with monthname, since an array name is a pointer.</p>
+<p>Literal characters can appear in the <code>scanf</code> format string; they must match the same characters in the input. So we could read dates of the form <code>mm/dd/yy</code> with the <code>scanf</code> statement:</p>
+<pre><code> int day, month, year;
+ scanf("%d/%d/%d", &amp;month, &amp;day, &amp;year);
+</code></pre>
+<p>scanf ignores blanks and tabs in its format string. Furthermore, it skips over white space (blanks, tabs, newlines, etc.) as it looks for input values. To read input whose format is not fixed, it is often best to read a line at a time, then pick it apart with <code>scanf</code>. For example, suppose we want to read lines that might contain a date in either of the forms above. Then we could write:</p>
+<pre><code class="language-c">while (getline(line, sizeof(line)) &gt; 0) {
+    if (sscanf(line, "%d %s %d", &amp;day, monthname, &amp;year) == 3)
+        printf("valid: %s\n", line); /* 25 Dec 1988 form */
+    else if (sscanf(line, "%d/%d/%d", &amp;month, &amp;day, &amp;year) == 3)
+        printf("valid: %s\n", line); /* mm/dd/yy form */
+    else
+        printf("invalid: %s\n", line); /* invalid form */
+}
+</code></pre>
+<p>Calls to <code>scanf</code> can be mixed with calls to other input functions. The next call to any input function will begin by reading the first character not read by <code>scanf</code>.</p>
+<p>A final warning: the arguments to <code>scanf</code> and <code>sscanf</code> <ins><em>must</em></ins> be pointers. By far the most common error is writing:</p>
+<pre><code class="language-c">scanf("%d", n);
+</code></pre>
+<p>instead of:</p>
+<pre><code class="language-c">scanf("%d", &amp;n);
+</code></pre>
+<p>This error is not generally detected at compile time.</p>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-4.html"><strong>Exercise 7-4.</strong> </a> Write a private version of <code>scanf</code> analogous to <code>minprintf</code> from the previous section.</p>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-5.html"><strong>Exercise 7-5.</strong></a> Rewrite the postfix calculator of <a href="Chapter7/../Chapter4/4-0.html">Chapter 4</a> to use <code>scanf</code> and/or <code>sscanf</code> to do the input and number conversion.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="file-access"><a class="header" href="#file-access">File Access</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="error-handling---stderr-and-exit"><a class="header" href="#error-handling---stderr-and-exit">Error Handling - Stderr and Exit</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="line-input-and-output"><a class="header" href="#line-input-and-output">Line Input and Output</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="miscellaneous-functions"><a class="header" href="#miscellaneous-functions">Miscellaneous Functions</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="string-operations"><a class="header" href="#string-operations">String Operations</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="character-class-testing-and-conversion"><a class="header" href="#character-class-testing-and-conversion">Character Class Testing and Conversion</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ungetc"><a class="header" href="#ungetc">Ungetc</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="command-execution"><a class="header" href="#command-execution">Command Execution</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="storage-management"><a class="header" href="#storage-management">Storage Management</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="mathematical-functions"><a class="header" href="#mathematical-functions">Mathematical Functions</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="random-number-generation"><a class="header" href="#random-number-generation">Random Number Generation</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-8---the-unix-system-interface"><a class="header" href="#chapter-8---the-unix-system-interface">Chapter 8 - The UNIX System Interface</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example---an-implementation-of-fopen-and-getc"><a class="header" href="#example---an-implementation-of-fopen-and-getc">Example - An implementation of Fopen and Getc</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="introduction-1"><a class="header" href="#introduction-1">Introduction</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="conversions"><a class="header" href="#conversions">Conversions</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="expressions"><a class="header" href="#expressions">Expressions</a></h1>
@@ -4228,6 +4455,15 @@ symtab[i].u.sval[0]
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-6-4"><a class="header" href="#exercise-6-4">Exercise 6-4</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-6-5"><a class="header" href="#exercise-6-5">Exercise 6-5</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-6-6"><a class="header" href="#exercise-6-6">Exercise 6-6</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-1"><a class="header" href="#exercise-7-1">Exercise 7-1</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-2"><a class="header" href="#exercise-7-2">Exercise 7-2</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-3"><a class="header" href="#exercise-7-3">Exercise 7-3</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-4"><a class="header" href="#exercise-7-4">Exercise 7-4</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-5"><a class="header" href="#exercise-7-5">Exercise 7-5</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-6"><a class="header" href="#exercise-7-6">Exercise 7-6</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-7"><a class="header" href="#exercise-7-7">Exercise 7-7</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-8"><a class="header" href="#exercise-7-8">Exercise 7-8</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exercise-7-9"><a class="header" href="#exercise-7-9">Exercise 7-9</a></h1>
 
                     </main>
 

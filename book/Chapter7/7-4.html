@@ -153,16 +153,92 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="formatted-input---scanf"><a class="header" href="#formatted-input---scanf">Formatted Input - Scanf</a></h1>
+<p>The function <code>scanf</code> is the input analog of <code>printf</code>, providing many of the same conversion facilities in the opposite direction.</p>
+<pre><code class="language-c">int scanf(char *format, ...)
+</code></pre>
+<p><code>scanf</code> reads characters from the standard input, interprets them according to the specification in format, and stores the results through the remaining arguments. The format argument is described below; the other arguments, <em>each of which must be a pointer</em>, indicate where the corresponding converted input should be stored. As with <code>printf</code>, this section is a summary of the most useful features, not an exhaustive list.</p>
+<p><code>scanf</code> stops when it exhausts its format string, or when some input fails to match the control specification. It returns as its value the number of successfully matched and assigned input items. This can be used to decide how many items were found. On the end of file, EOF is returned; note that this is different from <code>0</code>, which means that the next input character does not match the first specification in the format string. The next call to <code>scanf</code> resumes searching immediately after the last character already converted.</p>
+<p>There is also a function <code>sscanf</code> that reads from a string instead of the standard input:</p>
+<pre><code class="language-c">int sscanf(char *string, char *format, arg1, arg2, ...)
+</code></pre>
+<p>It scans the string according to the format in format and stores the resulting values through arg1, arg2, etc. These arguments must be pointers.</p>
+<p>The format string usually contains conversion specifications, which are used to control conversion of input. The format string may contain:</p>
+<ul>
+<li>Blanks or tabs, which are not ignored.</li>
+<li>Ordinary characters (not %), which are expected to match the next non-white space character of the input stream.</li>
+<li>Conversion specifications, consisting of the character %, an optional assignment suppression character *, an optional number specifying a maximum field width, an optional h, l or L indicating the width of the target, and a conversion character.</li>
+</ul>
+<p>A conversion specification directs the conversion of the next input field. Normally the result is places in the variable pointed to by the corresponding argument. If assignment suppression is indicated by the <code>*</code> character, however, the input field is skipped; no assignment is made. An input field is defined as a string of non-white space characters; it extends either to the next white space character or until the field width, if specified, is exhausted. This implies that <code>scanf</code> will read across boundaries to find its input, since newlines are white space. (White space characters are blank, tab, newline, carriage return, vertical tab, and formfeed.)</p>
+<p>The conversion character indicates the interpretation of the input field. The corresponding argument must be a pointer, as required by the call-by-value semantics of C. Conversion characters are shown in Table 7.2.</p>
+<div class="table-wrapper"><table><thead><tr><th>Character</th><th>Input Data; Argument type</th></tr></thead><tbody>
+<tr><td>d</td><td>decimal integer; <code>int *</code></td></tr>
+<tr><td>i</td><td>integer; <code>int *</code>. The integer may be in octal (leading 0) or hexadecimal (leading 0x or 0X).</td></tr>
+<tr><td>o</td><td>octal integer (with or without leading zero); <code>int *</code></td></tr>
+<tr><td>u</td><td>unsigned decimal integer; <code>unsigned int *</code></td></tr>
+<tr><td>x</td><td>hexadecimal integer (with or without leading 0x or 0X); <code>int *</code></td></tr>
+<tr><td>c</td><td>characters; <code>char *</code>. The next input characters (default 1) are placed at the indicated spot. The normal skip-over white space is suppressed; to read the next non-white space character, use <code>%1s</code></td></tr>
+<tr><td>s</td><td>character string (not quoted); <code>char *</code>, pointing to an array of characters long enough for the string and a terminating <code>'\0'</code> that will be added.</td></tr>
+<tr><td>e, f, g</td><td>floating-point number with optional sign, optional decimal point and optional exponent; <code>float *</code></td></tr>
+<tr><td>%</td><td>literal <code>%</code>; no assignment is made.</td></tr>
+</tbody></table>
+</div>
+<p><em>Table 7.2: Basic Scanf Conversions</em></p>
+<p>The conversion characters d, i, o, u, and x may be preceded by h to indicate that a pointer to short rather than int appears in the argument list, or by l (letter ell) to indicate that a pointer to long appears in the argument list.</p>
+<p>As a first example, the rudimentary calculator of <a href="../Chapter4/4-0.html">Chapter 4</a> can be written with <code>scanf</code> to do the input conversion:</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+main() /* rudimentary calculator */
+{
+    double sum, v;
+    sum = 0;
+    while (scanf("%lf", &amp;v) == 1)
+        printf("\t%.2f\n", sum += v);
+    return 0;
+}
+</code></pre>
+<p>Suppose we want to read input lines that contain dates of the form</p>
+<pre><code>25 Dec 1988
+</code></pre>
+<p>The <code>scanf</code> statement is</p>
+<pre><code class="language-c">int day, year;
+char monthname[20];
+scanf("%d %s %d", &amp;day, monthname, &amp;year);
+</code></pre>
+<p>No <code>&amp;</code> is used with monthname, since an array name is a pointer.</p>
+<p>Literal characters can appear in the <code>scanf</code> format string; they must match the same characters in the input. So we could read dates of the form <code>mm/dd/yy</code> with the <code>scanf</code> statement:</p>
+<pre><code> int day, month, year;
+ scanf("%d/%d/%d", &amp;month, &amp;day, &amp;year);
+</code></pre>
+<p>scanf ignores blanks and tabs in its format string. Furthermore, it skips over white space (blanks, tabs, newlines, etc.) as it looks for input values. To read input whose format is not fixed, it is often best to read a line at a time, then pick it apart with <code>scanf</code>. For example, suppose we want to read lines that might contain a date in either of the forms above. Then we could write:</p>
+<pre><code class="language-c">while (getline(line, sizeof(line)) &gt; 0) {
+    if (sscanf(line, "%d %s %d", &amp;day, monthname, &amp;year) == 3)
+        printf("valid: %s\n", line); /* 25 Dec 1988 form */
+    else if (sscanf(line, "%d/%d/%d", &amp;month, &amp;day, &amp;year) == 3)
+        printf("valid: %s\n", line); /* mm/dd/yy form */
+    else
+        printf("invalid: %s\n", line); /* invalid form */
+}
+</code></pre>
+<p>Calls to <code>scanf</code> can be mixed with calls to other input functions. The next call to any input function will begin by reading the first character not read by <code>scanf</code>.</p>
+<p>A final warning: the arguments to <code>scanf</code> and <code>sscanf</code> <ins><em>must</em></ins> be pointers. By far the most common error is writing:</p>
+<pre><code class="language-c">scanf("%d", n);
+</code></pre>
+<p>instead of:</p>
+<pre><code class="language-c">scanf("%d", &amp;n);
+</code></pre>
+<p>This error is not generally detected at compile time.</p>
+<p><a href="../Solutions/Chapter7/E7-4.html"><strong>Exercise 7-4.</strong> </a> Write a private version of <code>scanf</code> analogous to <code>minprintf</code> from the previous section.</p>
+<p><a href="../Solutions/Chapter7/E7-5.html"><strong>Exercise 7-5.</strong></a> Rewrite the postfix calculator of <a href="../Chapter4/4-0.html">Chapter 4</a> to use <code>scanf</code> and/or <code>sscanf</code> to do the input and number conversion.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter7/7-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter7/7-3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter8/8-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter7/7-5.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +248,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter7/7-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter7/7-3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter8/8-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter7/7-5.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

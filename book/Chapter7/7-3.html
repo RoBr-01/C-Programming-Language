@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - The C Programming Language</title>
+        <title>Variable-length Argument Lists - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,17 +152,67 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+                        <h1 id="variable-length-argument-lists"><a class="header" href="#variable-length-argument-lists">Variable-length Argument Lists</a></h1>
+<p>This section contains an implementation of a minimal version of <code>printf</code>, to show how to write a function that processes a variable-length argument list in a portable way. Since we are mainly interested in the argument processing, <code>minprintf</code> will process the format string and arguments but will call the real <code>printf</code> to do the format conversions.</p>
+<p>The proper declaration for <code>printf</code> is:</p>
+<pre><code class="language-c">int printf(char *fmt, ...)
+</code></pre>
+<p>where the declaration <code>...</code> means that the number and types of these arguments may vary. The declaration <code>...</code> can only appear at the end of an argument list. Our <code>minprintf</code> is declared as</p>
+<pre><code class="language-c">void minprintf(char *fmt, ...)
+</code></pre>
+<p>since we will not return the character count that <code>printf</code> does.</p>
+<p>The tricky bit is how <code>minprintf</code> walks along the argument list when the list doesn't even have a name. The standard header <code>&lt;stdarg.h&gt;</code> contains a set of macro definitions that define how to step through an argument list. The implementation of this header will vary from machine to machine, but the interface it presents is uniform.</p>
+<p>The type <code>va_list</code> is used to declare a variable that will refer to each argument in turn; in <code>minprintf</code>, this variable is called <code>ap</code>, for "argument pointer". The macro <code>va_start</code> initializes <code>ap</code> to point to the first unnamed argument. It must be called once before <code>ap</code> is used. There must be at least one named argument; the final named argument is used by <code>va_start </code> to get started.</p>
+<p>Each call of <code>va_arg</code> returns one argument and steps <code>ap</code> to the next; <code>va_arg</code> uses a type name to determine what type to return and how big a step to take. Finally, <code>va_end</code> does whatever cleanup is necessary. It must be called before the program returns.</p>
+<p>These properties form the basis of our simplified printf:</p>
+<pre><code class="language-c">#include &lt;stdarg.h&gt;
+
+/* minprintf: minimal printf with variable argument list */
+void minprintf(char *fmt, ...)
+{
+    va_list ap; /* points to each unnamed arg in turn */
+    char *p, *sval;
+    int ival;
+    double dval;
+
+    va_start(ap, fmt); /* make ap point to 1st unnamed arg */
+    for (p = fmt; *p; p++) {
+        if (*p != '%') {
+            putchar(*p);
+            continue;
+        }
+        switch (*++p) {
+            case 'd':
+                ival = va_arg(ap, int);
+                printf("%d", ival);
+                break;
+            case 'f':
+                dval = va_arg(ap, double);
+                printf("%f", dval);
+                break;
+            case 's':
+                for (sval = va_arg(ap, char *); *sval; sval++)
+                    putchar(*sval);
+                break;
+            default:
+                putchar(*p);
+                break;
+        }
+    }
+    va_end(ap); /* clean up when done */
+}
+</code></pre>
+<p><a href="../Solutions/Chapter7/E7-3.html"><strong>Exercise 7-3.</strong></a> Revise <code>minprintf</code> to handle more of the other facilities of <code>printf</code>.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter8/8-5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter7/7-2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../AppendixA/A6-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter7/7-4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +222,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter8/8-5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter7/7-2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../AppendixA/A6-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter7/7-4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
