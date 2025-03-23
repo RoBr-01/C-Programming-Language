@@ -75,16 +75,16 @@
     - [Pointers to Functions](Chapter5/5-11.md)                             Done
     - [Complicated Declarations](Chapter5/5-12.md)                          Done
 
-- [Chapter 6 - Structures](Chapter6/6-0.md)
-    - [Basics of Structures]()
-    - [Structures and Functions]()
-    - [Arrays of Structures]()
-    - [Pointers to Structures]()
-    - [Self-referential Structures]()
-    - [Table Lookup]()
-    - [Typedef](Chapter6/6-7.md)
-    - [Unions]()
-    - [Bit-fields]()
+- [Chapter 6 - Structures](Chapter6/6-0.md)                                 Done
+    - [Basics of Structures](Chapter6/6-1.md)                               Done
+    - [Structures and Functions](Chapter6/6-2.md)                           Done
+    - [Arrays of Structures](Chapter6/6-3.md)                               Done
+    - [Pointers to Structures](Chapter6/6-4.md)                             Done
+    - [Self-referential Structures](Chapter6/6-5.md)                        Done
+    - [Table Lookup](Chapter6/6-6.md)                                       Done
+    - [Typedef](Chapter6/6-7.md)                                            Done
+    - [Unions](Chapter6/6-8.md)                                             Done
+    - [Bit-fields](Chapter6/6-9.md)                                         Done
 
 - [Chapter 7 - Input and Output](Chapter7/7-0.md)
     - [Standard Input and Output]()
@@ -301,5 +301,11 @@
         - [Exercise 5-19](Solutions/Chapter5/E5-19.md)
         - [Exercise 5-20](Solutions/Chapter5/E5-20.md)
     - [Chapter 6]()
+        - [Exercise 6-1](Solutions/Chapter6/E6-1.md)
+        - [Exercise 6-2](Solutions/Chapter6/E6-2.md)
+        - [Exercise 6-3](Solutions/Chapter6/E6-3.md)
+        - [Exercise 6-4](Solutions/Chapter6/E6-4.md)
+        - [Exercise 6-5](Solutions/Chapter6/E6-5.md)
+        - [Exercise 6-6](Solutions/Chapter6/E6-6.md)
     - [Chapter 7]()
     - [Chapter 8]()

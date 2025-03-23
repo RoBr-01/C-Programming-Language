@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Exercise 5-20 - The C Programming Language</title>
+        <title>Table Lookup - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -12,32 +12,32 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../../favicon.svg">
-        <link rel="shortcut icon" href="../../favicon.png">
-        <link rel="stylesheet" href="../../css/variables.css">
-        <link rel="stylesheet" href="../../css/general.css">
-        <link rel="stylesheet" href="../../css/chrome.css">
-        <link rel="stylesheet" href="../../css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="../../fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="../../highlight.css">
-        <link rel="stylesheet" href="../../tomorrow-night.css">
-        <link rel="stylesheet" href="../../ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
 
         <!-- Provide site root to javascript -->
         <script>
-            var path_to_root = "../../";
+            var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc.js"></script>
+        <script src="../toc.js"></script>
     </head>
     <body>
     <div id="body-container">
@@ -89,7 +89,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -123,7 +123,7 @@
                     <h1 class="menu-title">The C Programming Language</h1>
 
                     <div class="right-buttons">
-                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
 
@@ -152,17 +152,92 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="exercise-5-20"><a class="header" href="#exercise-5-20">Exercise 5-20</a></h1>
+                        <h1 id="table-lookup"><a class="header" href="#table-lookup">Table Lookup</a></h1>
+<p>In this section we will write the innards of a table-lookup package, to illustrate more aspects of structures. This code is typical of what might be found in the symbol table management routines of a macro processor or a compiler. For example, consider the <code>#define</code> statement. When a line like:</p>
+<pre><code class="language-c">#define IN 1
+</code></pre>
+<p>is encountered, the name IN and the replacement text 1 are stored in a table. Later, when the name <code>IN</code> appears in a statement like:</p>
+<pre><code class="language-c">state = IN;
+</code></pre>
+<p>it must be replaced by 1.</p>
+<p>There are two routines that manipulate the names and replacement texts. <code>install(s,t)</code> records the name s and the replacement text t in a table; s and t are just character strings. <code>lookup(s)</code> searches for s in the table, and returns a pointer to the place where it was found, or NULL if it wasn't there.</p>
+<p>The algorithm is a hash-search - the incoming name is converted into a small non-negative integer, which is then used to index into an array of pointers. An array element points to the beginning of a linked list of blocks describing names that have that hash value. It is NULL if no names have hashed to that value.</p>
+<p><img src="../Images/6-6%20Tabel%20Lookup.png" alt="" /></p>
+<p>A block in the list is a structure containing pointers to the name, the replacement text, and the next block in the list. A null next-pointer marks the end of the list.</p>
+<pre><code class="language-c">struct nlist { /* table entry: */
+    struct nlist *next; /* next entry in chain */
+    char *name; /* defined name */
+    char *defn; /* replacement text */
+};
+</code></pre>
+<p>The pointer array is just:</p>
+<pre><code class="language-c">#define HASHSIZE 101
+static struct nlist *hashtab[HASHSIZE]; /* pointer table */
+</code></pre>
+<p>The hashing function, which is used by both lookup and install, adds each character value in the string to a scrambled combination of the previous ones and returns the remainder modulo the array size. This is not the best possible hash function, but it is short and effective.</p>
+<pre><code class="language-c">/* hash: form hash value for string s */
+unsigned hash(char *s)
+{
+    unsigned hashval;
+    for (hashval = 0; *s != '\0'; s++)
+        hashval = *s + 31 * hashval;
+    return hashval % HASHSIZE;
+}
+</code></pre>
+<p>Unsigned arithmetic ensures that the hash value is non-negative.</p>
+<p>The hashing process produces a starting index in the array <code>hashtab</code>; if the string is to be found anywhere, it will be in the list of blocks beginning there. The search is performed by <code>lookup</code>. If <code>lookup</code> finds the entry already present, it returns a pointer to it; if not, it returns NULL.</p>
+<pre><code class="language-c">/* lookup: look for s in hashtab */
+struct nlist *lookup(char *s)
+{
+    struct nlist *np;
+    for (np = hashtab[hash(s)]; np != NULL; np = np-&gt;next)
+        if (strcmp(s, np-&gt;name) == 0)
+            return np; /* found */
+    return NULL; /* not found */
+}
+</code></pre>
+<p>The for loop in <code>lookup</code> is the standard idiom for walking along a linked list:</p>
+<pre><code class="language-c">for (ptr = head; ptr != NULL; ptr = ptr-&gt;next)
+    ...
+</code></pre>
+<p><code>install</code> uses <code>lookup</code> to determine whether the name being installed is already present; if so, the new definition will supersede the old one. Otherwise, a new entry is created. <code>install</code> returns NULL if for any reason there is no room for a new entry.</p>
+<pre><code class="language-c">struct nlist *lookup(char *);
+char *strdup(char *);
+
+/* install: put (name, defn) in hashtab */
+struct nlist *install(char *name, char *defn)
+{
+    struct nlist *np;
+    unsigned hashval;
+
+    if ((np = lookup(name)) == NULL) { /* not found */
+        np = (struct nlist *) malloc(sizeof(*np));
+        if (np == NULL || (np-&gt;name = strdup(name)) == NULL)
+            return NULL;
+        hashval = hash(name);
+        np-&gt;next = hashtab[hashval];
+        hashtab[hashval] = np;
+    } else /* already there */
+        free((void *) np-&gt;defn); /* free previous defn */
+
+    if ((np-&gt;defn = strdup(defn)) == NULL)
+        return NULL;
+
+    return np;
+}
+</code></pre>
+<p><a href="../Solutions/Chapter6/E6-5.html"><strong>Exercise 6-5.</strong></a> Write a function <code>undef</code> that will remove a name and definition from the table maintained by <code>lookup</code> and <code>install</code>.</p>
+<p><a href="../Solutions/Chapter6/E6-6.html"><strong>Exercise 6-6.</strong></a> Implement a simple version of the <code>#define</code> processor (i.e., no arguments) suitable for use with C programs, based on the routines of this section. You may also find <code>getch</code> and <code>ungetch</code> helpful.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../Solutions/Chapter5/E5-19.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter6/6-5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../Solutions/Chapter6/E6-1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter6/6-7.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +247,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../Solutions/Chapter5/E5-19.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter6/6-5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../Solutions/Chapter6/E6-1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter6/6-7.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
@@ -191,13 +266,13 @@
         </script>
 
 
-        <script src="../../elasticlunr.min.js"></script>
-        <script src="../../mark.min.js"></script>
-        <script src="../../searcher.js"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="../../clipboard.min.js"></script>
-        <script src="../../highlight.js"></script>
-        <script src="../../book.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 

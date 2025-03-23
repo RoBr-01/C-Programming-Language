@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Typedef - The C Programming Language</title>
+        <title>Structures and Functions - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,64 +152,108 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="typedef"><a class="header" href="#typedef">Typedef</a></h1>
-<p>C provides a facility called <code>typedef</code> for creating new data type names. For example, the declaration:</p>
-<pre><code class="language-c">typedef int Length;
-</code></pre>
-<p>makes the name <code>Length</code> a synonym for int. The type <code>Length</code> can be used in declarations, casts, etc., in exactly the same ways that the int type can be:</p>
-<pre><code class="language-c">Length len, maxlen;
-Length *lengths[];
-</code></pre>
-<p>Similarly, the declaration:</p>
-<pre><code class="language-c">typedef char *String;
-</code></pre>
-<p>makes <code>String</code> a synonym for <code>char *</code> or character pointer, which may then be used in declarations and casts:</p>
-<pre><code class="language-c">String p, lineptr[MAXLINES], alloc(int);
-int strcmp(String, String);
-p = (String) malloc(100);
-</code></pre>
-<p>Notice that the type being declared in a typedef appears in the position of a variable name, not right after the word <code>typedef</code>. Syntactically, <code>typedef</code> is like the storage classes <code>extern</code>, <code>static</code>, etc. We have used capitalized names for typedefs, to make them stand out.</p>
-<p>As a more complicated example, we could make typedefs for the tree nodes shown earlier in this chapter:</p>
-<pre><code class="language-c">typedef struct tnode *Treeptr;
-typedef struct tnode { /* the tree node: */
-    char *word; /* points to the text */
-    int count; /* number of occurrences */
-    struct tnode *left; /* left child */
-    struct tnode *right; /* right child */
-} Treenode;
-</code></pre>
-<p>This creates two new type keywords called <code>Treenode</code> (a structure) and <code>Treeptr</code> (a pointer to the structure). Then the routine <code>talloc</code> could become</p>
-<pre><code class="language-c">Treeptr talloc(void)
+                        <h1 id="structures-and-functions"><a class="header" href="#structures-and-functions">Structures and Functions</a></h1>
+<p>The only legal operations on a structure are copying it or assigning to it as a unit, taking its address with <code>&amp;</code>, and accessing its members. Copy and assignment include passing arguments to functions and returning values from functions as well. Structures may <em>not</em> be compared. A structure may be initialized by a list of constant member values; an automatic structure may also be initialized by an assignment.</p>
+<p>Let us investigate structures by writing some functions to manipulate points and rectangles. There are at least three possible approaches: pass components separately, pass an entire structure, or pass a pointer to it. Each has its good points and bad points.</p>
+<p>The first function, <code>makepoint</code>, will take two integers and return a point structure:</p>
+<pre><code class="language-c">/* makepoint: make a point from x and y components */
+struct point makepoint(int x, int y)
 {
-    return (Treeptr) malloc(sizeof(Treenode));
+    struct point temp;
+    temp.x = x;
+    temp.y = y;
+    return temp;
 }
 </code></pre>
-<p>It must be emphasized that a typedef declaration does not create a new type in any sense; it merely adds a new name for some existing type. Nor are there any new semantics: variables declared this way have exactly the same properties as variables whose declarations are spelled out explicitly. In effect, <code>typedef</code> is like <code>#define</code>, except that since it is interpreted by the compiler, it can cope with textual substitutions that are beyond the capabilities of the preprocessor. For example:</p>
-<pre><code class="language-c">typedef int (*PFI)(char *, char *);
+<p>Notice that there is no conflict between the argument name and the member with the same name; indeed the re-use of the names stresses the relationship.</p>
+<p><code>makepoint</code> can now be used to initialize any structure dynamically, or to provide structure arguments to a function:</p>
+<pre><code class="language-c">struct rect screen;
+struct point middle;
+struct point makepoint(int, int);
+
+screen.pt1 = makepoint(0, 0);
+screen.pt2 = makepoint(XMAX, YMAX);
+middle = makepoint((screen.pt1.x + screen.pt2.x) / 2,
+                   (screen.pt1.y + screen.pt2.y) / 2);
 </code></pre>
-<p>creates the type <code>PFI</code>, for "pointer to function (of two char * arguments) returning int",
-which can be used in contexts like:</p>
-<pre><code class="language-c">PFI strcmp, numcmp; 
+<p>The next step is a set of functions to do arithmetic on points. For instance,</p>
+<pre><code class="language-c">/* addpoints: add two points */
+struct point addpoint(struct point p1, struct point p2)
+{
+    p1.x += p2.x;
+    p1.y += p2.y;
+    return p1;
+}
 </code></pre>
-<p>in the sort program of <a href="../Chapter5/5-0.html">Chapter 5</a>.</p>
-<p>Besides purely aesthetic issues, there are two main reasons for using typedefs. The first is to parameterize a program against portability problems. If typedefs are used for data types that may be machine-dependent, only the typedefs need change when the program is moved. One common situation is to use typedef names for various integer quantities, then make an appropriate set of choices of short, int, and long for each host machine. Types like <code>size_t</code> and <code>ptrdiff_t</code> from the standard library are examples.</p>
-<p>The second purpose of typedefs is to provide better documentation for a program - a type called <code>Treeptr</code> may be easier to understand than one declared only as a pointer to a complicated structure.</p>
-<blockquote>
-<p><em><strong>Note</strong></em></p>
-<p>I might be appealing to use typedef for almost everything - "why not give everything a unique name?" - The reality is that by doing so you are obfuscating the true meaning behind the type.
-If you want to read a nice opinion check out the <a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html#typedefs">Linux Kernel Documentation</a>.</p>
-<p>Key takeaway: be mindful about when you use a typedef, often times primitive types say much more about a variable.</p>
-</blockquote>
+<p>Here both the arguments and the return value are structures. We incremented the components in p1 rather than using an explicit temporary variable to emphasize that structure parameters are passed by value like any others.</p>
+<p>As another example, the function <code>ptinrect</code> tests whether a point is inside a rectangle, where we have adopted the convention that a rectangle includes its left and bottom sides but not its top and right sides:</p>
+<pre><code class="language-c">/* ptinrect: return 1 if p in r, 0 if not */
+int ptinrect(struct point p, struct rect r)
+{
+    return p.x &gt;= r.pt1.x &amp;&amp; p.x &lt; r.pt2.x
+        &amp;&amp; p.y &gt;= r.pt1.y &amp;&amp; p.y &lt; r.pt2.y;
+}
+</code></pre>
+<p>This assumes that the rectangle is presented in a standard form where the pt1 coordinates are less than the pt2 coordinates. The following function returns a rectangle guaranteed to be in canonical form:</p>
+<pre><code class="language-c">#define min(a, b) ((a) &lt; (b) ? (a) : (b))
+#define max(a, b) ((a) &gt; (b) ? (a) : (b))
+
+/* canonrect: canonicalize coordinates of rectangle */
+struct rect canonrect(struct rect r)
+{
+    struct rect temp;
+    temp.pt1.x = min(r.pt1.x, r.pt2.x);
+    temp.pt1.y = min(r.pt1.y, r.pt2.y);
+    temp.pt2.x = max(r.pt1.x, r.pt2.x);
+    temp.pt2.y = max(r.pt1.y, r.pt2.y);
+    return temp;
+}
+</code></pre>
+<p>If a large structure is to be passed to a function, it is generally more efficient to pass a pointer than to copy the whole structure. Structure pointers are just like pointers to ordinary variables. The declaration:</p>
+<pre><code class="language-c">struct point *pp;
+</code></pre>
+<p>says that <code>pp</code> is a pointer to a structure of type <code>struct point</code>. If <code>pp</code> points to a point structure, <code>*pp</code> is the structure, and <code>(*pp).x</code> and <code>(*pp).y</code> are the members. To use <code>pp</code>, we might write, for example,</p>
+<pre><code class="language-c">struct point origin, *pp;
+pp = &amp;origin;
+printf("origin is (%d,%d)\n", (*pp).x, (*pp).y);
+</code></pre>
+<p>The parentheses are necessary in <code>(*pp).x</code> because the precedence of the structure member operator <code>.</code> is higher then <code>*</code>. The expression <code>*pp.x</code> means <code>*(pp.x)</code>, which is illegal here because x is not a pointer.</p>
+<p>Pointers to structures are so frequently used that an alternative notation is provided as a shorthand. If p is a pointer to a structure, then</p>
+<pre><code class="language-c">p-&gt;member-of-structure
+</code></pre>
+<p>refers to the particular member. So we could write instead</p>
+<pre><code class="language-c">printf("origin is (%d,%d)\n", pp-&gt;x, pp-&gt;y); 
+</code></pre>
+<p>Both <code>.</code> and <code>-&gt;</code> associate from left to right, so if we have:</p>
+<pre><code class="language-c">struct rect r, *rp = &amp;r; 
+</code></pre>
+<p>then these four expressions are equivalent:</p>
+<pre><code class="language-c">r.pt1.x
+rp-&gt;pt1.x
+(r.pt1).x
+(rp-&gt;pt1).x
+</code></pre>
+<p>The structure operators <code>.</code> and <code>-&gt;</code>, together with <code>()</code> for function calls and <code>[]</code> for subscripts, are at the top of the precedence hierarchy and thus bind very tightly. For example, given the declaration:</p>
+<pre><code class="language-c">struct {
+    int len;
+    char *str;
+} *p;
+</code></pre>
+<p>then:</p>
+<pre><code class="language-c">++p-&gt;len
+</code></pre>
+<p>increments <code>len</code>, not <code>p</code>, because the implied parenthesization is <code>++(p-&gt;len)</code>. Parentheses can be used to alter binding: <code>(++p)-&gt;len</code> increments p before accessing len, and <code>(p++)-&gt;len</code> increments p afterward. (This last set of parentheses is unnecessary.)</p>
+<p>In the same way, <code>*p-&gt;str</code> fetches whatever <code>str</code> points to; <code>*p-&gt;str++</code> increments <code>str</code> after accessing whatever it points to (just like <code>*s++</code>); <code>(*p-&gt;str)++</code> increments whatever <code>str</code> points to; and <code>*p++-&gt;str</code> increments p after accessing whatever <code>str</code> points to.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter6/6-6.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter6/6-1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter6/6-8.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter6/6-3.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -219,11 +263,11 @@ If you want to read a nice opinion check out the <a href="https://www.kernel.org
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter6/6-6.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter6/6-1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter6/6-8.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter6/6-3.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

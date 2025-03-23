@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Typedef - The C Programming Language</title>
+        <title>Arrays of Structures - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,64 +152,152 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="typedef"><a class="header" href="#typedef">Typedef</a></h1>
-<p>C provides a facility called <code>typedef</code> for creating new data type names. For example, the declaration:</p>
-<pre><code class="language-c">typedef int Length;
+                        <h1 id="arrays-of-structures"><a class="header" href="#arrays-of-structures">Arrays of Structures</a></h1>
+<p>Consider writing a program to count the occurrences of each C keyword. We need an array of character strings to hold the names, and an array of integers for the counts. One possibility is to use two parallel arrays, keyword and keycount, as in</p>
+<pre><code class="language-c">char *keyword[NKEYS];
+int keycount[NKEYS];
 </code></pre>
-<p>makes the name <code>Length</code> a synonym for int. The type <code>Length</code> can be used in declarations, casts, etc., in exactly the same ways that the int type can be:</p>
-<pre><code class="language-c">Length len, maxlen;
-Length *lengths[];
+<p>But the very fact that the arrays are parallel suggests a different organization, an array of structures. Each keyword is a pair:</p>
+<pre><code class="language-c">char *word;
+int count;
 </code></pre>
-<p>Similarly, the declaration:</p>
-<pre><code class="language-c">typedef char *String;
+<p>and there is an array of pairs. The structure declaration:</p>
+<pre><code class="language-c">struct key {
+    char *word;
+    int count;
+} keytab[NKEYS];
 </code></pre>
-<p>makes <code>String</code> a synonym for <code>char *</code> or character pointer, which may then be used in declarations and casts:</p>
-<pre><code class="language-c">String p, lineptr[MAXLINES], alloc(int);
-int strcmp(String, String);
-p = (String) malloc(100);
+<p>declares a structure type <code>key</code>, defines an array <code>keytab</code> of structures of this type, and sets aside storage for them. Each element of the array is a structure. This could also be written:</p>
+<pre><code class="language-c">struct key {
+    char *word;
+    int count;
+};
+
+struct key keytab[NKEYS];
 </code></pre>
-<p>Notice that the type being declared in a typedef appears in the position of a variable name, not right after the word <code>typedef</code>. Syntactically, <code>typedef</code> is like the storage classes <code>extern</code>, <code>static</code>, etc. We have used capitalized names for typedefs, to make them stand out.</p>
-<p>As a more complicated example, we could make typedefs for the tree nodes shown earlier in this chapter:</p>
-<pre><code class="language-c">typedef struct tnode *Treeptr;
-typedef struct tnode { /* the tree node: */
-    char *word; /* points to the text */
-    int count; /* number of occurrences */
-    struct tnode *left; /* left child */
-    struct tnode *right; /* right child */
-} Treenode;
+<p>Since the structure <code>keytab</code> contains a constant set of names, it is easiest to make it an external variable and initialize it once and for all when it is defined. The structure initialization is analogous to earlier ones - the definition is followed by a list of initializers enclosed in braces:</p>
+<pre><code class="language-c">struct key {
+    char *word;
+    int count;
+} keytab[] = {
+    "auto", 0,
+    "break", 0,
+    "case", 0,
+    "char", 0,
+    "const", 0,
+    "continue", 0,
+    "default", 0,
+    /* ... */
+    "unsigned", 0,
+    "void", 0,
+    "volatile", 0,
+    "while", 0
+};
 </code></pre>
-<p>This creates two new type keywords called <code>Treenode</code> (a structure) and <code>Treeptr</code> (a pointer to the structure). Then the routine <code>talloc</code> could become</p>
-<pre><code class="language-c">Treeptr talloc(void)
-{
-    return (Treeptr) malloc(sizeof(Treenode));
+<p>The initializers are listed in pairs corresponding to the structure members. It would be more precise to enclose the initializers for each "row" or structure in braces, as in:</p>
+<pre><code class="language-c">{ "auto", 0 },
+{ "break", 0 },
+{ "case", 0 },
+...
+</code></pre>
+<p>but inner braces are not necessary when the initializers are simple variables or character strings, and when all are present. As usual, the number of entries in the array <code>keytab</code> will be computed if the initializers are present and the <code>[]</code> is left empty.</p>
+<p>The keyword counting program begins with the definition of <code>keytab</code>. The <code>main</code> routine reads the input by repeatedly calling a function <code>getword</code> that fetches one word at a time. Each word is looked up in <code>keytab</code> with a version of the binary search function that we wrote in <a href="../Chapter3/3-0.html">Chapter 3</a>. The list of keywords must be sorted in increasing order in the table.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;ctype.h&gt;
+#include &lt;string.h&gt;
+#define MAXWORD 100
+
+int getword(char *, int);
+int binsearch(char *, struct key *, int);
+
+/* count C keywords */
+main() {
+    int n;
+    char word[MAXWORD];
+    while (getword(word, MAXWORD) != EOF)
+        if (isalpha(word[0]))
+            if ((n = binsearch(word, keytab, NKEYS)) &gt;= 0)
+                keytab[n].count++;
+    for (n = 0; n &lt; NKEYS; n++)
+        if (keytab[n].count &gt; 0)
+            printf("%4d %s\n", keytab[n].count, keytab[n].word);
+    return 0;
+}
+
+/* binsearch: find word in tab[0]...tab[n-1] */
+int binsearch(char *word, struct key tab[], int n) {
+    int cond;
+    int low, high, mid;
+    low = 0;
+    high = n - 1;
+    while (low &lt;= high) {
+        mid = (low + high) / 2;
+        if ((cond = strcmp(word, tab[mid].word)) &lt; 0)
+            high = mid - 1;
+        else if (cond &gt; 0)
+            low = mid + 1;
+        else
+            return mid;
+    }
+    return -1;
 }
 </code></pre>
-<p>It must be emphasized that a typedef declaration does not create a new type in any sense; it merely adds a new name for some existing type. Nor are there any new semantics: variables declared this way have exactly the same properties as variables whose declarations are spelled out explicitly. In effect, <code>typedef</code> is like <code>#define</code>, except that since it is interpreted by the compiler, it can cope with textual substitutions that are beyond the capabilities of the preprocessor. For example:</p>
-<pre><code class="language-c">typedef int (*PFI)(char *, char *);
+<p>We will show the function <code>getword</code> in a moment; for now it suffices to say that each call to <code>getword</code> finds a word, which is copied into the array named as its first argument.</p>
+<p>The quantity <code>NKEYS</code> is the number of keywords in <code>keytab</code>. Although we could count this by hand, it's a lot easier and safer to do it by machine, especially if the list is subject to change. One possibility would be to terminate the list of initializers with a null pointer, then loop along <code>keytab</code> until the end is found.</p>
+<p>But this is more than is needed, since the size of the array is completely determined at compile time. The size of the array is the size of one entry times the number of entries, so the number of entries is just:</p>
+<pre><code>*size of* keytab / *size of* struct key
 </code></pre>
-<p>creates the type <code>PFI</code>, for "pointer to function (of two char * arguments) returning int",
-which can be used in contexts like:</p>
-<pre><code class="language-c">PFI strcmp, numcmp; 
+<p>C provides a compile-time unary operator called <code>sizeof</code> that can be used to compute the size of any object. The expressions:</p>
+<pre><code class="language-c">sizeof object
 </code></pre>
-<p>in the sort program of <a href="../Chapter5/5-0.html">Chapter 5</a>.</p>
-<p>Besides purely aesthetic issues, there are two main reasons for using typedefs. The first is to parameterize a program against portability problems. If typedefs are used for data types that may be machine-dependent, only the typedefs need change when the program is moved. One common situation is to use typedef names for various integer quantities, then make an appropriate set of choices of short, int, and long for each host machine. Types like <code>size_t</code> and <code>ptrdiff_t</code> from the standard library are examples.</p>
-<p>The second purpose of typedefs is to provide better documentation for a program - a type called <code>Treeptr</code> may be easier to understand than one declared only as a pointer to a complicated structure.</p>
-<blockquote>
-<p><em><strong>Note</strong></em></p>
-<p>I might be appealing to use typedef for almost everything - "why not give everything a unique name?" - The reality is that by doing so you are obfuscating the true meaning behind the type.
-If you want to read a nice opinion check out the <a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html#typedefs">Linux Kernel Documentation</a>.</p>
-<p>Key takeaway: be mindful about when you use a typedef, often times primitive types say much more about a variable.</p>
-</blockquote>
+<p>and</p>
+<pre><code class="language-c">sizeof(type name)
+</code></pre>
+<p>yield an integer equal to the size of the specified object or type in bytes. (Strictly, <code>sizeof</code> produces an unsigned integer value whose type, <code>size_t</code>, is defined in the header <code>&lt;stddef.h&gt;</code>.) An object can be a variable or array or structure. A type name can be the name of a basic type like int or double, or a derived type like a structure or a pointer.</p>
+<p>In our case, the number of keywords is the size of the array divided by the size of one element. This computation is used in a <code>#define</code> statement to set the value of <code>NKEYS</code>:</p>
+<pre><code class="language-c">#define NKEYS (sizeof keytab / sizeof(struct key))
+</code></pre>
+<p>Another way to write this is to divide the array size by the size of a specific element:</p>
+<pre><code class="language-c">#define NKEYS (sizeof keytab / sizeof(keytab[0]))
+</code></pre>
+<p>This has the advantage that it does not need to be changed if the type changes.
+A <code>sizeof</code> can not be used in a <code>#if</code> line, because the preprocessor does not parse type names. But the expression in the <code>#define</code> is not evaluated by the preprocessor, so the code here is legal.</p>
+<p>Now for the function <code>getword</code>. We have written a more general <code>getword</code> than is necessary for this program, but it is not complicated. <code>getword</code> fetches the next "word" from the input, where a word is either a string of letters and digits beginning with a letter, or a single nonwhite space character. The function value is the first character of the word, or EOF for end of file, or the character itself if it is not alphabetic.</p>
+<pre><code class="language-c">/* getword: get next word or character from input */
+int getword(char *word, int lim)
+{
+    int c, getch(void);
+    void ungetch(int);
+    char *w = word;
+    while (isspace(c = getch()))
+        ;
+    if (c != EOF)
+        *w++ = c;
+    if (!isalpha(c)) {
+        *w = '\0';
+        return c;
+    }
+    for ( ; --lim &gt; 0; w++)
+        if (!isalnum(*w = getch())) {
+            ungetch(*w);
+            break;
+        }
+    *w = '\0';
+    return word[0];
+}
+</code></pre>
+<p><code>getword</code> uses the <code>getch</code> and <code>ungetch</code> that we wrote in <a href="../Chapter4/4-0.html">Chapter 4</a>. When the collection of an alphanumeric token stops, <code>getword</code> has gone one character too far. The call to <code>ungetch</code> pushes that character back on the input for the next call. <code>getword</code> also uses <code>isspace</code> to skip whitespace, <code>isalpha</code> to identify letters, and <code>isalnum</code> to identify letters and digits; all are from the standard header <code>&lt;ctype.h&gt;</code>.</p>
+<p><a href="../Solutions/Chapter6/E6-1.html"><strong>Exercise 6-1.</strong></a> Our version of <code>getword</code> does not properly handle underscores, string constants, comments, or preprocessor control lines. Write a better version.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter6/6-6.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter6/6-2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter6/6-8.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter6/6-4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -219,11 +307,11 @@ If you want to read a nice opinion check out the <a href="https://www.kernel.org
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter6/6-6.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter6/6-2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter6/6-8.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter6/6-4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

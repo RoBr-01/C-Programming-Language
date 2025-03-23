@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Exercise 5-20 - The C Programming Language</title>
+        <title>Bit-fields - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -12,32 +12,32 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../../favicon.svg">
-        <link rel="shortcut icon" href="../../favicon.png">
-        <link rel="stylesheet" href="../../css/variables.css">
-        <link rel="stylesheet" href="../../css/general.css">
-        <link rel="stylesheet" href="../../css/chrome.css">
-        <link rel="stylesheet" href="../../css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="../../fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="../../highlight.css">
-        <link rel="stylesheet" href="../../tomorrow-night.css">
-        <link rel="stylesheet" href="../../ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
 
         <!-- Provide site root to javascript -->
         <script>
-            var path_to_root = "../../";
+            var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc.js"></script>
+        <script src="../toc.js"></script>
     </head>
     <body>
     <div id="body-container">
@@ -89,7 +89,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -123,7 +123,7 @@
                     <h1 class="menu-title">The C Programming Language</h1>
 
                     <div class="right-buttons">
-                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
 
@@ -152,17 +152,60 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="exercise-5-20"><a class="header" href="#exercise-5-20">Exercise 5-20</a></h1>
+                        <h1 id="bit-fields"><a class="header" href="#bit-fields">Bit-fields</a></h1>
+<p>When storage space is at a premium, it may be necessary to pack several objects into a single machine word; one common use is a set of single-bit flags in applications like compiler symbol tables. Externally-imposed data formats, such as interfaces to hardware devices, also often require the ability to get at pieces of a word.</p>
+<p>Imagine a fragment of a compiler that manipulates a symbol table. Each identifier in a program has certain information associated with it, for example, whether or not it is a keyword, whether or not it is external and/or static, and so on. The most compact way to encode such information is a set of one-bit flags in a single char or int.</p>
+<p>The usual way this is done is to define a set of "masks" corresponding to the relevant bit positions, as in:</p>
+<pre><code class="language-c">#define KEYWORD  01
+#define EXTRENAL 02
+#define STATIC   04
+</code></pre>
+<p>or:</p>
+<pre><code class="language-c">enum { KEYWORD = 01, EXTERNAL = 02, STATIC = 04 };
+</code></pre>
+<p>The numbers must be powers of two. Then accessing the bits becomes a matter of "bitfiddling" with the shifting, masking, and complementing operators that were described in <a href="../Chapter2/2-0.html">Chapter 2</a>.</p>
+<p>Certain idioms appear frequently:</p>
+<pre><code class="language-c">flags |= EXTERNAL | STATIC;
+</code></pre>
+<p>turns on the EXTERNAL and STATIC bits in flags, while:</p>
+<pre><code class="language-c">flags &amp;= ~(EXTERNAL | STATIC);
+</code></pre>
+<p>turns them off, and:</p>
+<pre><code class="language-c">if ((flags &amp; (EXTERNAL | STATIC)) == 0)
+    ...
+</code></pre>
+<p>is true if both bits are off.</p>
+<p>Although these idioms are readily mastered, as an alternative C offers the capability of defining and accessing fields within a word directly rather than by bitwise logical operators. A <em>bit-field</em>, or <em>field</em> for short, is a set of adjacent bits within a single implementation-defined storage unit that we will call a "word". For example, the symbol table #defines above could be replaced by the definition of three fields:</p>
+<pre><code class="language-c">struct {
+    unsigned int is_keyword : 1;
+    unsigned int is_extern : 1;
+    unsigned int is_static : 1;
+ } flags;
+</code></pre>
+<p>This defines a variable table called <code>flags</code> that contains three 1-bit fields. The number following the colon represents the field width in bits. The fields are declared unsigned int to ensure that they are unsigned quantities.</p>
+<p>Individual fields are referenced in the same way as other structure members: flags.is_keyword, flags.is_extern, etc. Fields behave like small integers, and may participate in arithmetic expressions just like other integers. Thus the previous examples may be written more naturally as:</p>
+<pre><code class="language-c">flags.is_extern = flags.is_static = 1;
+</code></pre>
+<p>to turn the bits on;</p>
+<pre><code class="language-c">flags.is_extern = flags.is_static = 0; 
+</code></pre>
+<p>to turn them off; and</p>
+<pre><code class="language-c">if (flags.is_extern == 0 &amp;&amp; flags.is_static == 0)
+    ...
+</code></pre>
+<p>to test them.</p>
+<p>Almost everything about fields is implementation-dependent. Whether a field may overlap a word boundary is implementation-defined. Fields need not be names; unnamed fields (a colon and width only) are used for padding. The special width 0 may be used to force alignment at the next word boundary.</p>
+<p>Fields are assigned left to right on some machines and right to left on others. This means that although fields are useful for maintaining internally-defined data structures, the question of which end comes first has to be carefully considered when picking apart externally-defined data; programs that depend on such things are not portable. Fields may be declared only as ints; for portability, specify signed or unsigned explicitly. <ins>They are not arrays and they do not have addresses, so the <code>&amp;</code> operator cannot be applied on them.</ins></p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../Solutions/Chapter5/E5-19.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter6/6-8.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../Solutions/Chapter6/E6-1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter7/7-0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +215,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../Solutions/Chapter5/E5-19.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter6/6-8.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../Solutions/Chapter6/E6-1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter7/7-0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
@@ -191,13 +234,13 @@
         </script>
 
 
-        <script src="../../elasticlunr.min.js"></script>
-        <script src="../../mark.min.js"></script>
-        <script src="../../searcher.js"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="../../clipboard.min.js"></script>
-        <script src="../../highlight.js"></script>
-        <script src="../../book.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 

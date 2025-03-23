@@ -1,0 +1,326 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Self-referential Structures - The C Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The C Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="self-referential-structures"><a class="header" href="#self-referential-structures">Self-referential Structures</a></h1>
+<p>Suppose we want to handle the more general problem of counting the occurrences of <em>all</em> the words in some input. Since the list of words isn't known in advance, we can't conveniently sort it and use a binary search. Yet we can't do a linear search for each word as it arrives, to see if it's already been seen; the program would take too long. (More precisely, its running time is likely to grow quadratically with the number of input words.) How can we organize the data to copy efficiently with a list or arbitrary words?</p>
+<p>One solution is to keep the set of words seen so far sorted at all times, by placing each word into its proper position in the order as it arrives. This shouldn't be done by shifting words in a linear array, though - that also takes too long. Instead we will use a data structure called a <em>binary tree</em>.</p>
+<p>The tree contains one "node" per distinct word; each node contains:</p>
+<ul>
+<li>A pointer to the text of the word,</li>
+<li>A count of the number of occurrences,</li>
+<li>A pointer to the left child node,</li>
+<li>A pointer to the right child node.</li>
+</ul>
+<p>No node may have more than two children; it might have only zero or one.</p>
+<p>The nodes are maintained so that at any node the left subtree contains only words that are lexicographically less than the word at the node, and the right subtree contains only words that are greater. This is the tree for the sentence "now is the time for all good men to come to the aid of their party", as built by inserting each word as it is encountered:</p>
+<p><img src="../Images/6-5%20Self-referential%20Structures.png" alt="" /></p>
+<p>To find out whether a new word is already in the tree, start at the root and compare the new word to the word stored at that node. If they match, the question is answered affirmatively. If the new record is less than the tree word, continue searching at the left child, otherwise at the right child. If there is no child in the required direction, the new word is not in the tree, and in fact the empty slot is the proper place to add the new word. This process is recursive, since the search from any node uses a search from one of its children. Accordingly, recursive routines for insertion and printing will be most natural.</p>
+<p>Going back to the description of a node, it is most conveniently represented as a structure with four components:</p>
+<pre><code class="language-c">struct tnode {           /* the tree node: */
+    char *word;          /* points to the text */
+    int count;           /* number of occurrences */
+    struct tnode *left;  /* left child */
+    struct tnode *right; /* right child */
+};
+</code></pre>
+<p>This recursive declaration of a node might look chancy, but it's correct. <ins>It is illegal for a structure to contain an instance of itself</ins>, but:</p>
+<pre><code class="language-c">struct tnode *left;
+</code></pre>
+<p>declares <code>left</code> to be a <em>pointer</em> to a <code>tnode</code>, not a <code>tnode</code> itself.</p>
+<p>Occasionally, one needs a variation of self-referential structures: two structures that refer to each other. The way to handle this is:</p>
+<pre><code class="language-c">struct t {
+    ...
+    struct s *p; /* p points to an s */
+};
+struct s {
+    ...
+    struct t *q; /* q points to a t */
+};
+</code></pre>
+<p>The code for the whole program is surprisingly small, given a handful of supporting routines like <code>getword</code> that we have already written. The <code>main</code> routine reads words with <code>getword</code> and installs them in the tree with <code>addtree</code>.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;ctype.h&gt;
+#include &lt;string.h&gt;
+#define MAXWORD 100
+
+struct tnode *addtree(struct tnode *, char *);
+void treeprint(struct tnode *);
+int getword(char *, int);
+
+/* word frequency count */
+int main()
+{
+    struct tnode *root;
+    char word[MAXWORD];
+
+    root = NULL;
+    while (getword(word, MAXWORD) != EOF)
+        if (isalpha(word[0]))
+            root = addtree(root, word);
+    treeprint(root);
+    return 0;
+}
+</code></pre>
+<p>The function <code>addtree</code> is recursive. A word is presented by <code>main</code> to the top level (the root) of the tree. At each stage, that word is compared to the word already stored at the node, and is percolated down to either the left or right subtree by a recursive call to <code>addtree</code>. Eventually, the word either matches something already in the tree (in which case the count is incremented), or a null pointer is encountered, indicating that a node must be created and added to the tree. If a new node is created, <code>addtree</code> returns a pointer to it, which is installed in the parent node.</p>
+<pre><code class="language-c">struct tnode *talloc(void);
+char *strdup(char *);
+
+/* addtree: add a node with w, at or below p */
+struct tnode *addtree(struct tnode *p, char *w)
+{
+    int cond;
+    if (p == NULL) { /* a new word has arrived */
+        p = talloc(); /* make a new node */
+        p-&gt;word = strdup(w);
+        p-&gt;count = 1;
+        p-&gt;left = p-&gt;right = NULL;
+    } else if ((cond = strcmp(w, p-&gt;word)) == 0)
+        p-&gt;count++; /* repeated word */
+    else if (cond &lt; 0) /* less than into left subtree */
+        p-&gt;left = addtree(p-&gt;left, w);
+    else /* greater than into right subtree */
+        p-&gt;right = addtree(p-&gt;right, w);
+    return p;
+}
+</code></pre>
+<p>Storage for the new node is fetched by a routine <code>talloc</code>, which returns a pointer to a free space suitable for holding a tree node, and the new word is copied into a hidden space by <code>strdup</code>. (We will discuss these routines in a moment.) The count is initialized, and the two children are made null. This part of the code is executed only at the leaves of the tree, when a new node is being added. We have (unwisely) omitted error checking on the values returned by <code>strdup</code> and <code>talloc</code>.</p>
+<p><code>treeprint</code> prints the tree in sorted order; at each node, it prints the left subtree (all the words less than this word), then the word itself, then the right subtree (all the words greater). If you feel shaky about how recursion works, simulate treeprint as it operates on the tree shown above.</p>
+<pre><code class="language-c">/* treeprint: in-order print of tree p */
+void treeprint(struct tnode *p)
+{
+    if (p != NULL) {
+        treeprint(p-&gt;left);
+        printf("%4d %s\n", p-&gt;count, p-&gt;word);
+        treeprint(p-&gt;right);
+    }
+}
+</code></pre>
+<p>A practical note: if the tree becomes "unbalanced" because the words don't arrive in random order, the running time of the program can grow too much. As a worst case, if the words are already in order, this program does an expensive simulation of linear search. There are generalizations of the binary tree that do not suffer from this worst-case behavior, but we will not describe them here.</p>
+<p>Before leaving this example, it is also worth a brief digression on a problem related to storage allocators. Clearly it's desirable that there be only one storage allocator in a program, even though it allocates different kinds of objects. But if one allocator is to process requests for, say, pointers to chars and pointers to struct tnodes, two questions arise. First, how does it meet the requirement of most real machines that objects of certain types must satisfy alignment restrictions (for example, integers often must be located at even addresses)? Second, what declarations can cope with the fact that an allocator must necessarily return different kinds of pointers?</p>
+<p>Alignment requirements can generally be satisfied easily, at the cost of some wasted space, by ensuring that the allocator always returns a pointer that meets <em>all</em> alignment restrictions. The alloc of <a href="../Chapter5/5-0.html">Chapter 5</a> does not guarantee any particular alignment, so we will use the standard library function <code>malloc</code>, which does. In <a href="../Chapter8/8-0.html">Chapter 8</a> we will show one way to implement <code>malloc</code>.</p>
+<p>The question of the type declaration for a function like <code>malloc</code> is a vexing one for any language that takes its type-checking seriously. In C, the proper method is to declare that <code>malloc</code> returns a pointer to void, then explicitly coerce the pointer into the desired type with a cast. <code>malloc</code> and related routines are declared in the standard header <code>&lt;stdlib.h&gt;</code>. Thus <code>talloc</code> can be written as:</p>
+<pre><code class="language-c">#include &lt;stdlib.h&gt;
+/* talloc: make a tnode */
+struct tnode *talloc(void)
+{
+    return (struct tnode *) malloc(sizeof(struct tnode));
+}
+</code></pre>
+<p><code>strdup</code> merely copies the string given by its argument into a safe place, obtained by a call on <code>malloc</code>:</p>
+<pre><code class="language-c">char *strdup(char *s) /* make a duplicate of s */
+{
+    char *p;
+    p = (char *) malloc(strlen(s) + 1); /* +1 for '\0' */
+    if (p != NULL)
+        strcpy(p, s);
+    return p;
+}
+</code></pre>
+<p><code>malloc</code> returns NULL if no space is available; <code>strdup</code> passes that value on, leaving errorhandling to its caller.</p>
+<p>Storage obtained by calling <code>malloc</code> may be freed for re-use by calling <code>free</code>; see <a href="../Chapter8/8-0.html">Chapters 8</a> and <a href="../Chapter7/7-0.html">Chapter 7</a>.</p>
+<p><a href="../Solutions/Chapter6/E6-2.html"><strong>Exercise 6-2.</strong></a> Write a program that reads a C program and prints in alphabetical order each group of variable names that are identical in the first 6 characters, but different somewhere thereafter. Don't count words within strings and comments. Make 6 a parameter that can be set from the command line.</p>
+<p><a href="../Solutions/Chapter6/E6-3.html"><strong>Exercise 6-3.</strong></a> Write a cross-referencer that prints a list of all words in a document, and for each word, a list of the line numbers on which it occurs. Remove noise words like "the", "and", and so on.</p>
+<p><a href="../Solutions/Chapter6/E6-4.html"><strong>Exercise 6-4.</strong></a> Write a program that prints the distinct words in its input sorted into decreasing order of frequency of occurrence. Precede each word by its count.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Chapter6/6-4.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Chapter6/6-6.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Chapter6/6-4.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Chapter6/6-6.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

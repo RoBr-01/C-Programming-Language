@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Exercise 5-20 - The C Programming Language</title>
+        <title>Basics of Structures - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -12,32 +12,32 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../../favicon.svg">
-        <link rel="shortcut icon" href="../../favicon.png">
-        <link rel="stylesheet" href="../../css/variables.css">
-        <link rel="stylesheet" href="../../css/general.css">
-        <link rel="stylesheet" href="../../css/chrome.css">
-        <link rel="stylesheet" href="../../css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="../../fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="../../highlight.css">
-        <link rel="stylesheet" href="../../tomorrow-night.css">
-        <link rel="stylesheet" href="../../ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
 
         <!-- Provide site root to javascript -->
         <script>
-            var path_to_root = "../../";
+            var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc.js"></script>
+        <script src="../toc.js"></script>
     </head>
     <body>
     <div id="body-container">
@@ -89,7 +89,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -123,7 +123,7 @@
                     <h1 class="menu-title">The C Programming Language</h1>
 
                     <div class="right-buttons">
-                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
 
@@ -152,17 +152,66 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="exercise-5-20"><a class="header" href="#exercise-5-20">Exercise 5-20</a></h1>
+                        <h1 id="basics-of-structures"><a class="header" href="#basics-of-structures">Basics of Structures</a></h1>
+<p>Let us create a few structures suitable for graphics. The basic object is a point, which we will assume has an <em>x</em> coordinate and a <em>y</em> coordinate, both integers.</p>
+<p><img src="../Images/6-1%20Basics%20Of%20Structures%2001.png" alt="" /></p>
+<p>The two components can be placed in a structure declared like this:</p>
+<pre><code class="language-c">struct point {
+    int x;
+    int y;
+};
+</code></pre>
+<p>The keyword <code>struct</code> introduces a structure declaration, which is a list of declarations enclosed in braces. An optional name called a <em>structure tag</em> may follow the word struct (as with point here). The tag names this kind of structure, and can be used subsequently as a shorthand for the part of the declaration in braces.</p>
+<p>The variables named in a structure are called <em>members</em>. A structure member or tag and an ordinary (i.e., non-member) variable can have the same name without conflict, since they can always be distinguished by context. Furthermore, the same member names may occur in different structures, although as a matter of style one would normally use the same names only for closely related objects.</p>
+<p>A struct declaration defines a type. The right brace that terminates the list of members may be followed by a list of variables, just as for any basic type. That is,</p>
+<pre><code class="language-c">struct { ... } x, y, z;
+</code></pre>
+<p>is syntactically analogous to:</p>
+<pre><code class="language-c">int x, y, z;
+</code></pre>
+<p>in the sense that each statement declares x, y and z to be variables of the named type and causes space to be set aside for them.</p>
+<p>A structure declaration that is not followed by a list of variables reserves no storage; it merely describes a template or shape of a structure. If the declaration is tagged, however, the tag can be used later in definitions of instances of the structure. For example, given the declaration of point above,</p>
+<pre><code class="language-c">struct point pt;
+</code></pre>
+<p>defines a variable <em>pt</em> which is a structure of type <code>struct point</code>. A structure can be initialized by following its definition with a list of initializers, each a constant expression, for the members:</p>
+<pre><code class="language-c">struct maxpt = { 320, 200 };
+</code></pre>
+<p>An automatic structure may also be initialized by assignment or by calling a function that returns a structure of the right type.</p>
+<p>A member of a particular structure is referred to in an expression by a construction of the form</p>
+<pre><code>structure-name.member
+</code></pre>
+<p>The structure member operator <code>.</code> connects the structure name and the member name. To print the coordinates of the point <em>pt</em>, for instance,</p>
+<pre><code class="language-c">printf("%d,%d", pt.x, pt.y);
+</code></pre>
+<p>or to compute the distance from the origin (0,0) to pt,</p>
+<pre><code class="language-c">double dist, sqrt(double);
+
+dist = sqrt((double)pt.x * pt.x + (double)pt.y * pt.y);
+</code></pre>
+<p>Structures can be nested. One representation of a rectangle is a pair of points that denote the diagonally opposite corners:</p>
+<p><img src="../Images/6-1%20Basics%20Of%20Structures%2002.png" alt="" /></p>
+<pre><code class="language-c">struct rect {
+    struct point pt1;
+    struct point pt2;
+};
+</code></pre>
+<p>The <code>rect</code> structure contains two <code>point</code> structures. If we declare screen as:</p>
+<pre><code class="language-c">struct rect screen;
+</code></pre>
+<p>then</p>
+<pre><code class="language-c">screen.pt1.x
+</code></pre>
+<p>refers to the <em>x</em> coordinate of the pt1 member of screen.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../Solutions/Chapter5/E5-19.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter6/6-0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../Solutions/Chapter6/E6-1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter6/6-2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +221,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../Solutions/Chapter5/E5-19.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter6/6-0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../Solutions/Chapter6/E6-1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter6/6-2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
@@ -191,13 +240,13 @@
         </script>
 
 
-        <script src="../../elasticlunr.min.js"></script>
-        <script src="../../mark.min.js"></script>
-        <script src="../../searcher.js"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="../../clipboard.min.js"></script>
-        <script src="../../highlight.js"></script>
-        <script src="../../book.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 
