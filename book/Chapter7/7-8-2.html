@@ -153,7 +153,18 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="character-class-testing-and-conversion"><a class="header" href="#character-class-testing-and-conversion">Character Class Testing and Conversion</a></h1>
-
+<p>Several functions from <code>&lt;ctype.h&gt;</code> perform character tests and conversions. In the following, c is an int that can be represented as an unsigned char or EOF. The function returns int.</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td>isalpha(c)</td><td>non-zero if c is alphabetic, 0 if not</td></tr>
+<tr><td>isupper(c)</td><td>non-zero if c is upper case, 0 if not</td></tr>
+<tr><td>islower(c)</td><td>non-zero if c is lower case, 0 if not</td></tr>
+<tr><td>isdigit(c)</td><td>non-zero if c is digit, 0 if not</td></tr>
+<tr><td>isalnum(c)</td><td>non-zero if isalpha(c) or isdigit(c), 0 if not</td></tr>
+<tr><td>isspace(c)</td><td>non-zero if c is blank, tab, newline, return, formfeed, vertical tab</td></tr>
+<tr><td>toupper(c)</td><td>return c converted to upper case</td></tr>
+<tr><td>tolower(c)</td><td>return c converted to lower case</td></tr>
+</tbody></table>
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

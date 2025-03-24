@@ -91,17 +91,17 @@
     - [Formatted Output - printf](Chapter7/7-2.md)                          Done
     - [Variable-length Argument Lists](Chapter7/7-3.md)                     Done
     - [Formatted Input - Scanf](Chapter7/7-4.md)                            Done
-    - [File Access](Chapter7/7-5.md)
-    - [Error Handling - Stderr and Exit](Chapter7/7-6.md)
-    - [Line Input and Output](Chapter7/7-7.md)
-    - [Miscellaneous Functions](Chapter7/7-8.md)
-        - [String Operations](Chapter7/7-8-1.md)
-        - [Character Class Testing and Conversion](Chapter7/7-8-2.md)
-        - [Ungetc](Chapter7/7-8-3.md)
-        - [Command Execution](Chapter7/7-8-4.md)
-        - [Storage Management](Chapter7/7-8-5.md)
-        - [Mathematical Functions](Chapter7/7-8-6.md)
-        - [Random Number Generation](Chapter7/7-8-7.md)
+    - [File Access](Chapter7/7-5.md)                                        Done
+    - [Error Handling - Stderr and Exit](Chapter7/7-6.md)                   Done
+    - [Line Input and Output](Chapter7/7-7.md)                              Done
+    - [Miscellaneous Functions](Chapter7/7-8.md)                            Done
+        - [String Operations](Chapter7/7-8-1.md)                            Done
+        - [Character Class Testing and Conversion](Chapter7/7-8-2.md)       Done
+        - [Ungetc](Chapter7/7-8-3.md)                                       Done
+        - [Command Execution](Chapter7/7-8-4.md)                            Done
+        - [Storage Management](Chapter7/7-8-5.md)                           Done
+        - [Mathematical Functions](Chapter7/7-8-6.md)                       Done
+        - [Random Number Generation](Chapter7/7-8-7.md)                     Done
 
 - [Chapter 8 - The UNIX System Interface](Chapter8/8-0.md)
     - [File Descriptors]()
@@ -110,7 +110,7 @@
     - [Random Access - Lseek]()
     - [Example - An implementation of Fopen and Getc](Chapter8/8-5.md)
     - [Example - Listing Directories]()
-    - [Example - A Storage Allocator]()
+    - [Example - A Storage Allocator](Chapter8/8-7.md)
 
 - [Appendix A - Reference Manual]()
     - [Introduction](AppendixA/A1.md)
@@ -319,5 +319,5 @@
         - [Exercise 7-7](Solutions/Chapter7/E7-7.md)
         - [Exercise 7-8](Solutions/Chapter7/E7-8.md)
         - [Exercise 7-9](Solutions/Chapter7/E7-9.md)
-    - [Chapter 7]()
+
     - [Chapter 8]()

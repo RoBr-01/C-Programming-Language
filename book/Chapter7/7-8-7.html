@@ -153,6 +153,12 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="random-number-generation"><a class="header" href="#random-number-generation">Random Number Generation</a></h1>
+<p>The function <code>rand()</code> computes a sequence of pseudo-random integers in the range zero to RAND_MAX, which is defined in <code>&lt;stdlib.h&gt;</code>. One way to produce random floating-point numbers greater than or equal to zero but less than one is</p>
+<pre><code class="language-c">#define frand() ((double) rand() / (RAND_MAX+1.0))
+</code></pre>
+<p>(If your library already provides a function for floating-point random numbers, it is likely to have better statistical properties than this one.)</p>
+<p>The function <code>srand(unsigned)</code> sets the seed for <code>rand</code>. The portable implementation of <code>rand</code> and <code>srand</code> suggested by the standard appears in <a href="../Chapter2/2-7.html">Section 2.7</a>.</p>
+<p><a href="../Solutions/Chapter7/E7-9.html"><strong>Exercise 7-9.</strong></a> Functions like <code>isupper</code> can be implemented to save space or to save time. Explore both possibilities.</p>
 
                     </main>
 

@@ -153,6 +153,16 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="command-execution"><a class="header" href="#command-execution">Command Execution</a></h1>
+<p>The function <code>system(char *s)</code> executes the command contained in the character string s, then resumes execution of the current program. The contents of s depend strongly on the local operating system. As a trivial example, on UNIX systems, the statement:</p>
+<pre><code class="language-c">system("date");
+</code></pre>
+<p>causes the program <code>date</code> to be run; it prints the date and time of day on the standard output. system returns a system-dependent integer status from the command executed. In the UNIX system, the status return is the value returned by exit.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>You might start to feel a slight tickle when reading the explanation above. And your feeling is absolutely right, this is incredibly dangerous.
+Imagine passing user input to <code>system()</code>, the user inputs "rm -rf /", and presto your entire system is <ins><em>gone</em></ins>.<br />
+Though only slightly exaggerated, please try not to use this function and if you do, make sure to sanitize whatever you pass to it. You have been warned.</p>
+</blockquote>
 
                     </main>
 

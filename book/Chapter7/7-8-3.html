@@ -153,6 +153,10 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="ungetc"><a class="header" href="#ungetc">Ungetc</a></h1>
+<p>The standard library provides a rather restricted version of the function <code>ungetch</code> that we wrote in <a href="../Chapter4/4-0.html">Chapter 4</a>; it is called <code>ungetc</code>.</p>
+<pre><code class="language-c">int ungetc(int c, FILE *fp)
+</code></pre>
+<p>pushes the character c back onto file fp, and returns either c, or EOF for an error. Only one character of pushback is guaranteed per file. <code>ungetc</code> may be used with any of the input functions like <code>scanf</code>, <code>getc</code>, or <code>getchar</code>.</p>
 
                     </main>
 

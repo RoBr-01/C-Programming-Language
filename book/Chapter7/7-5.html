@@ -153,6 +153,75 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="file-access"><a class="header" href="#file-access">File Access</a></h1>
+<p>The examples so far have all read the standard input and written the standard output, which are automatically defined for a program by the local operating system.</p>
+<p>The next step is to write a program that accesses a file that is <em>not</em> already connected to the program. One program that illustrates the need for such operations is <code>cat</code>, which concatenates a set of named files into the standard output. <code>cat</code> is used for printing files on the screen, and as a general-purpose input collector for programs that do not have the capability of accessing files by name. For example, the command:</p>
+<pre><code class="language-sh">cat x.c y.c
+</code></pre>
+<p>prints the contents of the files <code>x.c</code> and <code>y.c</code> (and nothing else) on the standard output.</p>
+<p>The question is how to arrange for the named files to be read - that is, how to connect the external names that a user thinks of to the statements that read the data.</p>
+<p>The rules are simple. Before it can be read or written, a file has to be <em>opened</em> by the library function <code>fopen</code>. <code>fopen</code> takes an external name like <code>x.c</code> or <code>y.c</code>, does some housekeeping and negotiation with the operating system (details of which needn't concern us), and returns a pointer to be used in subsequent reads or writes of the file.</p>
+<p>This pointer, called the <em>file pointer</em>, points to a structure that contains information about the file, such as the location of a buffer, the current character position in the buffer, whether the file is being read or written, and whether errors or end of file have occurred. Users don't need to know the details, because the definitions obtained from <code>&lt;stdio.h&gt;</code> include a structure declaration called FILE. The only declaration needed for a file pointer is exemplified by:</p>
+<pre><code class="language-c">FILE *fp; FILE *fopen(char *name, char *mode);
+</code></pre>
+<p>This says that <code>fp</code> is a pointer to a FILE, and <code>fopen</code> returns a pointer to a FILE. Notice that FILE is a type name, like int, not a structure tag; it is defined with a <code>typedef</code>. (Details of how <code>fopen</code> can be implemented on the UNIX system are given in <a href="../Chapter8/8-5.html">Section 8.5</a>.)</p>
+<p>The call to <code>fopen</code> in a program is:</p>
+<pre><code class="language-c">fp = fopen(name, mode);
+</code></pre>
+<p>The first argument of <code>fopen</code> is a character string containing the name of the file. The second argument is the <em>mode</em>, also a character string, which indicates how one intends to use the file. Allowable modes include read ("r"), write ("w"), and append ("a"). Some systems distinguish between text and binary files; for the latter, a "b" must be appended to the mode string.</p>
+<p>If a file that does not exist is opened for writing or appending, it is created if possible. Opening an existing file for writing causes the old contents to be discarded, while opening for appending preserves them. Trying to read a file that does not exist is an error, and there may be other causes of error as well, like trying to read a file when you don't have permission. If there is any error, <code>fopen</code> will return NULL. (The error can be identified more precisely; see the discussion of error-handling functions at the end of <a href="../AppendixB/B0.html">Section 1 in Appendix B</a>.)</p>
+<p>The next thing needed is a way to read or write the file once it is open. <code>getc</code> returns the next character from a file; it needs the file pointer to tell it which file.</p>
+<pre><code class="language-c">int getc(FILE *fp)
+</code></pre>
+<p><code>getc</code> returns the next character from the stream referred to by fp; it returns EOF for end of file or error.</p>
+<p><code>putc</code> is an output function:</p>
+<pre><code class="language-c">int putc(int c, FILE *fp)
+</code></pre>
+<p><code>putc</code> writes the character c to the file fp and returns the character written, or EOF if an error occurs. Like <code>getchar</code> and <code>putchar</code>, <code>getc</code> and <code>putc</code> may be macros instead of functions.</p>
+<p>When a C program is started, the operating system environment is responsible for opening three files and providing pointers for them. These files are the standard input, the standard output, and the standard error; the corresponding file pointers are called <code>stdin</code>, <code>stdout</code>, and <code>stderr</code>, and are declared in <code>&lt;stdio.h&gt;</code>. Normally <code>stdin</code> is connected to the keyboard and <code>stdout</code> and <code>stderr</code> are connected to the screen, but <code>stdin</code> and <code>stdout</code> may be redirected to files or pipes as described in <a href="../Chapter7/7-1.html">Section 7.1</a>.</p>
+<p><code>getchar</code> and <code>putchar</code> can be defined in terms of <code>getc</code>, <code>putc</code>, <code>stdin</code>, and <code>stdout</code> as follows:</p>
+<pre><code class="language-c">#define getchar() getc(stdin)
+#define putchar(c) putc((c), stdout)
+</code></pre>
+<p>For formatted input or output of files, the functions <code>fscanf</code> and <code>fprintf</code> may be used. These are identical to <code>scanf</code> and <code>printf</code>, except that the first argument is a file pointer that specifies the file to be read or written; the format string is the second argument.</p>
+<pre><code class="language-c">int fscanf(FILE *fp, char *format, ...)
+int fprintf(FILE *fp, char *format, ...)
+</code></pre>
+<p>With these preliminaries out of the way, we are now in a position to write the program <code>cat</code> to concatenate files. The design is one that has been found convenient for many programs. If there are command-line arguments, they are interpreted as filenames, and processed in order. If there are no arguments, the standard input is processed.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+/* cat: concatenate files, version 1 */
+main(int argc, char *argv[])
+{
+    FILE *fp;
+    void filecopy(FILE *, FILE *);
+
+    if (argc == 1) /* no args; copy standard input */
+        filecopy(stdin, stdout);
+    else
+        while (--argc &gt; 0)
+            if ((fp = fopen(*++argv, "r")) == NULL) {
+                printf("cat: can't open %s\n", *argv);
+                return 1;
+            } else {
+                filecopy(fp, stdout);
+                fclose(fp);
+            }
+    return 0;
+}
+
+/* filecopy: copy file ifp to file ofp */
+void filecopy(FILE *ifp, FILE *ofp)
+{
+    int c;
+    while ((c = getc(ifp)) != EOF)
+        putc(c, ofp);
+}
+</code></pre>
+<p>The file pointers <code>stdin</code> and <code>stdout</code> are objects of type <code>FILE *</code>. They are constants, however, <em>not</em> variables, so it is not possible to assign to them.</p>
+<p>The function:</p>
+<pre><code class="language-c">int fclose(FILE *fp)
+</code></pre>
+<p>is the inverse of <code>fopen</code>, it breaks the connection between the file pointer and the external name that was established by <code>fopen</code>, freeing the file pointer for another file. Since most operating systems have some limit on the number of files that a program may have open simultaneously, it's a good idea to free the file pointers when they are no longer needed, as we did in <code>cat</code>. There is also another reason for <code>fclose</code> on an output file - it flushes the buffer in which <code>putc</code> is collecting output. <code>fclose</code> is called automatically for each open file when a program terminates normally. (You can close <code>stdin</code> and <code>stdout</code> if they are not needed. They can also be reassigned by the library function <code>freopen</code>.)</p>
 
                     </main>
 

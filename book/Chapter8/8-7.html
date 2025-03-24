@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Line Input and Output - The C Programming Language</title>
+        <title>Example - A Storage Allocator - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,68 +152,17 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="line-input-and-output"><a class="header" href="#line-input-and-output">Line Input and Output</a></h1>
-<p>The standard library provides an input and output routine <code>fgets</code> that is similar to the <code>getline</code> function that we have used in earlier chapters:</p>
-<pre><code class="language-c">char *fgets(char *line, int maxline, FILE *fp)
-</code></pre>
-<p><code>fgets</code> reads the next input line (including the newline) from file fp into the character array line; at most maxline-1 characters will be read. The resulting line is terminated with <code>\0</code>. Normally <code>fgets</code> returns line; on end of file or error it returns NULL. (Our <code>getline</code> returns the line length, which is a more useful value; zero means end of file.)</p>
-<p>For output, the function <code>fputs</code> writes a string (which need not contain a newline) to a file:</p>
-<pre><code class="language-c">int fputs(char *line, FILE *fp)
-</code></pre>
-<p>It returns EOF if an error occurs, and non-negative otherwise.</p>
-<p>The library functions <code>gets</code> and <code>puts</code> are similar to <code>fgets</code> and <code>fputs</code>, but operate on <code>stdin</code> and <code>stdout</code>. Confusingly, <code>gets</code> deletes the terminating <code>\n</code>, and <code>puts</code> adds it.</p>
-<blockquote>
-<p><em><strong>Note</strong></em></p>
-<p>You shouldn't use <code>gets</code> (or <code>puts</code>), exactly because it removes the newline at the end and replaces is with a null terminator <code>\0</code>. For this reason it is considered "unsafe".</p>
-<p>Use <code>fgets</code> and <code>fputs</code>, they <em>do</em> respect the newlines.</p>
-</blockquote>
-<p>To show that there is nothing special about functions like <code>fgets</code> and <code>fputs</code>, here they are, copied from the standard library on our system:</p>
-<pre><code class="language-c">    /* fgets: get at most n chars from iop */
-    char *fgets(char *s, int n, FILE *iop)
-    {
-        register int c;
-        register char *cs;
-        cs = s;
-        while (--n &gt; 0 &amp;&amp; (c = getc(iop)) != EOF)
-            if ((*cs++ = c) == '\n')
-                break;
-        *cs = '\0';
-        return (c == EOF &amp;&amp; cs == s) ? NULL : s;
-    }
-
-    /* fputs: put string s on file iop */
-    int fputs(char *s, FILE *iop)
-    {
-        int c;
-        while (c = *s++)
-            putc(c, iop);
-        return ferror(iop) ? EOF : 0;
-    }
-</code></pre>
-<p>For no obvious reason, the standard specifies different return values for <code>ferror</code> and <code>fputs</code>.</p>
-<p>It is easy to implement our <code>getline</code> from <code>fgets</code>:</p>
-<pre><code class="language-c">    /* getline: read a line, return length */
-    int getline(char *line, int max)
-    {
-        if (fgets(line, max, stdin) == NULL)
-            return 0;
-        else
-            return strlen(line);
-    }
-</code></pre>
-<p><a href="../Solutions/Chapter7/E7-6.html"><strong>Exercise 7-6.</strong></a> Write a program to compare two files, printing the first line where they differ.</p>
-<p><a href="../Solutions/Chapter7/E7-7.html"><strong>Exercise 7-7.</strong></a> Modify the pattern finding program of <a href="../Chapter5/5-0.html">Chapter 5</a> to take its input from a set of named files or, if no files are named as arguments, from the standard input. Should the file name be printed when a matching line is found?</p>
-<p><a href="../Solutions/Chapter7/E7-8.html"><strong>Exercise 7-8.</strong></a> Write a program to print a set of files, starting each new one on a new page, with a title and a running page count for each file.</p>
+                        <h1 id="example---a-storage-allocator"><a class="header" href="#example---a-storage-allocator">Example - A Storage Allocator</a></h1>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter7/7-6.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter8/8-5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter7/7-8.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../AppendixA/A1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -223,11 +172,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter7/7-6.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter8/8-5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter7/7-8.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../AppendixA/A1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

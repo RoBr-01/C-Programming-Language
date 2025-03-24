@@ -153,7 +153,19 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="string-operations"><a class="header" href="#string-operations">String Operations</a></h1>
-
+<p>We have already mentioned the string functions <code>strlen</code>, <code>strcpy</code>, <code>strcat</code>, and <code>strcmp</code>, found in <code>&lt;string.h&gt;</code>. In the following, s and t are <code>char *</code>'s, and c and n are <code>int</code>s.</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td>strcat(s,t)</td><td>concatenate t to end of s</td></tr>
+<tr><td>strncat(s,t,n)</td><td>concatenate n characters of t to end of s</td></tr>
+<tr><td>strcmp(s,t)</td><td>return negative, zero, or positive for s &lt; t, s == t, s &gt; t</td></tr>
+<tr><td>strncmp(s,t,n)</td><td>same as strcmp but only in first n characters</td></tr>
+<tr><td>strcpy(s,t)</td><td>copy t to s</td></tr>
+<tr><td>strncpy(s,t,n)</td><td>copy at most n characters of t to s</td></tr>
+<tr><td>strlen(s)</td><td>return length of s</td></tr>
+<tr><td>strchr(s,c)</td><td>return pointer to first c in s, or NULL if not present</td></tr>
+<tr><td>strrchr(s,c)</td><td>return pointer to last c in s, or NULL if not present</td></tr>
+</tbody></table>
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

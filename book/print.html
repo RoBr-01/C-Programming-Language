@@ -4356,18 +4356,261 @@ scanf("%d %s %d", &amp;day, monthname, &amp;year);
 <p><a href="Chapter7/../Solutions/Chapter7/E7-4.html"><strong>Exercise 7-4.</strong> </a> Write a private version of <code>scanf</code> analogous to <code>minprintf</code> from the previous section.</p>
 <p><a href="Chapter7/../Solutions/Chapter7/E7-5.html"><strong>Exercise 7-5.</strong></a> Rewrite the postfix calculator of <a href="Chapter7/../Chapter4/4-0.html">Chapter 4</a> to use <code>scanf</code> and/or <code>sscanf</code> to do the input and number conversion.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="file-access"><a class="header" href="#file-access">File Access</a></h1>
+<p>The examples so far have all read the standard input and written the standard output, which are automatically defined for a program by the local operating system.</p>
+<p>The next step is to write a program that accesses a file that is <em>not</em> already connected to the program. One program that illustrates the need for such operations is <code>cat</code>, which concatenates a set of named files into the standard output. <code>cat</code> is used for printing files on the screen, and as a general-purpose input collector for programs that do not have the capability of accessing files by name. For example, the command:</p>
+<pre><code class="language-sh">cat x.c y.c
+</code></pre>
+<p>prints the contents of the files <code>x.c</code> and <code>y.c</code> (and nothing else) on the standard output.</p>
+<p>The question is how to arrange for the named files to be read - that is, how to connect the external names that a user thinks of to the statements that read the data.</p>
+<p>The rules are simple. Before it can be read or written, a file has to be <em>opened</em> by the library function <code>fopen</code>. <code>fopen</code> takes an external name like <code>x.c</code> or <code>y.c</code>, does some housekeeping and negotiation with the operating system (details of which needn't concern us), and returns a pointer to be used in subsequent reads or writes of the file.</p>
+<p>This pointer, called the <em>file pointer</em>, points to a structure that contains information about the file, such as the location of a buffer, the current character position in the buffer, whether the file is being read or written, and whether errors or end of file have occurred. Users don't need to know the details, because the definitions obtained from <code>&lt;stdio.h&gt;</code> include a structure declaration called FILE. The only declaration needed for a file pointer is exemplified by:</p>
+<pre><code class="language-c">FILE *fp; FILE *fopen(char *name, char *mode);
+</code></pre>
+<p>This says that <code>fp</code> is a pointer to a FILE, and <code>fopen</code> returns a pointer to a FILE. Notice that FILE is a type name, like int, not a structure tag; it is defined with a <code>typedef</code>. (Details of how <code>fopen</code> can be implemented on the UNIX system are given in <a href="Chapter7/../Chapter8/8-5.html">Section 8.5</a>.)</p>
+<p>The call to <code>fopen</code> in a program is:</p>
+<pre><code class="language-c">fp = fopen(name, mode);
+</code></pre>
+<p>The first argument of <code>fopen</code> is a character string containing the name of the file. The second argument is the <em>mode</em>, also a character string, which indicates how one intends to use the file. Allowable modes include read ("r"), write ("w"), and append ("a"). Some systems distinguish between text and binary files; for the latter, a "b" must be appended to the mode string.</p>
+<p>If a file that does not exist is opened for writing or appending, it is created if possible. Opening an existing file for writing causes the old contents to be discarded, while opening for appending preserves them. Trying to read a file that does not exist is an error, and there may be other causes of error as well, like trying to read a file when you don't have permission. If there is any error, <code>fopen</code> will return NULL. (The error can be identified more precisely; see the discussion of error-handling functions at the end of <a href="Chapter7/../AppendixB/B0.html">Section 1 in Appendix B</a>.)</p>
+<p>The next thing needed is a way to read or write the file once it is open. <code>getc</code> returns the next character from a file; it needs the file pointer to tell it which file.</p>
+<pre><code class="language-c">int getc(FILE *fp)
+</code></pre>
+<p><code>getc</code> returns the next character from the stream referred to by fp; it returns EOF for end of file or error.</p>
+<p><code>putc</code> is an output function:</p>
+<pre><code class="language-c">int putc(int c, FILE *fp)
+</code></pre>
+<p><code>putc</code> writes the character c to the file fp and returns the character written, or EOF if an error occurs. Like <code>getchar</code> and <code>putchar</code>, <code>getc</code> and <code>putc</code> may be macros instead of functions.</p>
+<p>When a C program is started, the operating system environment is responsible for opening three files and providing pointers for them. These files are the standard input, the standard output, and the standard error; the corresponding file pointers are called <code>stdin</code>, <code>stdout</code>, and <code>stderr</code>, and are declared in <code>&lt;stdio.h&gt;</code>. Normally <code>stdin</code> is connected to the keyboard and <code>stdout</code> and <code>stderr</code> are connected to the screen, but <code>stdin</code> and <code>stdout</code> may be redirected to files or pipes as described in <a href="Chapter7/../Chapter7/7-1.html">Section 7.1</a>.</p>
+<p><code>getchar</code> and <code>putchar</code> can be defined in terms of <code>getc</code>, <code>putc</code>, <code>stdin</code>, and <code>stdout</code> as follows:</p>
+<pre><code class="language-c">#define getchar() getc(stdin)
+#define putchar(c) putc((c), stdout)
+</code></pre>
+<p>For formatted input or output of files, the functions <code>fscanf</code> and <code>fprintf</code> may be used. These are identical to <code>scanf</code> and <code>printf</code>, except that the first argument is a file pointer that specifies the file to be read or written; the format string is the second argument.</p>
+<pre><code class="language-c">int fscanf(FILE *fp, char *format, ...)
+int fprintf(FILE *fp, char *format, ...)
+</code></pre>
+<p>With these preliminaries out of the way, we are now in a position to write the program <code>cat</code> to concatenate files. The design is one that has been found convenient for many programs. If there are command-line arguments, they are interpreted as filenames, and processed in order. If there are no arguments, the standard input is processed.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+/* cat: concatenate files, version 1 */
+main(int argc, char *argv[])
+{
+    FILE *fp;
+    void filecopy(FILE *, FILE *);
+
+    if (argc == 1) /* no args; copy standard input */
+        filecopy(stdin, stdout);
+    else
+        while (--argc &gt; 0)
+            if ((fp = fopen(*++argv, "r")) == NULL) {
+                printf("cat: can't open %s\n", *argv);
+                return 1;
+            } else {
+                filecopy(fp, stdout);
+                fclose(fp);
+            }
+    return 0;
+}
+
+/* filecopy: copy file ifp to file ofp */
+void filecopy(FILE *ifp, FILE *ofp)
+{
+    int c;
+    while ((c = getc(ifp)) != EOF)
+        putc(c, ofp);
+}
+</code></pre>
+<p>The file pointers <code>stdin</code> and <code>stdout</code> are objects of type <code>FILE *</code>. They are constants, however, <em>not</em> variables, so it is not possible to assign to them.</p>
+<p>The function:</p>
+<pre><code class="language-c">int fclose(FILE *fp)
+</code></pre>
+<p>is the inverse of <code>fopen</code>, it breaks the connection between the file pointer and the external name that was established by <code>fopen</code>, freeing the file pointer for another file. Since most operating systems have some limit on the number of files that a program may have open simultaneously, it's a good idea to free the file pointers when they are no longer needed, as we did in <code>cat</code>. There is also another reason for <code>fclose</code> on an output file - it flushes the buffer in which <code>putc</code> is collecting output. <code>fclose</code> is called automatically for each open file when a program terminates normally. (You can close <code>stdin</code> and <code>stdout</code> if they are not needed. They can also be reassigned by the library function <code>freopen</code>.)</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="error-handling---stderr-and-exit"><a class="header" href="#error-handling---stderr-and-exit">Error Handling - Stderr and Exit</a></h1>
+<p>The treatment of errors in <code>cat</code> is not ideal. The trouble is that if one of the files can't be accessed for some reason, the diagnostic is printed at the end of the concatenated output. That might be acceptable if the output is going to a screen, but not if it's going into a file or into another program via a pipeline.</p>
+<p>To handle this situation better, a second output stream, called <code>stderr</code>, is assigned to a program in the same way that <code>stdin</code> and <code>stdout</code> are. Output written on <code>stderr</code> normally appears on the screen even if the standard output is redirected.</p>
+<p>Let us revise <code>cat</code> to write its error messages on the standard error.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+/* cat: concatenate files, version 2 */
+main(int argc, char *argv[])
+{
+    FILE *fp;
+    void filecopy(FILE *, FILE *);
+    char *prog = argv[0]; /* program name for errors */
+
+    if (argc == 1) /* no args; copy standard input */
+        filecopy(stdin, stdout);
+    else
+        while (--argc &gt; 0)
+            if ((fp = fopen(*++argv, "r")) == NULL) {
+                fprintf(stderr, "%s: can't open %s\n", prog, *argv);
+                exit(1);
+            } else {
+                filecopy(fp, stdout);
+                fclose(fp);
+            }
+
+    if (ferror(stdout)) {
+        fprintf(stderr, "%s: error writing stdout\n", prog);
+        exit(2);
+    }
+
+    exit(0);
+}
+</code></pre>
+<p>The program signals errors in two ways. First, the diagnostic output produced by <code>fprintf</code> goes to <code>stderr</code>, so it finds its way to the screen instead of disappearing down a pipeline or into an output file. We included the program name, from argv[0], in the message, so if this program is used with others, the source of an error is identified.</p>
+<p>Second, the program uses the standard library function <code>exit</code>, which terminates program execution when it is called. The argument of <code>exit</code> is available to whatever process called this one, so the success or failure of the program can be tested by another program that uses this one as a sub-process. Conventionally, a return value of 0 signals that all is well; non-zero values usually signal abnormal situations. <code>exit</code> calls <code>fclose</code> for each open output file, to flush out any buffered output.</p>
+<p>Within <code>main</code>, <code>return *expr*</code> is equivalent to <code>exit(*expr*)</code>. <code>exit</code> has the advantage that it can be called from other functions, and that calls to it can be found with a pattern-searching program like those in <a href="Chapter7/../Chapter5/5-0.html">Chapter 5</a>.</p>
+<p>The function <code>ferror</code> returns non-zero if an error occurred on the stream fp.</p>
+<pre><code class="language-c">int ferror(FILE *fp)
+</code></pre>
+<p>Although output errors are rare, they do occur (for example, if a disk fills up), so a production program should check this as well.</p>
+<p>The function <code>feof(FILE *)</code> is analogous to <code>ferror</code>; it returns non-zero if end of file has occurred on the specified file.</p>
+<pre><code class="language-c">int feof(FILE *fp)
+</code></pre>
+<p>We have generally not worried about exit status in our small illustrative programs, but any serious program should take care to return sensible, useful status values.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="line-input-and-output"><a class="header" href="#line-input-and-output">Line Input and Output</a></h1>
+<p>The standard library provides an input and output routine <code>fgets</code> that is similar to the <code>getline</code> function that we have used in earlier chapters:</p>
+<pre><code class="language-c">char *fgets(char *line, int maxline, FILE *fp)
+</code></pre>
+<p><code>fgets</code> reads the next input line (including the newline) from file fp into the character array line; at most maxline-1 characters will be read. The resulting line is terminated with <code>\0</code>. Normally <code>fgets</code> returns line; on end of file or error it returns NULL. (Our <code>getline</code> returns the line length, which is a more useful value; zero means end of file.)</p>
+<p>For output, the function <code>fputs</code> writes a string (which need not contain a newline) to a file:</p>
+<pre><code class="language-c">int fputs(char *line, FILE *fp)
+</code></pre>
+<p>It returns EOF if an error occurs, and non-negative otherwise.</p>
+<p>The library functions <code>gets</code> and <code>puts</code> are similar to <code>fgets</code> and <code>fputs</code>, but operate on <code>stdin</code> and <code>stdout</code>. Confusingly, <code>gets</code> deletes the terminating <code>\n</code>, and <code>puts</code> adds it.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>You shouldn't use <code>gets</code> (or <code>puts</code>), exactly because it removes the newline at the end and replaces is with a null terminator <code>\0</code>. For this reason it is considered "unsafe".</p>
+<p>Use <code>fgets</code> and <code>fputs</code>, they <em>do</em> respect the newlines.</p>
+</blockquote>
+<p>To show that there is nothing special about functions like <code>fgets</code> and <code>fputs</code>, here they are, copied from the standard library on our system:</p>
+<pre><code class="language-c">    /* fgets: get at most n chars from iop */
+    char *fgets(char *s, int n, FILE *iop)
+    {
+        register int c;
+        register char *cs;
+        cs = s;
+        while (--n &gt; 0 &amp;&amp; (c = getc(iop)) != EOF)
+            if ((*cs++ = c) == '\n')
+                break;
+        *cs = '\0';
+        return (c == EOF &amp;&amp; cs == s) ? NULL : s;
+    }
+
+    /* fputs: put string s on file iop */
+    int fputs(char *s, FILE *iop)
+    {
+        int c;
+        while (c = *s++)
+            putc(c, iop);
+        return ferror(iop) ? EOF : 0;
+    }
+</code></pre>
+<p>For no obvious reason, the standard specifies different return values for <code>ferror</code> and <code>fputs</code>.</p>
+<p>It is easy to implement our <code>getline</code> from <code>fgets</code>:</p>
+<pre><code class="language-c">    /* getline: read a line, return length */
+    int getline(char *line, int max)
+    {
+        if (fgets(line, max, stdin) == NULL)
+            return 0;
+        else
+            return strlen(line);
+    }
+</code></pre>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-6.html"><strong>Exercise 7-6.</strong></a> Write a program to compare two files, printing the first line where they differ.</p>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-7.html"><strong>Exercise 7-7.</strong></a> Modify the pattern finding program of <a href="Chapter7/../Chapter5/5-0.html">Chapter 5</a> to take its input from a set of named files or, if no files are named as arguments, from the standard input. Should the file name be printed when a matching line is found?</p>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-8.html"><strong>Exercise 7-8.</strong></a> Write a program to print a set of files, starting each new one on a new page, with a title and a running page count for each file.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="miscellaneous-functions"><a class="header" href="#miscellaneous-functions">Miscellaneous Functions</a></h1>
+<p>The standard library provides a wide variety of functions. This section is a brief synopsis of the most useful. More details and many other functions can be found in <a href="Chapter7/../AppendixB/B0.html">Appendix B</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="string-operations"><a class="header" href="#string-operations">String Operations</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="character-class-testing-and-conversion"><a class="header" href="#character-class-testing-and-conversion">Character Class Testing and Conversion</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="ungetc"><a class="header" href="#ungetc">Ungetc</a></h1>
+<p>We have already mentioned the string functions <code>strlen</code>, <code>strcpy</code>, <code>strcat</code>, and <code>strcmp</code>, found in <code>&lt;string.h&gt;</code>. In the following, s and t are <code>char *</code>'s, and c and n are <code>int</code>s.</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td>strcat(s,t)</td><td>concatenate t to end of s</td></tr>
+<tr><td>strncat(s,t,n)</td><td>concatenate n characters of t to end of s</td></tr>
+<tr><td>strcmp(s,t)</td><td>return negative, zero, or positive for s &lt; t, s == t, s &gt; t</td></tr>
+<tr><td>strncmp(s,t,n)</td><td>same as strcmp but only in first n characters</td></tr>
+<tr><td>strcpy(s,t)</td><td>copy t to s</td></tr>
+<tr><td>strncpy(s,t,n)</td><td>copy at most n characters of t to s</td></tr>
+<tr><td>strlen(s)</td><td>return length of s</td></tr>
+<tr><td>strchr(s,c)</td><td>return pointer to first c in s, or NULL if not present</td></tr>
+<tr><td>strrchr(s,c)</td><td>return pointer to last c in s, or NULL if not present</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="character-class-testing-and-conversion"><a class="header" href="#character-class-testing-and-conversion">Character Class Testing and Conversion</a></h1>
+<p>Several functions from <code>&lt;ctype.h&gt;</code> perform character tests and conversions. In the following, c is an int that can be represented as an unsigned char or EOF. The function returns int.</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td>isalpha(c)</td><td>non-zero if c is alphabetic, 0 if not</td></tr>
+<tr><td>isupper(c)</td><td>non-zero if c is upper case, 0 if not</td></tr>
+<tr><td>islower(c)</td><td>non-zero if c is lower case, 0 if not</td></tr>
+<tr><td>isdigit(c)</td><td>non-zero if c is digit, 0 if not</td></tr>
+<tr><td>isalnum(c)</td><td>non-zero if isalpha(c) or isdigit(c), 0 if not</td></tr>
+<tr><td>isspace(c)</td><td>non-zero if c is blank, tab, newline, return, formfeed, vertical tab</td></tr>
+<tr><td>toupper(c)</td><td>return c converted to upper case</td></tr>
+<tr><td>tolower(c)</td><td>return c converted to lower case</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="ungetc"><a class="header" href="#ungetc">Ungetc</a></h1>
+<p>The standard library provides a rather restricted version of the function <code>ungetch</code> that we wrote in <a href="Chapter7/../Chapter4/4-0.html">Chapter 4</a>; it is called <code>ungetc</code>.</p>
+<pre><code class="language-c">int ungetc(int c, FILE *fp)
+</code></pre>
+<p>pushes the character c back onto file fp, and returns either c, or EOF for an error. Only one character of pushback is guaranteed per file. <code>ungetc</code> may be used with any of the input functions like <code>scanf</code>, <code>getc</code>, or <code>getchar</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-execution"><a class="header" href="#command-execution">Command Execution</a></h1>
+<p>The function <code>system(char *s)</code> executes the command contained in the character string s, then resumes execution of the current program. The contents of s depend strongly on the local operating system. As a trivial example, on UNIX systems, the statement:</p>
+<pre><code class="language-c">system("date");
+</code></pre>
+<p>causes the program <code>date</code> to be run; it prints the date and time of day on the standard output. system returns a system-dependent integer status from the command executed. In the UNIX system, the status return is the value returned by exit.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>You might start to feel a slight tickle when reading the explanation above. And your feeling is absolutely right, this is incredibly dangerous.
+Imagine passing user input to <code>system()</code>, the user inputs "rm -rf /", and presto your entire system is <ins><em>gone</em></ins>.<br />
+Though only slightly exaggerated, please try not to use this function and if you do, make sure to sanitize whatever you pass to it. You have been warned.</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="storage-management"><a class="header" href="#storage-management">Storage Management</a></h1>
+<p>The functions <code>malloc</code> and <code>calloc</code> obtain blocks of memory dynamically.</p>
+<pre><code class="language-c">void *malloc(size_t n)
+</code></pre>
+<p>returns a pointer to n bytes of <em>uninitialized</em> storage, or NULL if the request cannot be satisfied.</p>
+<pre><code class="language-c">void *calloc(size_t n, size_t size)
+</code></pre>
+<p>returns a pointer to enough free space for an array of n objects of the specified size, or NULL if the request cannot be satisfied. <ins>The storage is initialized to zero</ins>.</p>
+<p>The pointer returned by <code>malloc</code> or <code>calloc</code> has the proper alignment for the object in question, but it must be cast into the appropriate type, as in:</p>
+<pre><code class="language-c">int *ip;
+ip = (int *) calloc(n, sizeof(int));
+</code></pre>
+<p><code>free(p)</code> frees the space pointed to by p, where p was originally obtained by a call to <code>malloc</code> or <code>calloc</code>. There are no restrictions on the order in which space is freed, but it is a ghastly error to free something not obtained by calling <code>malloc</code> or <code>calloc</code>.</p>
+<p>It is also an error to use something after it has been freed. A typical but incorrect piece of code is this loop that frees items from a list:</p>
+<pre><code class="language-c">for (p = head; p != NULL; p = p-&gt;next) /* WRONG */ 
+    free(p);
+</code></pre>
+<p>The right way is to save whatever is needed before freeing:</p>
+<pre><code class="language-c">for (p = head; p != NULL; p = q) {
+    q = p-&gt;next;
+    free(p);
+}
+</code></pre>
+<p><a href="Chapter7/../Chapter8/8-7.html">Section 8.7</a> shows the implementation of a storage allocator like <code>malloc</code>, in which allocated blocks may be freed in any order.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mathematical-functions"><a class="header" href="#mathematical-functions">Mathematical Functions</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="random-number-generation"><a class="header" href="#random-number-generation">Random Number Generation</a></h1>
+<p>There are more than twenty mathematical functions declared in <code>&lt;math.h&gt;</code>; here are some of the more frequently used. Each takes one or two double arguments and returns a double.</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td>sin(x)</td><td>sine of x, x in radians</td></tr>
+<tr><td>cos(x)</td><td>cosine of x, x in radians</td></tr>
+<tr><td>atan2(y, x)</td><td>arctangent of y/x, in radians</td></tr>
+<tr><td>exp(x)</td><td>exponential function of x, base e</td></tr>
+<tr><td>log(x)</td><td>natural (base e) logarithm of x (x &gt; 0)</td></tr>
+<tr><td>log10(x)</td><td>common (base 10) logarithm of x (x &gt; 0)</td></tr>
+<tr><td>pow(x, y)</td><td>x raised to the power of y</td></tr>
+<tr><td>sqrt(x)</td><td>square root of x (x &gt; 0)</td></tr>
+<tr><td>fabs(x)</td><td>absolute value of x</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="random-number-generation"><a class="header" href="#random-number-generation">Random Number Generation</a></h1>
+<p>The function <code>rand()</code> computes a sequence of pseudo-random integers in the range zero to RAND_MAX, which is defined in <code>&lt;stdlib.h&gt;</code>. One way to produce random floating-point numbers greater than or equal to zero but less than one is</p>
+<pre><code class="language-c">#define frand() ((double) rand() / (RAND_MAX+1.0))
+</code></pre>
+<p>(If your library already provides a function for floating-point random numbers, it is likely to have better statistical properties than this one.)</p>
+<p>The function <code>srand(unsigned)</code> sets the seed for <code>rand</code>. The portable implementation of <code>rand</code> and <code>srand</code> suggested by the standard appears in <a href="Chapter7/../Chapter2/2-7.html">Section 2.7</a>.</p>
+<p><a href="Chapter7/../Solutions/Chapter7/E7-9.html"><strong>Exercise 7-9.</strong></a> Functions like <code>isupper</code> can be implemented to save space or to save time. Explore both possibilities.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-8---the-unix-system-interface"><a class="header" href="#chapter-8---the-unix-system-interface">Chapter 8 - The UNIX System Interface</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="example---an-implementation-of-fopen-and-getc"><a class="header" href="#example---an-implementation-of-fopen-and-getc">Example - An implementation of Fopen and Getc</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example---a-storage-allocator"><a class="header" href="#example---a-storage-allocator">Example - A Storage Allocator</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="introduction-1"><a class="header" href="#introduction-1">Introduction</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="conversions"><a class="header" href="#conversions">Conversions</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="expressions"><a class="header" href="#expressions">Expressions</a></h1>
