@@ -103,13 +103,13 @@
         - [Mathematical Functions](Chapter7/7-8-6.md)                       Done
         - [Random Number Generation](Chapter7/7-8-7.md)                     Done
 
-- [Chapter 8 - The UNIX System Interface](Chapter8/8-0.md)
-    - [File Descriptors]()
-    - [Low Level I/O - Read and Write]()
-    - [Open, Creat, Close, Unlink]()
-    - [Random Access - Lseek]()
+- [Chapter 8 - The UNIX System Interface](Chapter8/8-0.md)                  Done
+    - [File Descriptors](Chapter8/8-1.md)                                   Done
+    - [Low Level I/O - Read and Write](Chapter8/8-2.md)                     Done
+    - [Open, Creat, Close, Unlink](Chapter8/8-3.md)                         Done
+    - [Random Access - Lseek](Chapter8/8-4.md)
     - [Example - An implementation of Fopen and Getc](Chapter8/8-5.md)
-    - [Example - Listing Directories]()
+    - [Example - Listing Directories](Chapter8/8-6.md)
     - [Example - A Storage Allocator](Chapter8/8-7.md)
 
 - [Appendix A - Reference Manual]()
@@ -216,7 +216,7 @@
 
 - [Appendix C - Summary of Changes](AppendixC.md)
 
-- [Solutions]()
+- [Solutions](Solutions/Solutions.md)
     - [Chapter 1]()
         - [Exercise 1-1](Solutions/Chapter1/E1-1.md)
         - [Exercise 1-2](Solutions/Chapter1/E1-2.md)
@@ -321,3 +321,11 @@
         - [Exercise 7-9](Solutions/Chapter7/E7-9.md)
 
     - [Chapter 8]()
+        - [Exercise 8-1](Solutions/Chapter8/E8-1.md)
+        - [Exercise 8-2](Solutions/Chapter8/E8-2.md)
+        - [Exercise 8-3](Solutions/Chapter8/E8-3.md)
+        - [Exercise 8-4](Solutions/Chapter8/E8-4.md)
+        - [Exercise 8-5](Solutions/Chapter8/E8-5.md)
+        - [Exercise 8-6](Solutions/Chapter8/E8-6.md)
+        - [Exercise 8-7](Solutions/Chapter8/E8-7.md)
+        - [Exercise 8-8](Solutions/Chapter8/E8-8.md)

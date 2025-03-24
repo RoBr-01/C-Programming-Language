@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 8 - The UNIX System Interface - The C Programming Language</title>
+        <title>Open, Creat, Close, Unlink - The C Programming Language</title>
 
 
         <!-- Custom HTML head -->
@@ -152,20 +152,95 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-8---the-unix-system-interface"><a class="header" href="#chapter-8---the-unix-system-interface">Chapter 8 - The UNIX System Interface</a></h1>
-<p>The UNIX operating system provides its services through a set of <em>system calls</em>, which are in effect functions within the operating system that may be called by user programs. This chapter describes how to use some of the most important system calls from C programs. If you use UNIX, this should be directly helpful, for it is sometimes necessary to employ system calls for maximum efficiency, or to access some facility that is not in the library. Even if you use C on a different operating system, however, you should be able to glean insight into C programming from studying these examples; although details vary, similar code will be found on any system. Since the ANSI C library is in many cases modeled on UNIX facilities, this code may help your understanding of the library as well.</p>
-<p>This chapter is divided into three major parts: input/output, file system, and storage allocation. The first two parts assume a modest familiarity with the external characteristics of UNIX systems.</p>
-<p><a href="../Chapter7/7-0.html">Chapter 7</a> was concerned with an input/output interface that is uniform across operating systems. On any particular system the routines of the standard library have to be written in terms of the facilities provided by the host system. In the next few sections we will describe the UNIX system calls for input and output, and show how parts of the standard library can be implemented with them.</p>
+                        <h1 id="open-creat-close-unlink"><a class="header" href="#open-creat-close-unlink">Open, Creat, Close, Unlink</a></h1>
+<p>Other than the default standard input, output and error, you must explicitly open files in order to read or write them. There are two system calls for this, <code>open</code> and <code>creat</code>.</p>
+<blockquote>
+<p><em><strong>Note</strong></em></p>
+<p>That spelling is correct, it is <code>creat</code> and not <code>create</code>. The UNIX tradition aims to keep function names as short as possible (and yes <code>unlink</code> is an odd one out...)</p>
+</blockquote>
+<p><code>open</code> is rather like the <code>fopen</code> discussed in <a href="../Chapter7/7-0.html">Chapter 7</a>, except that instead of returning a file pointer, it returns a file descriptor, which is just an int. <code>open</code> returns -1 if any error occurs.</p>
+<pre><code class="language-c">#include &lt;fcntl.h&gt;
+int fd;
+int open(char *name, int flags, int perms);
+fd = open(name, flags, perms);
+</code></pre>
+<p>As with <code>fopen</code>, the "name" argument is a character string containing the filename. The second argument, flags, is an int that specifies how the file is to be opened; the main values are:</p>
+<ul>
+<li><code>O_RDONLY</code> : open for reading only</li>
+<li><code>O_WRONLY</code> : open for writing only</li>
+<li><code>O_RDWR</code>   : open for both reading and writing</li>
+</ul>
+<p>These constants are defined in <code>&lt;fcntl.h&gt;</code> on System V UNIX systems, and in <code>&lt;sys/file.h&gt;</code> on Berkeley (BSD) versions.</p>
+<p>To open an existing file for reading,</p>
+<pre><code class="language-c">fd = open(name, O_RDONLY,0);
+</code></pre>
+<p>The "perms" argument is always zero for the uses of <code>open</code> that we will discuss.</p>
+<p>It is an error to try to open a file that does not exist. The system call <code>creat</code> is provided to create new files, or to re-write old ones.</p>
+<pre><code class="language-c">int creat(char *name, int perms);
+fd = creat(name, perms);
+</code></pre>
+<p>returns a file descriptor if it was able to create the file, and -1 if not. If the file already exists, <code>creat</code> will truncate it to zero length, thereby discarding its previous contents; it is not an error to <code>creat</code> a file that already exists.</p>
+<p>If the file does not already exist, <code>creat</code> creates it with the permissions specified by the "perms" argument. In the UNIX file system, there are nine bits of permission information associated with a file that control read, write and execute access for the owner of the file, for the owner's group, and for all others. Thus a three-digit octal number is convenient for specifying the permissions. For example, <code>0775</code> specifies read, write and execute permission for the owner, and read and execute permission for the group and everyone else.</p>
+<p>To illustrate, here is a simplified version of the UNIX program <code>cp</code>, which copies one file to another. Our version copies only one file, it does not permit the second argument to be a directory, and it invents permissions instead of copying them.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;fcntl.h&gt;
+#include "syscalls.h"
+#define PERMS 0666 /* RW for owner, group, others */
+
+void error(char *, ...);
+
+/* cp: copy f1 to f2 */
+main(int argc, char *argv[])
+{
+    int f1, f2, n;
+    char buf[BUFSIZ];
+
+    if (argc != 3)
+        error("Usage: cp from to");
+
+    if ((f1 = open(argv[1], O_RDONLY, 0)) == -1)
+        error("cp: can't open %s", argv[1]);
+
+    if ((f2 = creat(argv[2], PERMS)) == -1)
+        error("cp: can't create %s, mode %03o", argv[2], PERMS);
+
+    while ((n = read(f1, buf, BUFSIZ)) &gt; 0)
+        if (write(f2, buf, n) != n)
+            error("cp: write error on file %s", argv[2]);
+
+    return 0;
+}
+</code></pre>
+<p>This program creates the output file with fixed permissions of <code>0666</code>. With the <code>stat</code> system call, described in <a href="../Chapter8/8-6.html">Section 8.6</a>, we can determine the mode of an existing file and thus give the same mode to the copy.</p>
+<p>Notice that the function <code>error</code> is called with variable argument lists much like <code>printf</code>. The implementation of <code>error</code> illustrates how to use another member of the <code>printf</code> family. The standard library function <code>vprintf</code> is like <code>printf</code> except that the variable argument list is replaced by a single argument that has been initialized by calling the <code>va_start</code> macro. Similarly, <code>vfprintf</code> and <code>vsprintf</code> match <code>fprintf</code> and <code>sprintf</code>.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdarg.h&gt;
+
+/* error: print an error message and die */
+void error(char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    fprintf(stderr, "error: ");
+    vprintf(fmt, args);
+    fprintf(stderr, "\n");
+    va_end(args);
+    exit(1);
+}
+</code></pre>
+<p>There is a limit (often about 20) on the number of files that a program may open simultaneously. Accordingly, any program that intends to process many files must be prepared to re-use file descriptors. The function c<code>lose(int fd)</code> breaks the connection between a file descriptor and an open file, and frees the file descriptor for use with some other file; it corresponds to fclose in the standard library except that there is no buffer to flush. Termination of a program via <code>exit</code> or <code>return</code> from the main program closes all open files.</p>
+<p>The function <code>unlink(char *name)</code> removes the file name from the file system. It corresponds to the standard library function remove.</p>
+<p><a href="../Solutions/Chapter8/E8-1.html"><strong>Exercise 8-1.</strong></a> Rewrite the program <code>cat</code> from <a href="../Chapter7/7-0.html">Chapter 7</a> using <code>read</code>, <code>write</code>, <code>open</code>, and <code>close</code> instead of their standard library equivalents. Perform experiments to determine the relative speeds of the two versions.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Chapter7/7-8-7.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Chapter8/8-2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Chapter8/8-1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Chapter8/8-4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -175,11 +250,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Chapter7/7-8-7.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Chapter8/8-2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Chapter8/8-1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Chapter8/8-4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
