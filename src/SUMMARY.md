@@ -107,7 +107,7 @@
     - [File Descriptors](Chapter8/8-1.md)                                   Done
     - [Low Level I/O - Read and Write](Chapter8/8-2.md)                     Done
     - [Open, Creat, Close, Unlink](Chapter8/8-3.md)                         Done
-    - [Random Access - Lseek](Chapter8/8-4.md)
+    - [Random Access - Lseek](Chapter8/8-4.md)                              Done
     - [Example - An implementation of Fopen and Getc](Chapter8/8-5.md)
     - [Example - Listing Directories](Chapter8/8-6.md)
     - [Example - A Storage Allocator](Chapter8/8-7.md)

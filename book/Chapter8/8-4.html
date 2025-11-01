@@ -153,6 +153,33 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="random-access---lseek"><a class="header" href="#random-access---lseek">Random Access - Lseek</a></h1>
+<p>Input and output are normally sequential: each read or write takes place at a position in the file right after the previous one. When necessary, however, a file can be read or written in any arbitrary order. The system call <code>lseek</code> provides a way to move around in a file without reading or writing any data:</p>
+<pre><code class="language-c">long lseek(int fd, long offset, int origin);
+</code></pre>
+<p>sets the current position in the file whose descriptor is fd to offset, which is taken relative to
+the location specified by origin. Subsequent reading or writing will begin at that position.
+origin can be 0, 1, or 2 to specify that offset is to be measured from the beginning, from
+the current position, or from the end of the file respectively. For example, to append to a file
+(the redirection <code>&gt;&gt;</code> in the UNIX shell, or "a" for <code>fopen</code>), seek to the end before writing:</p>
+<pre><code class="language-c">lseek(fd, 0L, 2);
+</code></pre>
+<p>To get back to the beginning ("rewind"),</p>
+<pre><code class="language-c">lseek(fd, 0L, 0);
+</code></pre>
+<p>Notice the 0L argument; it could also be written as (long) 0 or just as 0 if <code>lseek</code> is properly declared.</p>
+<p>With <code>lseek</code>, it is possible to treat files more or less like arrays, at the price of slower access. For example, the following function reads any number of bytes from any arbitrary place in a file. It returns the number read, or -1 on error.</p>
+<pre><code class="language-c">#include "syscalls.h"
+
+/* get: read n bytes from position pos */
+int get(int fd, long pos, char *buf, int n)
+{
+    if (lseek(fd, pos, 0) &gt;= 0) /* get to pos */
+        return read(fd, buf, n);
+    else
+        return -1;
+}
+</code></pre>
+<p>The return value from <code>lseek</code> is a long that gives the new position in the file, or -1 if an error occurs. The standard library function <code>fseek</code> is similar to <code>lseek</code> except that the first argument is a FILE * and the return is non-zero if an error occurred.</p>
 
                     </main>
 

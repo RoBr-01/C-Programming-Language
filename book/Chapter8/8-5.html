@@ -153,6 +153,118 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="example---an-implementation-of-fopen-and-getc"><a class="header" href="#example---an-implementation-of-fopen-and-getc">Example - An implementation of Fopen and Getc</a></h1>
+<p>Let us illustrate how some of these pieces fit together by showing an implementation of the standard library routines <code>fopen</code> and <code>getc</code>.</p>
+<p>Recall that files in the standard library are described by file pointers rather than file descriptors. A file pointer is a pointer to a structure that contains several pieces of information about the file: a pointer to a buffer, so the file can be read in large chunks; a count of the number of characters left in the buffer; a pointer to the next character position in the buffer; the file descriptor; and flags describing read/write mode, error status, etc.</p>
+<p>The data structure that describes a file is contained in &lt;stdio.h&gt;, which must be included (by #include) in any source file that uses routines from the standard input/output library. It is also included by functions in that library. In the following excerpt from a typical &lt;stdio.h&gt;, names that are intended for use only by functions of the library begin with an underscore so they are less likely to collide with names in a user's program. This convention is used by all standard library routines.</p>
+<pre><code> #define NULL 0
+ #define EOF (-1)
+ #define BUFSIZ 1024
+ #define OPEN_MAX 20 /* max #files open at once */
+ typedef struct _iobuf {
+ int cnt; /* characters left */
+ char *ptr; /* next character position */
+ char *base; /* location of buffer */
+ int flag; /* mode of file access */
+ int fd; /* file descriptor */
+ } FILE;
+</code></pre>
+<pre><code> extern FILE _iob[OPEN_MAX];
+ #define stdin (&amp;_iob[0])
+ #define stdout (&amp;_iob[1])
+ #define stderr (&amp;_iob[2])
+ enum _flags {
+ _READ = 01, /* file open for reading */
+ _WRITE = 02, /* file open for writing */
+ _UNBUF = 04, /* file is unbuffered */
+ _EOF = 010, /* EOF has occurred on this file */
+ _ERR = 020 /* error occurred on this file */
+ };
+ int _fillbuf(FILE *);
+ int _flushbuf(int, FILE *);
+ #define feof(p) ((p)-&gt;flag &amp; _EOF) != 0)
+ #define ferror(p) ((p)-&gt;flag &amp; _ERR) != 0)
+ #define fileno(p) ((p)-&gt;fd)
+ #define getc(p) (--(p)-&gt;cnt &gt;= 0 \
+ ? (unsigned char) *(p)-&gt;ptr++ : _fillbuf(p))
+ #define putc(x,p) (--(p)-&gt;cnt &gt;= 0 \
+ ? *(p)-&gt;ptr++ = (x) : _flushbuf((x),p))
+ #define getchar() getc(stdin)
+ #define putcher(x) putc((x), stdout)
+</code></pre>
+<p>The getc macro normally decrements the count, advances the pointer, and returns the character. (Recall that a long #define is continued with a backslash.) If the count goes negative, however, getc calls the function _fillbuf to replenish the buffer, re-initialize the structure contents, and return a character. The characters are returned unsigned, which ensures that all characters will be positive.</p>
+<p>Although we will not discuss any details, we have included the definition of putc to show that it operates in much the same way as getc, calling a function _flushbuf when its buffer is full. We have also included macros for accessing the error and end-of-file status and the file descriptor.</p>
+<p>The function fopen can now be written. Most of fopen is concerned with getting the file opened and positioned at the right place, and setting the flag bits to indicate the proper state. fopen does not allocate any buffer space; this is done by _fillbuf when the file is first read.</p>
+<pre><code> #include &lt;fcntl.h&gt;
+ #include "syscalls.h"
+ #define PERMS 0666 /* RW for owner, group, others */
+ FILE *fopen(char *name, char *mode)
+ {
+ int fd;
+ FILE *fp;
+ if (*mode != 'r' &amp;&amp; *mode != 'w' &amp;&amp; *mode != 'a')
+ return NULL;
+ for (fp = _iob; fp &lt; _iob + OPEN_MAX; fp++)
+ if ((fp-&gt;flag &amp; (_READ | _WRITE)) == 0)
+ break; /* found free slot */
+ if (fp &gt;= _iob + OPEN_MAX) /* no free slots */
+ return NULL;
+</code></pre>
+<pre><code> if (*mode == 'w')
+ fd = creat(name, PERMS);
+ else if (*mode == 'a') {
+ if ((fd = open(name, O_WRONLY, 0)) == -1)
+ fd = creat(name, PERMS);
+ lseek(fd, 0L, 2);
+ } else
+ fd = open(name, O_RDONLY, 0);
+ if (fd == -1) /* couldn't access name */
+ return NULL;
+ fp-&gt;fd = fd;
+ fp-&gt;cnt = 0;
+ fp-&gt;base = NULL;
+ fp-&gt;flag = (*mode == 'r') ? _READ : _WRITE;
+ return fp;
+ }
+</code></pre>
+<p>This version of fopen does not handle all of the access mode possibilities of the standard, though adding them would not take much code. In particular, our fopen does not recognize the <code>b'' that signals binary access, since that is meaningless on UNIX systems, nor the </code>+'' that permits both reading and writing.</p>
+<p>The first call to getc for a particular file finds a count of zero, which forces a call of _fillbuf. If _fillbuf finds that the file is not open for reading, it returns EOF immediately. Otherwise, it tries to allocate a buffer (if reading is to be buffered).</p>
+<p>Once the buffer is established, _fillbuf calls read to fill it, sets the count and pointers, and returns the character at the beginning of the buffer. Subsequent calls to _fillbuf will find a buffer allocated.</p>
+<pre><code> #include "syscalls.h"
+ /* _fillbuf: allocate and fill input buffer */
+ int _fillbuf(FILE *fp)
+ {
+ int bufsize;
+ if ((fp-&gt;flag&amp;(_READ|_EOF_ERR)) != _READ)
+ return EOF;
+ bufsize = (fp-&gt;flag &amp; _UNBUF) ? 1 : BUFSIZ;
+ if (fp-&gt;base == NULL) /* no buffer yet */
+ if ((fp-&gt;base = (char *) malloc(bufsize)) == NULL)
+ return EOF; /* can't get buffer */
+ fp-&gt;ptr = fp-&gt;base;
+ fp-&gt;cnt = read(fp-&gt;fd, fp-&gt;ptr, bufsize);
+ if (--fp-&gt;cnt &lt; 0) {
+ if (fp-&gt;cnt == -1)
+ fp-&gt;flag |= _EOF;
+ else
+ fp-&gt;flag |= _ERR;
+ fp-&gt;cnt = 0;
+ return EOF;
+ }
+ return (unsigned char) *fp-&gt;ptr++;
+ }
+</code></pre>
+<p>The only remaining loose end is how everything gets started. The array _iob must be defined and initialized for stdin, stdout and stderr:</p>
+<p>FILE _iob[OPEN_MAX] = { /* stdin, stdout, stderr */</p>
+<pre><code> { 0, (char *) 0, (char *) 0, _READ, 0 },
+ { 0, (char *) 0, (char *) 0, _WRITE, 1 },
+ { 0, (char *) 0, (char *) 0, _WRITE, | _UNBUF, 2 }
+</code></pre>
+<p>};</p>
+<p>The initialization of the flag part of the structure shows that stdin is to be read, stdout is to be written, and stderr is to be written unbuffered.</p>
+<p><strong>Exercise 8-2.</strong> Rewrite fopen and _fillbuf with fields instead of explicit bit operations. Compare code size and execution speed.</p>
+<p><strong>Exercise 8-3.</strong> Design and write _flushbuf, fflush, and fclose.</p>
+<p><strong>Exercise 8-4.</strong> The standard library function</p>
+<p>int fseek(FILE *fp, long offset, int origin) is identical to lseek except that fp is a file pointer instead of a file descriptor and return value is an int status, not a position. Write fseek. Make sure that your fseek coordinates properly with the buffering done for the other functions of the library.</p>
 
                     </main>
 

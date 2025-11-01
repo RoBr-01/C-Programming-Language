@@ -228,7 +228,7 @@ void error(char *fmt, ...)
     exit(1);
 }
 </code></pre>
-<p>There is a limit (often about 20) on the number of files that a program may open simultaneously. Accordingly, any program that intends to process many files must be prepared to re-use file descriptors. The function c<code>lose(int fd)</code> breaks the connection between a file descriptor and an open file, and frees the file descriptor for use with some other file; it corresponds to fclose in the standard library except that there is no buffer to flush. Termination of a program via <code>exit</code> or <code>return</code> from the main program closes all open files.</p>
+<p>There is a limit (often about 20) on the number of files that a program may open simultaneously. Accordingly, any program that intends to process many files must be prepared to re-use file descriptors. The function <code>close(int fd)</code> breaks the connection between a file descriptor and an open file, and frees the file descriptor for use with some other file; it corresponds to fclose in the standard library except that there is no buffer to flush. Termination of a program via <code>exit</code> or <code>return</code> from the main program closes all open files.</p>
 <p>The function <code>unlink(char *name)</code> removes the file name from the file system. It corresponds to the standard library function remove.</p>
 <p><a href="../Solutions/Chapter8/E8-1.html"><strong>Exercise 8-1.</strong></a> Rewrite the program <code>cat</code> from <a href="../Chapter7/7-0.html">Chapter 7</a> using <code>read</code>, <code>write</code>, <code>open</code>, and <code>close</code> instead of their standard library equivalents. Perform experiments to determine the relative speeds of the two versions.</p>
 
